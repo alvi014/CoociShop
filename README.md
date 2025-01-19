@@ -1,2 +1,0 @@
-# CoociShop
-Tienda Virtual Coocique
