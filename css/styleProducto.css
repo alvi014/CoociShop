@@ -1,0 +1,70 @@
+/* Estilo general del contenedor */
+#product-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center; /* Centrar los elementos */
+    gap: 20px; /* Espacio entre las tarjetas */
+}
+
+/* Estilo de las tarjetas */
+.card {
+    width: 100%; /* Asegura que la tarjeta ocupe el ancho del contenedor padre */
+    max-width: 250px; /* Tamaño uniforme */
+    height: 350px; /* Altura fija para todas las tarjetas */
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+    text-align: center;
+}
+
+/* Estilo de la imagen de las tarjetas */
+.card-img-top {
+    height: 150px; /* Altura fija para imágenes */
+    object-fit: cover; /* Asegura que la imagen se ajuste sin distorsión */
+    margin-bottom: 10px;
+}
+
+/* Título de la tarjeta */
+.card-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* Texto de descripción */
+.card-text {
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+    color: #555;
+}
+
+/* Botón de agregar al canasto */
+.card .btn-primary {
+    background-color: #007bff;
+    border: none;
+    padding: 10px 15px;
+    font-size: 0.9rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* Hover en el botón */
+.card .btn-primary:hover {
+    background-color: #0056b3;
+}
+
+/* Espaciado entre las tarjetas en dispositivos pequeños */
+@media (max-width: 576px) {
+    #product-container {
+        gap: 10px;
+    }
+
+    .card {
+        max-width: 100%; /* Ocupa todo el ancho disponible */
+    }
+}
