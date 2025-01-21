@@ -1,0 +1,28 @@
+/* Estilo general del contenedor Productos */
+#product-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Estilo de las tarjetas */
+.card {
+    width: 100%;
+    max-width: 400px; /* Ajusta el tamaño máximo según tus necesidades */
+    margin-bottom: 20px;
+}
+
+/* Imagen de la tarjeta */
+.card-img-top {
+    width: 100%;
+    height: auto;
+}
+
+/* Botón de agregar al carrito */
+.card .btn-primary {
+    background-color: #007bff;
+    border: none;
+    padding: 10px 15px;
+    font-size: 0.9rem;
+    border-radius: 5px;
+}

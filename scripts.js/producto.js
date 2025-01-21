@@ -1,5 +1,3 @@
-
-
 // Lista de productos
 const productos = [
     { id: 1, nombre: 'Alcancía', precio: 1000, descripcion: 'Alcancía plástica para tus ahorros.', imagen: '/img/alcancia.PNG' },
@@ -23,7 +21,7 @@ const productContainer = document.getElementById('product-container');
 // Genera el HTML de cada producto dinámicamente
 productos.forEach(producto => {
     const productCard = `
-        <div class="col-md-4 mb-4">
+        <div class="col mb-4">
             <div class="card">
                 <img src="${producto.imagen}" class="card-img-top" alt="${producto.nombre}">
                 <div class="card-body">
@@ -37,4 +35,3 @@ productos.forEach(producto => {
     `;
     productContainer.innerHTML += productCard;
 });
-

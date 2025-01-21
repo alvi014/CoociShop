@@ -118,32 +118,32 @@ footer {
 
   }
 
-  /* Estilo general del contenedor */
+  /* Estilo general del contenedor Productos */
 #product-container {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center; /* Centrar los elementos */
-    gap: 20px; /* Espacio entre las tarjetas */
+    flex-direction: row; /* Cambiado a row para disposición horizontal */
+    flex-wrap: wrap; /* Permite que los productos se ajusten a múltiples líneas si es necesario */
+    justify-content: center; /* Centra los productos horizontalmente */
+    gap: 20px; /* Espacio entre los productos */
 }
 
 /* Estilo de las tarjetas */
 .card {
-    width: 100%; /* Asegura que la tarjeta ocupe el ancho del contenedor padre */
-    max-width: 250px; /* Tamaño uniforme */
-    height: 350px; /* Altura fija para todas las tarjetas */
-    border: 1px solid #ddd;
-    border-radius: 8px;
+    width: 100%;
+    max-width: 400px; /* Ajusta el tamaño máximo según tus necesidades */
+    margin-bottom: 20px; /* Añade un margen inferior */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    overflow: hidden;
     text-align: center;
+    border-radius: 2em;
 }
 
 /* Estilo de la imagen de las tarjetas */
 .card-img-top {
-    height: 150px; /* Altura fija para imágenes */
+    width: 100%;
+    height: 200px; /* Ajusta la altura según tus necesidades */
     object-fit: cover; /* Asegura que la imagen se ajuste sin distorsión */
     margin-bottom: 10px;
 }
@@ -181,11 +181,12 @@ footer {
 /* Espaciado entre las tarjetas en dispositivos pequeños */
 @media (max-width: 576px) {
     #product-container {
+        flex-direction: column; /* Cambia a columna en dispositivos pequeños */
         gap: 10px;
     }
 
     .card {
-        max-width: 100%; /* Ocupa todo el ancho disponible */
+        max-width: 100%; 
     }
 }
 
@@ -194,14 +195,14 @@ footer {
 /* Contenedor principal */
 .container {
     margin-top: 50px;
-    text-align: center; /* Center the text */
+    text-align: center; 
 }
 
 /* Sección de contacto */
 .contact-section {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center; /* Center the content */
+    justify-content: center;
     gap: 20px;
 }
 
@@ -240,5 +241,5 @@ h1 {
     font-size: 2.5rem;
     text-align: center;
     color: #007bff;
-    background-color: #007bff;
+    
 }
