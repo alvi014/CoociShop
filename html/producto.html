@@ -12,11 +12,28 @@
 
 <body>
     <div id="navbar"></div>
-    <!-- Contenedor de productos -->
-    <div class="container mt-5">
-        <h2 class="text-center mb-4">Nuestros Productos</h2>
-        <div class="row" id="product-container">
-            <!-- Aquí se agregan los productos dinamicamente -->
+    <!-- Contenedor principal -->
+    <div class="container-fluid mt-5 pt-5">
+        <div class="row">
+            <!-- Submenú de Categorías -->
+            <div class="col-md-3 position-fixed">
+                <div class="sticky-top">
+                    <h3>Categorías</h3>
+                    <ul class="list-group">
+                        <li class="list-group-item"><a href="#" class="text-decoration-none categoria" data-categoria="COOCIQUE">COOCIQUE</a></li>
+                        <li class="list-group-item"><a href="#" class="text-decoration-none categoria" data-categoria="COOCIQUE MUJER">COOCIQUE MUJER</a></li>
+                        <li class="list-group-item"><a href="#" class="text-decoration-none categoria" data-categoria="COOCIQUE NG">COOCIQUE NG</a></li>
+                        <li class="list-group-item"><a href="#" class="text-decoration-none categoria" data-categoria="COOCIQUE GD">COOCIQUE GD</a></li>
+                    </ul>
+                </div>
+            </div>
+            <!-- Contenedor de productos -->
+            <div class="col-md-9 offset-md-3">
+                <h2 class="text-center mb-4">Nuestros Productos</h2>
+                <div class="row" id="product-container">
+                    <!-- Aquí se agregan los productos dinamicamente -->
+                </div>
+            </div>
         </div>
     </div>
     <!-- Script de Bootstrap -->

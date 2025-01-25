@@ -2,27 +2,28 @@
 .navbar {
     background-color: #004085;
     border-bottom: 3px solid #1a44fc;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1030;
 }
 
 .nav-link {
-    color:black !important;
+    color: black !important;
     /* font-weight: bold; */
-    text-decoration:lab(from color l a b);
-    
+    text-decoration: lab(from color l a b);
 }
 
 .nav-link:hover {
     color: #328be9 !important;
     text-decoration: underline;
-   
 }
 
 .navbar-brand {
-    color: #0056b3!important;
+    color: #0056b3 !important;
     font-size: 1.5rem;
     font-weight: bold;
 }
-
 
 /* Imagen de Portada */
 .portada img {
@@ -32,7 +33,6 @@
     border-radius: 5px;
     margin-bottom: 20px;
 }
-
 
 /* Categorías de Productos */
 .categoria {
@@ -72,14 +72,15 @@
     font-weight: bold;
     background-color: #fff;
     color: #0056b3;
-    border-color: #0056b3 ;
+    border-color: #0056b3;
     text-decoration: none;
     transition: background-color 0.3s ease;
 }
+
 /* Efectos al pasar puntero sobre botones */
 .btn:hover {
     background-color: #1448b9;
-    color:#f8f9fa
+    color: #f8f9fa;
 }
 
 /* Footer */
@@ -108,86 +109,13 @@ footer {
 }
 
 .btn-custom {
-    background-color:#f8f9fa; /* Color personalizado */
-    border-color: #0056b3 ;
+    background-color: #f8f9fa; /* Color personalizado */
+    border-color: #0056b3;
     color: #0056b3;
     padding: 10px 20px;
     border-radius: 8px;
     font-size: 16px;
     transition: background-color 0.3s ease;
-
-  }
-
-  /* Estilo general del contenedor Productos */
-#product-container {
-    display: flex;
-    flex-direction: row; /* Cambiado a row para disposición horizontal */
-    flex-wrap: wrap; /* Permite que los productos se ajusten a múltiples líneas si es necesario */
-    justify-content: center; /* Centra los productos horizontalmente */
-    gap: 20px; /* Espacio entre los productos */
-}
-
-/* Estilo de las tarjetas */
-.card {
-    width: 100%;
-    max-width: 400px; /* Ajusta el tamaño máximo según tus necesidades */
-    margin-bottom: 20px; /* Añade un margen inferior */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    text-align: center;
-    border-radius: 2em;
-}
-
-/* Estilo de la imagen de las tarjetas */
-.card-img-top {
-    width: 100%;
-    height: 200px; /* Ajusta la altura según tus necesidades */
-    object-fit: cover; /* Asegura que la imagen se ajuste sin distorsión */
-    margin-bottom: 10px;
-}
-
-/* Título de la tarjeta */
-.card-title {
-    font-size: 1.2rem;
-    font-weight: bold;
-    margin-bottom: 10px;
-}
-
-/* Texto de descripción */
-.card-text {
-    font-size: 0.9rem;
-    margin-bottom: 5px;
-    color: #555;
-}
-
-/* Botón de agregar al canasto */
-.card .btn-primary {
-    background-color: #007bff;
-    border: none;
-    padding: 10px 15px;
-    font-size: 0.9rem;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-/* Hover en el botón */
-.card .btn-primary:hover {
-    background-color: #0056b3;
-}
-
-/* Espaciado entre las tarjetas en dispositivos pequeños */
-@media (max-width: 576px) {
-    #product-container {
-        flex-direction: column; /* Cambia a columna en dispositivos pequeños */
-        gap: 10px;
-    }
-
-    .card {
-        max-width: 100%; 
-    }
 }
 
 /* Estilos para la página de contacto */
@@ -195,7 +123,7 @@ footer {
 /* Contenedor principal */
 .container {
     margin-top: 50px;
-    text-align: center; 
+    text-align: center;
 }
 
 /* Sección de contacto */
@@ -241,5 +169,149 @@ h1 {
     font-size: 2.5rem;
     text-align: center;
     color: #007bff;
+}
+
+/********************** Estilo general del contenedor Productos *************/
+#product-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center; /* Centrar los elementos */
+    gap: 20px; /* Espacio entre las tarjetas */
+}
+
+/* Estilo de las tarjetas */
+.card {
+    flex: 1 1 300px; /* Ancho fijo más grande para todas las tarjetas */
+    max-width: 300px; /* Asegura que cada tarjeta tenga un ancho máximo fijo */
+    height: 400px; /* Altura fija más grande para todas las tarjetas */
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+    text-align: center;
+}
+
+/* Estilo de la imagen de las tarjetas */
+.card-img-top {
+    height: 200px; /* Altura fija más grande para imágenes */
+    object-fit: cover; /* Asegura que la imagen se ajuste sin distorsión */
+    margin-bottom: 10px;
+}
+
+/* Título de la tarjeta */
+.card-title {
+    font-size: 1.4rem; /* Tamaño de fuente más grande */
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* Texto de descripción */
+.card-text {
+    font-size: 1rem; /* Tamaño de fuente más grande */
+    margin-bottom: 5px;
+    color: #555;
+}
+
+/* Botón de agregar al canasto */
+.card .btn-primary {
+    background-color: #007bff;
+    border: none;
+    padding: 10px 15px;
+    font-size: 1rem; /* Tamaño de fuente más grande */
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* Hover en el botón */
+.card .btn-primary:hover {
+    background-color:#004085 !important;
+}
+
+/* Espaciado entre las tarjetas en dispositivos pequeños */
+@media (max-width: 576px) {
+    #product-container {
+        flex-direction: column; /* Cambia a columna en dispositivos pequeños */
+        gap: 10px;
+    }
+
+    .card {
+        max-width: 100%;
+    }
+}
+
+/* Responsivo */
+@media (max-width: 1200px) {
+    .card {
+        flex: 1 1 calc(33.33% - 20px); /* 3 columnas en pantallas medianas */
+        max-width: calc(33.33% - 20px);
+    }
+}
+
+@media (max-width: 768px) {
+    .card {
+        flex: 1 1 calc(50% - 20px); /* 2 columnas en pantallas pequeñas */
+        max-width: calc(50% - 20px);
+    }
+}
+
+@media (max-width: 576px) {
+    .card {
+        flex: 1 1 100%; /* 1 columna en pantallas extra pequeñas */
+        max-width: 100%;
+    }
+}
+
+/* Estilo para el submenú de categorías */
+.sticky-top {
+    color: black;
+    padding: 5px 0; /* Aumentar el padding para más espacio */
+    position: -webkit-sticky;
+    position: sticky;
+    top: 100px; /* Ajusta según sea necesario para estar más abajo */
+    z-index: 1020;
+    left: 10px; /* Mover un poco más a la derecha */
+    width: 150%; /* Asegura que el submenú ocupe todo el ancho de la columna */
+    font-size: 1.5rem; /* Texto más grande */
+    font-family: 'Roboto', sans-serif;
+    background-color: transparent; /* Fondo transparente */
+    box-shadow: none; /* Sin sombra */
+    transition: background-color 0.3s ease;
+    border: none; /* Quitar bordes */
+    padding-left: 20px; /* Indentar el submenú */
+}
+
+.position-fixed {
+    position: fixed;
+    margin-top: 1%;   
+    color: black;
+    top: 100px; /* Ajusta según sea necesario para estar más abajo */
+    left: 200px; /* Mover un poco más a la derecha */
+    z-index: 1020; 
+    width: 250px; /* Ancho fijo para el submenú */
+    font-size: 1.5rem; /* Texto más grande */
+    background-color: transparent; /* Fondo transparente */
+    box-shadow: none; /* Sin sombra */
+    margin-bottom: 20px; /* Espacio entre los elementos */
+    border: none; /* Quitar bordes */
+    padding-left: 20px; /* Indentar el submenú */
+}
+
+h3 {
+    font-size: 2.0rem;
+    padding: 20px;
+    text-align: center;
+    color: black;
     
 }
+
+/* Estilo para los elementos de la lista del submenú */
+.list-group-item {
+    border: none; /* Quitar bordes de los elementos de la lista */
+    color: black; /* Letras de color negro */
+}
+
+/****************************************************/
