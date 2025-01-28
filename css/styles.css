@@ -274,7 +274,7 @@ h1 {
     top: 100px; /* Ajusta según sea necesario para estar más abajo */
     z-index: 1020;
     left: 10px; /* Mover un poco más a la derecha */
-    width: 150%; /* Asegura que el submenú ocupe todo el ancho de la columna */
+    width: 200%; /* Asegura que el submenú ocupe todo el ancho de la columna */
     font-size: 1.5rem; /* Texto más grande */
     font-family: 'Roboto', sans-serif;
     background-color: transparent; /* Fondo transparente */

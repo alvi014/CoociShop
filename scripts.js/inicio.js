@@ -15,4 +15,13 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(error => {
             console.error('Error al cargar la barra de navegación:', error);
         });
+
+    const categorias = document.querySelectorAll('.categoria');
+    categorias.forEach(categoria => {
+        categoria.addEventListener('click', (e) => {
+            e.preventDefault();
+            const categoriaSeleccionada = e.target.dataset.categoria;
+            window.location.href = `producto.html?categoria=${categoriaSeleccionada}`;
+        });
+    });
 });
