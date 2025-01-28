@@ -24,4 +24,12 @@ document.addEventListener('DOMContentLoaded', function() {
             window.location.href = `producto.html?categoria=${categoriaSeleccionada}`;
         });
     });
+
+    const imagenesCategorias = document.querySelectorAll('.btn-img');
+    imagenesCategorias.forEach(imagen => {
+        imagen.addEventListener('click', (e) => {
+            const categoriaSeleccionada = e.target.dataset.categoria;
+            window.location.href = `producto.html?categoria=${categoriaSeleccionada}`;
+        });
+    });
 });

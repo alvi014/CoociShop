@@ -16,7 +16,7 @@ const productos = [
     { id: 14, nombre: 'Lápiz Color', precio: 500, descripcion: 'Set de lápices de colores vibrantes.', imagen: '/img/lapicesColor.PNG', categoria: 'COOCIQUE NG' },
     { id: 15, nombre: 'Monedero NG', precio: 1000, descripcion: 'Guardá tú menudillo', imagen: '/img/monederoNG.PNG', categoria: 'COOCIQUE NG' },
     { id: 16, nombre: 'Kit Escolar', precio: 2000, descripcion: 'Set escolar completo', imagen: '/img/setescolar.PNG', categoria: 'COOCIQUE NG' },
-    { id: 17, nombre: 'Chonete', precio: 3000, descripcion: 'Tú acompañante en el campo y fiestas patrias', imagen: '/img/Chonete.PNG', categoria: 'COOCIQUE' },
+    { id: 17, nombre: 'Chonete', precio: 3000, descripcion: 'Tú acompañante en el campo y fiestas patrias.', imagen: '/img/Chonete.PNG', categoria: 'COOCIQUE' },
 ];
 
 // Selecciona el contenedor donde se mostrarán los productos
@@ -31,6 +31,9 @@ function generarProductos(productos) {
 
         const card = document.createElement('div');
         card.className = 'card product-card';
+        card.dataset.bsToggle = 'modal';
+        card.dataset.bsTarget = '#productModal';
+        card.dataset.productId = producto.id;
 
         const img = document.createElement('img');
         img.src = producto.imagen;
@@ -52,14 +55,9 @@ function generarProductos(productos) {
         cardTextPrice.className = 'card-text';
         cardTextPrice.textContent = `Precio: ₡${producto.precio}`;
 
-        const button = document.createElement('button');
-        button.className = 'btn btn-primary';
-        button.textContent = 'Agregar al Canasto';
-
         cardBody.appendChild(cardTitle);
         cardBody.appendChild(cardTextDesc);
         cardBody.appendChild(cardTextPrice);
-        cardBody.appendChild(button);
 
         card.appendChild(img);
         card.appendChild(cardBody);
@@ -93,4 +91,60 @@ categorias.forEach(categoria => {
 const todosProductosBtn = document.getElementById('todos-productos-btn');
 todosProductosBtn.addEventListener('click', () => {
     generarProductos(productos);
+});
+
+// Función para mostrar la vista previa del producto en el modal
+function mostrarVistaPrevia(producto) {
+    const modalTitle = document.getElementById('productModalLabel');
+    const modalBody = document.getElementById('productModalBody');
+
+    modalTitle.textContent = producto.nombre;
+
+    // Limpiar el contenido anterior del modal
+    modalBody.innerHTML = '';
+
+    // Crear y agregar la imagen del producto
+    const img = document.createElement('img');
+    img.src = producto.imagen;
+    img.alt = producto.nombre;
+    img.className = 'img-fluid mb-3';
+    modalBody.appendChild(img);
+
+    // Crear y agregar la descripción del producto
+    const descripcion = document.createElement('p');
+    descripcion.textContent = producto.descripcion;
+    modalBody.appendChild(descripcion);
+
+    // Crear y agregar el precio del producto
+    const precio = document.createElement('p');
+    const strong = document.createElement('strong');
+    strong.textContent = `Precio: ₡${producto.precio}`;
+    precio.appendChild(strong);
+    modalBody.appendChild(precio);
+
+    // Crear y agregar el botón de "Agregar al Canasto"
+    const button = document.createElement('button');
+    button.className = 'btn btn-primary';
+    button.textContent = 'Agregar al Canasto';
+    modalBody.appendChild(button);
+}
+
+// Evento para abrir el modal con la vista previa del producto
+productContainer.addEventListener('click', (e) => {
+    const card = e.target.closest('.card');
+    if (card) {
+        const productId = card.dataset.productId;
+        const producto = productos.find(p => p.id == productId);
+        if (producto) {
+            mostrarVistaPrevia(producto);
+            const modal = new bootstrap.Modal(document.getElementById('productModal'));
+            modal.show();
+        }
+    }
+});
+
+// Evento para cerrar el modal y limpiar su contenido
+document.getElementById('productModal').addEventListener('hidden.bs.modal', () => {
+    const modalBody = document.getElementById('productModalBody');
+    modalBody.innerHTML = '';
 });
