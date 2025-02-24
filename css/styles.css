@@ -49,12 +49,13 @@
     flex-direction: column;
     align-items: center;
     text-align: center;
-    max-width: 200px;
+    max-width: 300px !important; /* Ajusta el ancho máximo */
+    flex: 1 1 300px !important;/* Ajusta el ancho mínimo */
 }
 
 .btn-img {
-    width: 150px;
-    height: auto;
+    width: 100% !important; /* Ajusta el ancho al 100% del contenedor */
+    height: auto !important;
     margin-bottom: 10px;
     border-radius: 10px;
     transition: transform 0.3s ease;
@@ -62,6 +63,17 @@
 
 .btn-img:hover {
     transform: scale(1.1);
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+    .btn-container {
+        max-width: 100% !important; /* Ajusta el ancho máximo al 100% */
+    }
+
+    .btn-img {
+        width: 100% !important; /* Ajusta el ancho al 100% del contenedor */
+    }
 }
 
 .btn {
@@ -267,60 +279,96 @@ h1 {
     }
 }
 
-/* Estilo para el submenú de categorías */
+/* Submenú fijo en pantallas grandes */
 .sticky-top {
     color: black;
-    padding: 5px 0; /* Aumentar el padding para más espacio */
+    padding: 10px 0;
     position: sticky;
-    top: 100px; /* Ajusta según sea necesario para estar más abajo */
+    top: 100px;
     z-index: 1020;
-    left: 10px; /* Mover un poco más a la derecha */
-    width: 180%; /* Asegura que el submenú ocupe todo el ancho de la columna */
-    font-size: 1.5rem; /* Texto más grande */
-    background-color: transparent; /* Fondo transparente */
-    font-weight: lighter;    
+    left: 0;
+    width: 100%;
+    font-size: 1.5rem;
+    background-color: transparent;
+    font-weight: lighter;
     transition: background-color 0.3s ease;
-
-    padding-left: 20px; /* Indentar el submenú */
+    padding-left: 20px;
 }
 
+/* Submenú con posición fija */
+.sticky-top {
+    position: sticky;
+    top: 100px;
+    z-index: 1020;
+    left: 20px;
+    width: 100%;
+    background-color: transparent;
+    padding: 10px 20px;
+    font-size: 1.5rem;
+    font-weight: lighter;
+    transition: background-color 0.3s ease;
+}  
+
+/* Submenú alineado en escritorio */
 .position-fixed {
     position: sticky;
-    margin-top: 1%;   
-    color: black;
-    top: 100px; /* Ajusta según sea necesario para estar más abajo */
-    left: 200px; /* Mover un poco más a la derecha */
-    z-index: 1020; 
-    width: 250px; /* Ancho fijo para el submenú */
-    font-size: 1.5rem; /* Texto más grande */
-    background-color: transparent; /* Fondo transparente */
-    box-shadow: none; /* Sin sombra */
-    margin-bottom: 20px; /* Espacio entre los elementos */
-    border: none; /* Quitar bordes */
-    padding-left: 50px; /* Indentar el submenú */
-    font-weight: lighter;
+    top: 100px; 
+    left: 20px;
+    width: 100px;
+    z-index: 1020;
+    font-size: 1.5rem;
+    background-color: transparent;
+    padding-left: 2000px;
+} 
+/* Estilo para el botón "Todos los Productos" */
+#todos-productos-btn {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    text-align: center;
+    font-weight:lighter; 
+    transition: background-color 0.3s ease;
+}
+/* 
+
+
+/* Estilo para los elementos de la lista del submenú */
+.list-group-item {
+    border: none; /* Quitar bordes de los elementos de la lista */
+    color: black; /* Letras de color negro */
 }
 
+
+/* Ajustes para pantallas pequeñas */
 @media (max-width: 768px) {
-    .position-fixed {
-        position: relative;
-        top: auto;
-        left: auto;
+    #submenu {
+        position: absolute;
+        top: 60px;
+        left: 0;
         width: 100%;
-        padding-left: 0;
-        margin-top: 20px;
+        background-color: rgb(255, 255, 255);
+        padding: 10px;
+        display: none; /* Ocultamos el menú al inicio */
     }
 
-    .sticky-top {
-        position: relative;
-        top: auto;
-        left: auto;
+    /* Evitar que los productos se desplacen */
+    .col-md-9 {
         width: 100%;
-        padding-left: 0;
+        margin-left: 0 !important;
+    }
+
+    /* Espacio extra para los productos cuando el menú está abierto */
+    #product-container {
         margin-top: 20px;
     }
 }
 
+/* Agregar espacio para que los productos no queden tapados */
+#product-container {
+    margin-top: 60px;
+}
+
+/* ************************************************************** */
 h3 {
     font-size: 2.0rem;
     padding: 20px;
@@ -329,13 +377,22 @@ h3 {
     
 }
 
+.titulo-categorias {
+    font-weight: lighter;
+    font-size: 2rem; /* Ajusta el tamaño de la fuente */
+    color: #0056b3; /* Cambia el color de la fuente */
+    margin-bottom: 20px;
+}
+
 /* Estilo para los elementos de la lista del submenú */
 .list-group-item {
     border: none; /* Quitar bordes de los elementos de la lista */
     color: black; /* Letras de color negro */
+    text-align: center; /* Centrar el texto */
 }
 
-/****************************************************/
+
+/*********************Ajustes del Modal Presentar Productos ******************************/
 
 .btn-container a {
     display: flex;

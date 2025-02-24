@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
     <meta charset="UTF-8">
@@ -8,65 +8,77 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/styles.css">
     <link rel="icon" href="/img/iconLog.PNG" type="image/x-icon">
-    <style>
-        /* Estilo para el título de las categorías */
-        .titulo-categorias {
-            font-family: 'Arial', sans-serif; /* Cambia la fuente aquí */
-            font-size: 2rem; /* Ajusta el tamaño de la fuente */
-            font-weight: bold; /* Ajusta el peso de la fuente */
-            color: #0056b3; /* Cambia el color de la fuente */
-            margin-bottom: 20px;
-        }
-    </style>
 </head>
 
 <body>
-    <div id="navbar"></div>
+    <!-- Navbar dinámica -->
+    <div id="navbar-placeholder"></div>
+
     <!-- Contenedor principal -->
     <div class="container-fluid mt-5 pt-5">
         <div class="row">
+            <!-- Botón para mostrar el submenú en dispositivos móviles -->
+            <div class="d-md-none text-center mb-3">
+                <button id="toggle-menu" class="btn btn-primary">☰ Categorías</button>
+            </div>
+
             <!-- Submenú de Categorías -->
-            <div class="col-md-3 position-fixed">
-                <div class="sticky-top">
+            <div class="col-md-3">
+                <div id="submenu" class="sticky-top">
                     <h3 class="titulo-categorias">Categorías</h3>
                     <ul class="list-group">
-                        <li class="list-group-item"><a href="#" class="text-decoration-none categoria" data-categoria="COOCIQUE">COOCIQUE</a></li>
-                        <li class="list-group-item"><a href="#" class="text-decoration-none categoria" data-categoria="COOCIQUE MUJER">COOCIQUE MUJER</a></li>
-                        <li class="list-group-item"><a href="#" class="text-decoration-none categoria" data-categoria="COOCIQUE NG">COOCIQUE NG</a></li>
-                        <li class="list-group-item"><a href="#" class="text-decoration-none categoria" data-categoria="COOCIQUE GD">COOCIQUE GD</a></li>
-                        <li class="list-group-item"><a href="#" id="todos-productos-btn" class="text-decoration-none">TODOS LOS PRODUCTOS</a></li>
+                        <li class="list-group-item"><a href="producto.html?categoria=COOCIQUE" class="text-decoration-none categoria">COOCIQUE</a></li>
+                        <li class="list-group-item"><a href="producto.html?categoria=COOCIQUE MUJER" class="text-decoration-none categoria">COOCIQUE MUJER</a></li>
+                        <li class="list-group-item"><a href="producto.html?categoria=COOCIQUE NG" class="text-decoration-none categoria">COOCIQUE NG</a></li>
+                        <li class="list-group-item"><a href="producto.html?categoria=COOCIQUE GD" class="text-decoration-none categoria">COOCIQUE GD</a></li>
+                        <li class="list-group-item"><a href="producto.html?categoria=TODOS" class="text-decoration-none">TODOS LOS PRODUCTOS</a></li>
                     </ul>
                 </div>
             </div>
+
             <!-- Contenedor de productos -->
-            <div class="col-md-9 offset-md-3">
+            <div class="col-md-9">
                 <h2 class="text-center mb-4">Nuestros Productos</h2>
                 <div class="row" id="product-container">
-                    <!-- Aquí se agregan los productos dinamicamente -->
+                    <!-- Aquí se agregan los productos dinámicamente -->
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal para la vista previa del producto -->
     <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="productModalLabel">Vista Previa del Producto</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body" id="productModalBody">
-                    <!-- Contenido del producto se agregará dinámicamente -->
-                </div>
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="productModalLabel"></h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
+            <div class="modal-body" id="productModalBody">
+              <!-- Aquí se cargará el contenido dinámicamente -->
+            </div>
+          </div>
         </div>
-    </div>
+      </div>
+      
 
-    <!-- Script de Bootstrap -->
-    <script src="/scripts.js/inicio.js"></script>
-    <script src="/scripts.js/producto.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+      
+
+
+    <!-- Cargar navbar dinámicamente -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch("navbar.html")
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById("navbar-placeholder").innerHTML = html;
+                })
+                .catch(error => console.error("Error al cargar la navbar:", error));
+        });
+    </script>
+
+    <!-- Scripts -->
+    <script src="/scripts/producto.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" defer></script>
 </body>
 
 </html>

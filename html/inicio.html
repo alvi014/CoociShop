@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
     <meta charset="UTF-8">
@@ -10,34 +10,9 @@
     <link rel="icon" href="/img/iconLog.PNG" type="image/x-icon">
 </head>
 
-<body> 
-    <!-- Barra de Navegación -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="inicio.html">
-                <img src="/img/logo.PNG" alt="CoociShop Logo">
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="producto.html">Productos</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Carrito</a></li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Información
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="contacto.html">Contacto</a></li>
-                            <li><a class="dropdown-item" href="comoComprar.html">Cómo Comprar</a></li>
-                        </ul>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+<body>
+    <!-- Navbar dinámica -->
+    <div id="navbar-placeholder"></div>
 
     <!-- Imagen de Portada -->
     <div class="portada">
@@ -48,37 +23,35 @@
         <h2 class="text-center mb-4 titulo-categorias">Categorías de Productos</h2>
         <div class="categoria">
             <div class="btn-container">
-                <a href="producto.html?categoria=COOCIQUE" class="btn categoria" data-categoria="COOCIQUE">
-                    <img src="/img/imgCooAzul.PNG" alt="Coocique" class="btn-img categoria">
+                <a href="producto.html?categoria=COOCIQUE" class="btn filtro-categoria" data-categoria="COOCIQUE">
+                    <img src="/img/imgCooAzul.PNG" alt="Coocique" class="btn-img filtro-categoria" data-categoria="COOCIQUE">
                     <span>Coocique</span>
                 </a>
             </div>
             <div class="btn-container">
-                <a href="producto.html?categoria=COOCIQUE MUJER" class="btn categoria" data-categoria="COOCIQUE MUJER">
-                    <img src="/img/imgMujer.PNG" alt="Coocique Mujer" class="btn-img categoria">
+                <a href="producto.html?categoria=COOCIQUE MUJER" class="btn filtro-categoria" data-categoria="COOCIQUE MUJER">
+                    <img src="/img/imgMujer.PNG" alt="Coocique Mujer" class="btn-img filtro-categoria" data-categoria="COOCIQUE MUJER">
                     <span>Coocique Mujer</span>
                 </a>
             </div>
             <div class="btn-container">
-                <a href="producto.html?categoria=COOCIQUE NG" class="btn categoria" data-categoria="COOCIQUE NG">
-                    <img src="/img/imgCoo.PNG" alt="Coocique NG" class="btn-img categoria">
+                <a href="producto.html?categoria=COOCIQUE NG" class="btn filtro-categoria" data-categoria="COOCIQUE NG">
+                    <img src="/img/imgCoo.PNG" alt="Coocique NG" class="btn-img filtro-categoria" data-categoria="COOCIQUE NG">
                     <span>Coocique NG</span>
                 </a>
             </div>
             <div class="btn-container">
-                <a href="producto.html?categoria=COOCIQUE GD" class="btn categoria" data-categoria="COOCIQUE GD">
-                    <img src="/img/imgGD.PNG" alt="Coocique GD" class="btn-img categoria">
+                <a href="producto.html?categoria=COOCIQUE GD" class="btn filtro-categoria" data-categoria="COOCIQUE GD">
+                    <img src="/img/imgGD.PNG" alt="Coocique GD" class="btn-img filtro-categoria" data-categoria="COOCIQUE GD">
                     <span>Coocique GD</span>
                 </a>
             </div>
         </div>
+        
     </div>
-    
 
-   
-        <div class="text-center mt-4">
-            <a href="producto.html?categoria=TODOS" class="btn btn-custom">Ver todos los Productos</a>
-        </div>
+    <div class="text-center mt-4">
+        <a href="producto.html?categoria=TODOS" class="btn btn-custom">Ver todos los Productos</a>
     </div>
 
     <!-- Footer -->
@@ -86,9 +59,24 @@
         <p class="copyright">Todos los derechos reservados ©CoociShop</p>
     </footer>
 
+    <!-- Cargar navbar dinámicamente -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch("navbar.html")
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById("navbar-placeholder").innerHTML = html;
+                })
+                .catch(error => console.error("Error al cargar la navbar:", error));
+        });
+    </script>
+
+    <!-- Scripts -->
     <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
     <script src="script.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/scripts/inicio.js"></script>
+
 </body>
 
 </html>
