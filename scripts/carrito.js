@@ -26,39 +26,33 @@ function mostrarCarrito() {
 
     carrito.forEach(producto => {
         const productRow = document.createElement('div');
-        productRow.className = 'row mb-3';
+        productRow.className = 'carrito-item';
 
         const subtotal = producto.precio * producto.cantidad;
         total += subtotal;
 
         productRow.innerHTML = `
-            <div class="col-4">
-                <img src="${producto.imagen}" class="img-fluid" alt="${producto.nombre}">
-            </div>
-            <div class="col-8">
-                <h5>${producto.nombre}</h5>
+            <img src="${producto.imagen}" alt="${producto.nombre}">
+            <div class="carrito-item-info">
+                <h4>${producto.nombre}</h4>
                 <p>${producto.descripcion}</p>
                 <p><strong>Precio: ₡${producto.precio}</strong></p>
                 <p><strong>Cantidad: ${producto.cantidad}</strong></p>
                 <p><strong>Subtotal: ₡${subtotal}</strong></p>
-                <button class="btn btn-danger btn-sm" data-product-id="${producto.id}">Eliminar</button>
             </div>
+            <button class="btn-eliminar" data-product-id="${producto.id}">Eliminar</button>
         `;
 
         carritoContainer.appendChild(productRow);
     });
 
     const totalRow = document.createElement('div');
-    totalRow.className = 'row mt-3';
-    totalRow.innerHTML = `
-        <div class="col-12 text-end">
-            <h4>Total: ₡${total}</h4>
-        </div>
-    `;
+    totalRow.className = 'carrito-total';
+    totalRow.innerHTML = `Total: ₡${total}`;
     carritoContainer.appendChild(totalRow);
 
     // Agregar eventos a los botones "Eliminar"
-    document.querySelectorAll('.btn-danger').forEach(button => {
+    document.querySelectorAll('.btn-eliminar').forEach(button => {
         button.addEventListener('click', (e) => {
             const productId = e.target.dataset.productId;
             eliminarDelCarrito(productId);
@@ -85,116 +79,28 @@ document.addEventListener('DOMContentLoaded', () => {
     cargarSucursales();
 });
 
-// Función para enviar el pedido por correo electrónico
-document.getElementById('checkout-form').addEventListener('submit', async function(e) {
+// Función para enviar el pedido
+document.getElementById('checkout-form').addEventListener('submit', function(e) {
     e.preventDefault();
 
-    const form = document.getElementById('checkout-form');
-    const formData = new FormData(form);
-
-    // Verificar el tamaño del archivo adjunto
+    const nombreCompleto = document.getElementById('nombre-completo').value;
+    const sucursalEnvio = document.getElementById('sucursal-envio').value;
     const comprobantePago = document.getElementById('comprobante-pago').files[0];
-    if (comprobantePago.size > 5 * 1024 * 1024) { // Limitar a 5MB
-        alert('El archivo adjunto es demasiado grande. Por favor, seleccione un archivo de menos de 5MB.');
-        return;
-    }
 
-    try {
-        // Cargar y autenticar Google API
-        await cargarGoogleAPI();
+    const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+    const productos = carrito.map(producto => `${producto.nombre} (Cantidad: ${producto.cantidad})`).join(', ');
 
-        // Subir archivo a Google Drive
-        const fileLink = await subirArchivoGoogleDrive(comprobantePago);
+    const formData = new FormData();
+    formData.append('nombre_completo', nombreCompleto);
+    formData.append('sucursal_envio', sucursalEnvio);
+    formData.append('productos', productos);
+    formData.append('comprobante_pago', comprobantePago);
 
-        // Agregar los productos y el enlace del archivo al formData
-        const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
-        const productos = carrito.map(producto => `${producto.nombre} (Cantidad: ${producto.cantidad})`).join(', ');
-        formData.append('productos', productos);
-        formData.append('comprobante_link', fileLink);
+    // Aquí puedes agregar el código para enviar el formulario al backend
 
-        // Enviar el formulario por EmailJS
-        await emailjs.sendForm('service_gw9jafq', 'template_3rrw3ht', form);
-
-        // Mostrar mensaje de éxito
-        alert('Pedido enviado con éxito');
-        localStorage.removeItem('carrito');
-        mostrarCarrito();
-        form.reset();
-    } catch (error) {
-        console.error('Error:', error);
-        alert('Hubo un error. Por favor, inténtelo de nuevo.');
-    }
+    alert('Pedido enviado con éxito');
+    localStorage.removeItem('carrito');
+    mostrarCarrito();
+    document.getElementById('checkout-form').reset();
 });
 
-// Cargar y autenticar Google API
-async function cargarGoogleAPI() {
-    return new Promise((resolve, reject) => {
-        gapi.load('client:auth2', async () => {
-            try {
-                await gapi.auth2.init({
-                    client_id: 'YOUR_CLIENT_ID',
-                    scope: 'https://www.googleapis.com/auth/drive.file'
-                });
-                const authInstance = gapi.auth2.getAuthInstance();
-                if (!authInstance.isSignedIn.get()) {
-                    await authInstance.signIn();
-                }
-                await gapi.client.load('drive', 'v3');
-                resolve();
-            } catch (error) {
-                reject('Error en la autenticación de Google Drive: ' + error);
-            }
-        });
-    });
-}
-
-// Subir archivo a Google Drive
-async function subirArchivoGoogleDrive(file) {
-    return new Promise((resolve, reject) => {
-        const boundary = '-------314159265358979323846';
-        const delimiter = "\r\n--" + boundary + "\r\n";
-        const close_delim = "\r\n--" + boundary + "--";
-        const reader = new FileReader();
-
-        reader.readAsBinaryString(file);
-        reader.onload = async function(event) {
-            const contentType = file.type || 'application/octet-stream';
-            const metadata = {
-                name: file.name,
-                mimeType: contentType
-            };
-
-            const multipartRequestBody =
-                delimiter + 'Content-Type: application/json\r\n\r\n' +
-                JSON.stringify(metadata) +
-                delimiter + 'Content-Type: ' + contentType + '\r\n\r\n' +
-                event.target.result + close_delim;
-
-            try {
-                const response = await gapi.client.request({
-                    path: '/upload/drive/v3/files',
-                    method: 'POST',
-                    params: {uploadType: 'multipart'},
-                    headers: {
-                        'Content-Type': 'multipart/related; boundary="' + boundary + '"'
-                    },
-                    body: multipartRequestBody
-                });
-
-                // Obtener ID del archivo subido
-                const fileId = response.result.id;
-                const fileLink = `https://drive.google.com/file/d/${fileId}/view?usp=sharing`;
-
-                // Hacer el archivo accesible públicamente
-                await gapi.client.drive.permissions.create({
-                    fileId: fileId,
-                    resource: {role: 'reader', type: 'anyone'}
-                });
-
-                resolve(fileLink);
-            } catch (error) {
-                reject('Error al subir archivo a Google Drive: ' + error);
-            }
-        };
-    });
-}

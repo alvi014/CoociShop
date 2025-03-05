@@ -61,8 +61,7 @@
       </div>
       
 
-      
-
+    
 
     <!-- Cargar navbar dinámicamente -->
     <script>
@@ -73,6 +72,16 @@
                     document.getElementById("navbar-placeholder").innerHTML = html;
                 })
                 .catch(error => console.error("Error al cargar la navbar:", error));
+        });
+
+        // Script para el botón de categorías en dispositivos móviles
+        document.addEventListener("DOMContentLoaded", function () {
+            const toggleMenuButton = document.getElementById("toggle-menu");
+            const submenu = document.getElementById("submenu");
+
+            toggleMenuButton.addEventListener("click", function () {
+                submenu.classList.toggle("d-none");
+            });
         });
     </script>
 
