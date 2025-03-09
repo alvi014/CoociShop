@@ -5,19 +5,29 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.text())
         .then(html => {
             document.getElementById('navbar-placeholder').innerHTML = html;
-            actualizarCarritoNavbar(); // Llamar la función después de cargar la navbar
+            
+            // ⚠️ Espera a que el DOM de la navbar cargue antes de actualizar el contador
+            setTimeout(() => {
+                actualizarCarritoNavbar();
+            }, 100);
         })
         .catch(error => {
             console.error('Error al cargar la barra de navegación:', error);
         });
 
-    // Función para actualizar el contador del carrito
+    // 📌 Función para actualizar el contador del carrito
     function actualizarCarritoNavbar() {
         let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
-        let contadorCarrito = document.getElementById("cart-count");
-
-        if (contadorCarrito) {
-            contadorCarrito.textContent = carrito.length; // Muestra la cantidad de productos
+        
+        // ⚠️ Esperar a que el elemento exista antes de modificarlo
+        let contadorCarrito = document.querySelector("#cart-count");
+        if (!contadorCarrito) {
+            setTimeout(actualizarCarritoNavbar, 100);
+            return;
         }
+
+        // 🛒 Sumar todas las cantidades en el carrito
+        let totalCantidad = carrito.reduce((total, item) => total + item.cantidad, 0);
+        contadorCarrito.textContent = totalCantidad;
     }
 });

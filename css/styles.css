@@ -10,47 +10,125 @@ body {
 }
 
 /* ===================== */
-/* 📌 Barra de Navegación */
+/* 📌 Barra de Navegación  */
 /* ===================== */
 .navbar {
-    background-color: #004085;
-    border-bottom: 3px solid #1a44fc;
+    background-color: #004085; /* Azul fuerte */
+    border-bottom: 3px solid #1a44fc; /* Línea decorativa */
     position: fixed;
     top: 0;
     width: 100%;
     z-index: 1030;
+    padding: 12px 20px; /* Más espacio */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Sombra suave */
 }
 
-.nav-link {
-    color: black !important;
+/* 📌 Logo */
+.navbar-brand img {
+    height: 50px; /* Ajuste de tamaño */
 }
 
-.nav-link:hover {
-    color: #328be9 !important;
-    text-decoration: underline;
+/* 📌 Links de la barra de navegación */
+.navbar-nav .nav-link {
+    color:#004085 !important; /* Blanco para mejor contraste */
+    font-size: 1.1rem;
+    font-weight: 500;
+    padding: 8px 15px;
+    transition: color 0.3s ease-in-out;
 }
 
-.navbar-brand {
-    color: #0056b3 !important;
-    font-size: 1.5rem;
+/* 📌 Efecto hover */
+.navbar-nav .nav-link:hover {
+    color: #66b3ff !important; /* Azul más claro */
+    text-decoration: none;
+}
+
+/* 📌 Ícono del carrito */
+.navbar-nav .nav-link span.cart-badge {
+    background: #ff3b30; /* Rojo para destacar */
+    color: white;
+    font-size: 0.9rem;
     font-weight: bold;
+    padding: 3px 8px;
+    border-radius: 50%;
+    margin-left: 5px;
 }
+
+/* 📌 Menú desplegable */
+.dropdown-menu {
+    background-color: #004085; /* Fondo azul fuerte */
+    border: none;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.dropdown-menu .dropdown-item {
+    color: white !important;
+    font-size: 1rem;
+    transition: background 0.3s;
+}
+
+.dropdown-menu .dropdown-item:hover {
+    background-color: #1a44fc; /* Azul más llamativo */
+    color: white !important;
+}
+
+/* 📌 Menú en móviles */
+.navbar-toggler {
+    border: none;
+}
+
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml;charset=UTF8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='white' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+}
+
+/* 📌 Ajuste de la imagen de portada para que no sea cortada */
+.portada {
+    margin-top: 80px; /* Para evitar que el navbar la tape */
+}
+
+
 
 /* ===================== */
 /* 📌 Imagen de Portada */
 /* ===================== */
+/* Ajuste para evitar que el navbar cubra la imagen */
 .portada {
     width: 100%;
     text-align: center;
     margin-bottom: 30px; /* Espacio debajo de la portada */
+    margin-top: 70px; /* Ajuste para evitar que se solape con el navbar */
 }
 
 .portada img {
     width: 100%;
-    max-height: 400px;
+    max-height: 450px; /* Aumentamos el tamaño para que se vea mejor */
     object-fit: cover;
     border-radius: 5px;
+    display: block;
 }
+
+.titulo-categorias {
+    font-size: 2rem; /* Aumenta el tamaño */
+    font-weight: bold; /* Hace que se vea más resaltado */
+    color: #007bff; /* Color azul de la marca */
+    text-transform: uppercase; /* Convierte el texto en mayúsculas */
+    letter-spacing: 2px; /* Aumenta el espaciado entre letras */
+    text-align: center;
+    margin-top: 40px; /* Espaciado superior */
+    margin-bottom: 30px; /* Espaciado inferior */
+    position: relative;
+}
+
+.titulo-categorias::after {
+    content: "";
+    display: block;
+    width: 120px; /* Ancho de la línea decorativa */
+    height: 4px; /* Grosor de la línea */
+    background-color: #007bff; /* Mismo color que el título */
+    margin: 10px auto 0; /* Centra la línea debajo del título */
+    border-radius: 2px;
+}
+
 
 /* ===================== */
 /* 🎨 Categorías de Productos menu */
@@ -207,13 +285,16 @@ footer {
 /* ===================== */
 /* 🎨 Estilos para el carrito y productos */
 /* ===================== */
+
 #product-container {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 20px;
+    gap: 20px; /* Espaciado entre productos */
+    padding: 20px;
 }
 
+/* 📌 Tarjeta de producto */
 .product-card {
     border: 1px solid #ddd;
     border-radius: 10px;
@@ -222,23 +303,92 @@ footer {
     flex-direction: column;
     justify-content: space-between;
     text-align: center;
-    height: 100%;
-    margin-bottom: 20px;
+    height: auto;
+    width: 300px;
+    background: white;
+    padding: 15px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease-in-out;
 }
 
 .product-card:hover {
-    transform: scale(1.05);
+    transform: translateY(-5px);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
-/* Imagen de productos */
+/* 📌 Imagen de producto */
 .product-card img {
     width: 100%;
-    height: 200px;
-    object-fit: cover;
+    height: 180px;
+    object-fit: contain;
+    margin-bottom: 10px;
+    border-radius: 8px;
+}
+
+/* 📌 Texto del producto */
+.product-card h5 {
+    font-size: 18px;
+    font-weight: bold;
+    color: #004085;
+}
+
+.product-card p {
+    font-size: 14px;
+    color: #555;
     margin-bottom: 10px;
 }
+
+/* 📌 Botón de detalle */
+.product-card .btn {
+    background-color: #004085;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 5px;
+    font-size: 14px;
+    transition: background 0.3s ease;
+}
+
+.product-card .btn:hover {
+    background-color: #002752;
+}
+
+/* ===================== */
+/* 📌 Responsividad general */
+/* ===================== */
+@media (max-width: 1024px) {
+    #product-container {
+        gap: 15px;
+    }
+    
+    .product-card {
+        width: 280px;
+    }
+}
+
+@media (max-width: 768px) {
+    #product-container {
+        gap: 10px;
+    }
+
+    .product-card {
+        width: calc(50% - 10px);
+    }
+
+    .product-card img {
+        height: 160px;
+    }
+}
+
+@media (max-width: 576px) {
+    .product-card {
+        width: 100%;
+    }
+
+    .product-card img {
+        height: 150px;
+    }
+}
+
 
 /* ===================== */
 /* 📌 Responsividad general */
@@ -270,9 +420,7 @@ footer {
         max-width: 100%;
     }
 }
-/* ===================== */
-/* 🎨 Submenú de Categorías */
-/* ===================== */
+
 /* ===================== */
 /* 🎨 Submenú de Categorías Estilizado */
 /* ===================== */
@@ -510,4 +658,96 @@ footer {
 
 .btn-enviar:hover {
     background-color: #0056b3;
+}
+
+
+ /* Estilo adicional para mejorar el diseño de cómo comprar */
+.como-comprar-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    margin-top: 40px;
+}
+
+.paso {
+    width: 80%;
+    max-width: 600px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out;
+}
+
+.paso:hover {
+    transform: translateY(-5px);
+}
+
+.paso h4 {
+    color: #007bff;
+    font-weight: bold;
+}
+
+.paso p {
+    font-size: 16px;
+    color: #333;
+}   
+
+/* Información de contacto estilo */
+/* Ajustar el espaciado general */
+.contacto-container {
+    margin-top: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.contact-card {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out;
+    width: 100%;
+    max-width: 400px;
+}
+
+.contact-card:hover {
+    transform: translateY(-5px);
+}
+
+.contact-icon {
+    font-size: 40px;
+    color: #007bff;
+}
+
+.contact-card h4 {
+    font-weight: bold;
+    margin-top: 10px;
+    color: #007bff;
+}
+
+.contact-card p {
+    font-size: 16px;
+    color: #333;
+}
+
+/* Ajustar las filas para que se vean organizadas */
+.contact-row {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+/* Centrar el footer */
+footer {
+    margin-top: 50px;
+    padding: 20px;
+    background: #f1f1f1;
 }

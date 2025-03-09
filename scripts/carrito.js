@@ -104,3 +104,16 @@ document.getElementById('checkout-form').addEventListener('submit', function(e) 
     document.getElementById('checkout-form').reset();
 });
 
+function actualizarCarritoNavbar() {
+    let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+    let contadorCarrito = document.getElementById("cart-count");
+    
+    if (contadorCarrito) {
+        contadorCarrito.textContent = carrito.reduce((total, item) => total + item.cantidad, 0);
+    }
+}
+
+// 📌 Agregar contenedor para las notificaciones
+if (!document.getElementById("toast-container")) {
+    document.body.insertAdjacentHTML("beforeend", '<div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 1050;"></div>');
+}
