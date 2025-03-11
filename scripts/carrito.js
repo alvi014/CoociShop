@@ -64,14 +64,25 @@ function mostrarCarrito() {
 function eliminarDelCarrito(productId) {
     let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
     const productoEnCarrito = carrito.find(producto => producto.id == productId);
-    if (productoEnCarrito.cantidad > 1) {
-        productoEnCarrito.cantidad -= 1;
-    } else {
-        carrito = carrito.filter(producto => producto.id != productId);
+
+    if (productoEnCarrito) {
+        if (productoEnCarrito.cantidad > 1) {
+            productoEnCarrito.cantidad -= 1;
+        } else {
+            carrito = carrito.filter(producto => producto.id != productId);
+        }
+
+        // 📌 Actualizar localStorage
+        localStorage.setItem('carrito', JSON.stringify(carrito));
+
+        // 📌 Refrescar la vista del carrito
+        mostrarCarrito();
+
+        // 📌 ACTUALIZAR EL CONTADOR EN LA NAVBAR
+        actualizarCarritoNavbar();
     }
-    localStorage.setItem('carrito', JSON.stringify(carrito));
-    mostrarCarrito();
 }
+
 
 // Mostrar el carrito al cargar la página
 document.addEventListener('DOMContentLoaded', () => {

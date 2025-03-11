@@ -1,8 +1,15 @@
+
 require('dotenv').config();
+console.log("🔍 URI de MongoDB:", process.env.MONGO_URI); // Debe imprimirse correctamente ahora
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
+
+// 📌 Importar modelos correctamente
+const Producto = require('./models/Producto');
+const Pedido = require('./models/Pedido');
 
 // Crear la aplicación de Express
 const app = express();
@@ -12,60 +19,40 @@ const PORT = process.env.PORT || 5000;
 app.use(express.json());
 app.use(cors());
 
+// 📌 Verificar que MONGO_URI se esté cargando
+if (!process.env.MONGO_URI) {
+    console.error("❌ ERROR: No se encontró MONGO_URI en el archivo .env");
+    process.exit(1);
+}
+
+
 // 📌 Conectar a MongoDB Atlas
 mongoose.connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 }).then(() => console.log('✅ Conectado a MongoDB'))
-  .catch(err => console.error('❌ Error al conectar a MongoDB:', err));
-
-// =========================
-// 📌 Definir modelos de MongoDB
-// =========================
-
-// Esquema de Productos
-const productoSchema = new mongoose.Schema({
-    id: Number,
-    nombre: String,
-    precio: Number,
-    descripcion: String,
-    imagen: String,
-    categoria: String
-});
-const Producto = mongoose.model('Producto', productoSchema);
-
-// Esquema de Pedidos
-const pedidoSchema = new mongoose.Schema({
-    nombreCliente: String,
-    sucursal: String,
-    comprobantePago: String,
-    productos: [
-        {
-            id: Number,
-            nombre: String,
-            precio: Number,
-            cantidad: Number
-        }
-    ],
-    total: Number,
-    estado: { type: String, default: 'Pendiente' },
-    fecha: { type: Date, default: Date.now }
-});
-const Pedido = mongoose.model('Pedido', pedidoSchema);
+  .catch(err => {
+      console.error('❌ Error al conectar a MongoDB:', err);
+      process.exit(1);
+  });
 
 // =========================
 // 📌 Rutas de Productos
 // =========================
 
 // Obtener todos los productos
+
 app.get('/api/productos', async (req, res) => {
     try {
         const productos = await Producto.find();
+        console.log("🔍 Productos obtenidos del backend:", productos); // 🚀 Depuración
         res.json(productos);
     } catch (error) {
-        res.status(500).json({ error: 'Error al obtener productos' });
+        console.error("❌ Error al obtener productos:", error);
+        res.status(500).json({ error: 'Error al obtener productos', detalle: error.message });
     }
 });
+
 
 // Obtener un producto por ID
 app.get('/api/productos/:id', async (req, res) => {
@@ -76,77 +63,10 @@ app.get('/api/productos/:id', async (req, res) => {
         }
         res.json(producto);
     } catch (error) {
-        res.status(500).json({ error: 'Error al obtener el producto' });
+        console.error("❌ Error al obtener el producto:", error);
+        res.status(500).json({ error: 'Error al obtener el producto', detalle: error.message });
     }
 });
-
-// =========================
-// 📌 Rutas de Pedidos
-// =========================
-
-// Crear un nuevo pedido
-app.post('/api/pedidos', async (req, res) => {
-    try {
-        const nuevoPedido = new Pedido(req.body);
-        await nuevoPedido.save();
-        
-        // Enviar correo al administrador
-        enviarCorreoAdmin(nuevoPedido);
-        
-        res.status(201).json({ mensaje: 'Pedido registrado correctamente', pedido: nuevoPedido });
-    } catch (error) {
-        res.status(500).json({ error: 'Error al registrar el pedido' });
-    }
-});
-
-// Obtener todos los pedidos (Para el administrador)
-app.get('/api/pedidos', async (req, res) => {
-    try {
-        const pedidos = await Pedido.find();
-        res.json(pedidos);
-    } catch (error) {
-        res.status(500).json({ error: 'Error al obtener los pedidos' });
-    }
-});
-
-// =========================
-// 📌 Función para enviar correo al administrador
-// =========================
-
-const enviarCorreoAdmin = (pedido) => {
-    const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: process.env.EMAIL_ADMIN,
-            pass: process.env.EMAIL_PASS
-        }
-    });
-
-    const mailOptions = {
-        from: process.env.EMAIL_ADMIN,
-        to: process.env.EMAIL_ADMIN,
-        subject: '📦 Nuevo Pedido en CoociShop',
-        html: `
-            <h2>Nuevo Pedido Recibido</h2>
-            <p><strong>Cliente:</strong> ${pedido.nombreCliente}</p>
-            <p><strong>Sucursal:</strong> ${pedido.sucursal}</p>
-            <p><strong>Total:</strong> ₡${pedido.total}</p>
-            <h3>Productos:</h3>
-            <ul>
-                ${pedido.productos.map(p => `<li>${p.cantidad} x ${p.nombre} - ₡${p.precio}</li>`).join('')}
-            </ul>
-            <p>📎 <strong>Comprobante:</strong> ${pedido.comprobantePago}</p>
-        `
-    };
-
-    transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-            console.error('❌ Error al enviar el correo:', error);
-        } else {
-            console.log('📩 Correo enviado:', info.response);
-        }
-    });
-};
 
 // =========================
 // 📌 Iniciar el Servidor
@@ -155,3 +75,4 @@ const enviarCorreoAdmin = (pedido) => {
 app.listen(PORT, () => {
     console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
 });
+

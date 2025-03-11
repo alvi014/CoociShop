@@ -10,9 +10,11 @@ document.addEventListener("DOMContentLoaded", function () {
         .then(html => {
             document.getElementById("navbar-placeholder").innerHTML = html;
 
-            // Inicializar los dropdowns de Bootstrap
-            inicializarBootstrap();
-            actualizarCarritoNavbar();
+            // 📌 Esperar un pequeño tiempo para asegurar que el navbar está en el DOM
+            setTimeout(() => {
+                inicializarBootstrap();
+                actualizarCarritoNavbar(); // ✅ Llamar después de que el navbar esté cargado
+            }, 100);
         })
         .catch(error => console.error("Error al cargar la navbar:", error));
 });
@@ -33,5 +35,11 @@ function actualizarCarritoNavbar() {
     if (contadorCarrito) {
         let totalCantidad = carrito.reduce((total, item) => total + item.cantidad, 0);
         contadorCarrito.textContent = totalCantidad;
+        console.log("✅ Contador actualizado:", totalCantidad); // 🚀 Depuración
+    } else {
+        console.log("⚠️ No se encontró el elemento con id 'cart-count'");
     }
 }
+
+// 📌 Asegurar que el contador también se actualiza cuando se elimina un producto
+document.addEventListener("carritoActualizado", actualizarCarritoNavbar);
