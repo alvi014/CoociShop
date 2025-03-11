@@ -91,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Función para enviar el pedido
-document.getElementById('checkout-form').addEventListener('submit', function(e) {
+document.getElementById('checkout-form').addEventListener('submit', async function (e) {
     e.preventDefault();
 
     const nombreCompleto = document.getElementById('nombre-completo').value;
@@ -99,21 +99,54 @@ document.getElementById('checkout-form').addEventListener('submit', function(e) 
     const comprobantePago = document.getElementById('comprobante-pago').files[0];
 
     const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
-    const productos = carrito.map(producto => `${producto.nombre} (Cantidad: ${producto.cantidad})`).join(', ');
+
+    if (carrito.length === 0) {
+        alert("❌ No hay productos en el carrito.");
+        return;
+    }
+
+    const pedido = {
+        nombreCliente: nombreCompleto,
+        sucursal: sucursalEnvio,
+        productos: carrito.map(producto => ({
+            id: producto.id,
+            nombre: producto.nombre,
+            precio: producto.precio,
+            cantidad: producto.cantidad
+        })),
+        total: carrito.reduce((acc, producto) => acc + producto.precio * producto.cantidad, 0)
+    };
 
     const formData = new FormData();
-    formData.append('nombre_completo', nombreCompleto);
-    formData.append('sucursal_envio', sucursalEnvio);
-    formData.append('productos', productos);
-    formData.append('comprobante_pago', comprobantePago);
+    formData.append('nombreCliente', pedido.nombreCliente);
+    formData.append('sucursal', pedido.sucursal);
+    formData.append('productos', JSON.stringify(pedido.productos));
+    formData.append('total', pedido.total);
+    formData.append('comprobantePago', comprobantePago);
 
-    // Aquí puedes agregar el código para enviar el formulario al backend
+    // 📌 Enviar pedido al backend
+    try {
+        const response = await fetch("https://coocishop.onrender.com/api/pedidos", {
+            method: "POST",
+            body: formData
+        });
 
-    alert('Pedido enviado con éxito');
-    localStorage.removeItem('carrito');
-    mostrarCarrito();
-    document.getElementById('checkout-form').reset();
+        const data = await response.json();
+
+        if (response.ok) {
+            alert("✅ Pedido enviado con éxito.");
+            localStorage.removeItem('carrito');
+            mostrarCarrito();
+            document.getElementById('checkout-form').reset();
+        } else {
+            alert(`❌ Error al enviar pedido: ${data.error || 'Error desconocido'}`);
+        }
+    } catch (error) {
+        console.error("❌ Error al enviar pedido:", error);
+        alert("❌ Hubo un problema con el servidor.");
+    }
 });
+
 
 function actualizarCarritoNavbar() {
     let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
