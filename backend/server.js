@@ -70,7 +70,7 @@ app.get('/api/productos/:id', async (req, res) => {
 // =========================
 // 📌 Función para enviar correos
 // =========================
-const enviarCorreoAdmin = (pedido) => {
+const enviarCorreoAdmin = (pedido, comprobante) => {
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -79,7 +79,7 @@ const enviarCorreoAdmin = (pedido) => {
         }
     });
 
-    // 📌 Construir HTML del correo con imágenes
+    // 📌 Construir HTML del correo con imágenes de los productos
     let productosHTML = pedido.productos.map(p => `
         <tr>
             <td><img src="${p.imagen}" alt="${p.nombre}" width="100" style="border-radius: 8px;"></td>
@@ -89,6 +89,24 @@ const enviarCorreoAdmin = (pedido) => {
             <td>₡${p.cantidad * p.precio}</td>
         </tr>
     `).join('');
+
+    // 📌 Mostrar comprobante en el correo si es una imagen
+    let comprobanteHTML = "";
+    if (comprobante) {
+        const fileExtension = comprobante.originalname.split('.').pop().toLowerCase();
+        if (["jpg", "jpeg", "png"].includes(fileExtension)) {
+            // 📌 Mostrar la imagen en el correo
+            const imageBase64 = comprobante.buffer.toString('base64');
+            comprobanteHTML = `<p><strong>📎 Comprobante:</strong> <br>
+                <img src="data:image/${fileExtension};base64,${imageBase64}" width="300" style="border:1px solid #ddd; border-radius: 8px;">
+            </p>`;
+        } else {
+            // 📌 Mostrar enlace de descarga si es PDF
+            comprobanteHTML = `<p><strong>📎 Comprobante:</strong> <br>
+                <a href="cid:comprobanteAdjunto" download="${comprobante.originalname}">Descargar Comprobante</a>
+            </p>`;
+        }
+    }
 
     const mailOptions = {
         from: process.env.EMAIL_ADMIN,
@@ -116,11 +134,12 @@ const enviarCorreoAdmin = (pedido) => {
                 </tbody>
             </table>
 
-            <p>📎 <strong>Comprobante:</strong> ${pedido.comprobantePago ? 'Adjunto' : 'No adjunto'}</p>
+            ${comprobanteHTML}
         `,
-        attachments: pedido.comprobantePago ? [{
-            filename: pedido.comprobantePago.originalname,
-            content: pedido.comprobantePago.buffer
+        attachments: comprobante ? [{
+            filename: comprobante.originalname,
+            content: comprobante.buffer,
+            cid: "comprobanteAdjunto"
         }] : []
     };
 
