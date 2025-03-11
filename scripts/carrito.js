@@ -145,6 +145,7 @@ document.getElementById('checkout-form').addEventListener('submit', async functi
         console.error("❌ Error al enviar pedido:", error);
         alert("❌ Hubo un problema con el servidor.");
     }
+    actualizarCarritoNavbar();
 });
 
 
