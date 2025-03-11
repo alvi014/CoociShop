@@ -70,7 +70,7 @@ app.get('/api/productos/:id', async (req, res) => {
 // =========================
 // 📌 Función para enviar correos
 // =========================
-const enviarCorreoAdmin = (pedido, comprobante) => {
+const enviarCorreoAdmin = (pedido) => {
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -79,24 +79,48 @@ const enviarCorreoAdmin = (pedido, comprobante) => {
         }
     });
 
+    // 📌 Construir HTML del correo con imágenes
+    let productosHTML = pedido.productos.map(p => `
+        <tr>
+            <td><img src="${p.imagen}" alt="${p.nombre}" width="100" style="border-radius: 8px;"></td>
+            <td>${p.nombre}</td>
+            <td>${p.cantidad}</td>
+            <td>₡${p.precio}</td>
+            <td>₡${p.cantidad * p.precio}</td>
+        </tr>
+    `).join('');
+
     const mailOptions = {
         from: process.env.EMAIL_ADMIN,
         to: process.env.EMAIL_ADMIN,
         subject: '📦 Nuevo Pedido en CoociShop',
         html: `
-            <h2>Nuevo Pedido Recibido</h2>
+            <h2 style="color: #333;">📦 Nuevo Pedido Recibido</h2>
             <p><strong>Cliente:</strong> ${pedido.nombreCliente}</p>
             <p><strong>Sucursal:</strong> ${pedido.sucursal}</p>
-            <p><strong>Total:</strong> ₡${pedido.total}</p>
-            <h3>Productos:</h3>
-            <ul>
-                ${pedido.productos.map(p => `<li>${p.cantidad} x ${p.nombre} - ₡${p.precio}</li>`).join('')}
-            </ul>
-            <p>📎 <strong>Comprobante:</strong> ${comprobante ? 'Adjunto' : 'No adjunto'}</p>
+            <p><strong>Total:</strong> <span style="color: green; font-size: 18px;">₡${pedido.total}</span></p>
+            
+            <h3>🛒 Productos:</h3>
+            <table style="border-collapse: collapse; width: 100%; text-align: left;">
+                <thead>
+                    <tr style="background-color: #f2f2f2;">
+                        <th>Imagen</th>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Precio</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${productosHTML}
+                </tbody>
+            </table>
+
+            <p>📎 <strong>Comprobante:</strong> ${pedido.comprobantePago ? 'Adjunto' : 'No adjunto'}</p>
         `,
-        attachments: comprobante ? [{
-            filename: comprobante.originalname,
-            content: comprobante.buffer
+        attachments: pedido.comprobantePago ? [{
+            filename: pedido.comprobantePago.originalname,
+            content: pedido.comprobantePago.buffer
         }] : []
     };
 
@@ -108,6 +132,7 @@ const enviarCorreoAdmin = (pedido, comprobante) => {
         }
     });
 };
+
 
 // =========================
 // 📌 Ruta para registrar pedidos
