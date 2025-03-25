@@ -745,9 +745,65 @@ footer {
     width: 100%;
 }
 
-/* Centrar el footer */
-footer {
-    margin-top: 50px;
-    padding: 20px;
-    background: #f1f1f1;
+/* Asegurar que solo la página de login tenga estos estilos */
+/* Asegurar que el body ocupe toda la pantalla y esté centrado */
+.admin-login {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background: url('/img/bg-login.jpg') no-repeat center center fixed;
+    background-size: cover;
+    position: relative;
+}
+
+/* Estilos para el Navbar */
+#navbar-placeholder {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+/* Contenedor del formulario */
+.login-container {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    top: 60px; /* Ajuste para que el formulario no se solape con el navbar */
+}
+
+/* Logo */
+.login-logo {
+    width: 80px;
+    margin-bottom: 15px;
+}
+
+/* Botón */
+.btn-primary {
+    background-color: #007bff;
+    border: none;
+    font-size: 18px;
+    padding: 10px;
+    transition: background 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+/* Campos de entrada */
+.form-control {
+    border-radius: 5px;
 }

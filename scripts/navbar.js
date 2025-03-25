@@ -41,5 +41,37 @@ function actualizarCarritoNavbar() {
     }
 }
 
+
 // 📌 Asegurar que el contador también se actualiza cuando se elimina un producto
 document.addEventListener("carritoActualizado", actualizarCarritoNavbar);
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    const navbarPlaceholder = document.getElementById("navbar-placeholder");
+    const token = localStorage.getItem("adminToken");
+
+    const navItem = document.createElement("li");
+    navItem.classList.add("nav-item");
+
+    if (token) {
+        // Si el usuario es admin, mostrar el botón de Administración
+        navItem.innerHTML = `<a href="/admin.html" class="nav-link">Administrar</a>`;
+        
+        // Agregar botón de "Cerrar Sesión"
+        const logoutItem = document.createElement("li");
+        logoutItem.classList.add("nav-item");
+        logoutItem.innerHTML = `<a href="#" class="nav-link" id="logout">Cerrar Sesión</a>`;
+        navbarPlaceholder.appendChild(navItem);
+        navbarPlaceholder.appendChild(logoutItem);
+
+        // Evento para cerrar sesión
+        logoutItem.addEventListener("click", function () {
+            localStorage.removeItem("adminToken");
+            window.location.reload(); // Recargar la página para reflejar cambios
+        });
+    } else {
+        // Si no está autenticado, mostrar el botón de Login
+        navItem.innerHTML = `<a href="/admin_login.html" class="nav-link">Iniciar Sesión</a>`;
+        navbarPlaceholder.appendChild(navItem);
+    }
+});

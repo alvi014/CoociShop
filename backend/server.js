@@ -8,32 +8,46 @@ const cors = require('cors');
 const nodemailer = require('nodemailer');
 const multer = require('multer');
 
-const Producto = require('./models/Producto');
-const Pedido = require('./models/Pedido');
-
-const app = express();
-const PORT = process.env.PORT || 5000;
-
-// 📌 Middleware
-app.use(express.json());
-app.use(cors());
-
-// 📌 Configurar `multer` para manejar archivos
-const upload = multer({ storage: multer.memoryStorage() });
-
-// 📌 Verificar variables de entorno
+// 📌 Verificar variables de entorno antes de continuar
 if (!process.env.MONGO_URI) {
     console.error("❌ ERROR: No se encontró MONGO_URI en el archivo .env");
     process.exit(1);
 }
 
-// 📌 Conectar a MongoDB Atlas
+// 📌 Conectar a MongoDB antes de importar modelos
 mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log('✅ Conectado a MongoDB'))
     .catch(err => {
         console.error('❌ Error al conectar a MongoDB:', err);
         process.exit(1);
     });
+
+// 📌 Importar modelos después de la conexión
+const Producto = require('./models/Producto');
+const Pedido = require('./models/Pedido');
+
+// 📌 Crear la aplicación de Express
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+// 📌 Configurar `multer` para manejar archivos
+const upload = multer({ storage: multer.memoryStorage() });
+
+// 📌 Importar rutas de autenticación y administración
+const authRoutes = require("./routes/auth");
+// 📌 Usar rutas de autenticación
+app.use("/api/auth", authRoutes); 
+const adminRoutes = require("./routes/adminRoutes");
+
+// 📌 Middleware
+app.use(express.json());
+app.use(cors());
+
+
+
+
+// 📌 Usar rutas protegidas para administradores
+app.use("/api/admin", adminRoutes);
 
 // =========================
 // 📌 Rutas de Productos
@@ -53,10 +67,15 @@ app.get('/api/productos', async (req, res) => {
     }
 });
 
-// 📌 Ruta para obtener un producto por ID
+// 📌 Ruta para obtener un producto por ID personalizado
 app.get('/api/productos/:id', async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+        return res.status(400).json({ error: 'ID inválido, debe ser un número.' });
+    }
+
     try {
-        const producto = await Producto.findOne({ id: parseInt(req.params.id) });
+        const producto = await Producto.findOne({ id: id });
         if (!producto) {
             return res.status(404).json({ error: 'Producto no encontrado' });
         }
@@ -66,6 +85,7 @@ app.get('/api/productos/:id', async (req, res) => {
         res.status(500).json({ error: 'Error al obtener el producto', detalle: error.message });
     }
 });
+
 
 // =========================
 // 📌 Función para enviar correos
@@ -79,7 +99,6 @@ const enviarCorreoAdmin = (pedido, comprobante) => {
         }
     });
 
-    // 📌 Construir HTML del correo con imágenes de los productos
     let productosHTML = pedido.productos.map(p => `
         <tr>
             <td><img src="${p.imagen}" alt="${p.nombre}" width="100" style="border-radius: 8px;"></td>
@@ -90,18 +109,15 @@ const enviarCorreoAdmin = (pedido, comprobante) => {
         </tr>
     `).join('');
 
-    // 📌 Mostrar comprobante en el correo si es una imagen
     let comprobanteHTML = "";
     if (comprobante) {
         const fileExtension = comprobante.originalname.split('.').pop().toLowerCase();
         if (["jpg", "jpeg", "png"].includes(fileExtension)) {
-            // 📌 Mostrar la imagen en el correo
             const imageBase64 = comprobante.buffer.toString('base64');
             comprobanteHTML = `<p><strong>📎 Comprobante:</strong> <br>
                 <img src="data:image/${fileExtension};base64,${imageBase64}" width="300" style="border:1px solid #ddd; border-radius: 8px;">
             </p>`;
         } else {
-            // 📌 Mostrar enlace de descarga si es PDF
             comprobanteHTML = `<p><strong>📎 Comprobante:</strong> <br>
                 <a href="cid:comprobanteAdjunto" download="${comprobante.originalname}">Descargar Comprobante</a>
             </p>`;
@@ -133,7 +149,6 @@ const enviarCorreoAdmin = (pedido, comprobante) => {
                     ${productosHTML}
                 </tbody>
             </table>
-
             ${comprobanteHTML}
         `,
         attachments: comprobante ? [{
@@ -152,7 +167,6 @@ const enviarCorreoAdmin = (pedido, comprobante) => {
     });
 };
 
-
 // =========================
 // 📌 Ruta para registrar pedidos
 // =========================
@@ -160,7 +174,6 @@ app.post('/api/pedidos', upload.single('comprobantePago'), async (req, res) => {
     try {
         console.log("📩 Pedido recibido en el backend:", req.body);
 
-        // 📌 Validar si `productos` viene como JSON string y convertirlo a objeto
         let productos;
         try {
             productos = JSON.parse(req.body.productos);
@@ -178,8 +191,6 @@ app.post('/api/pedidos', upload.single('comprobantePago'), async (req, res) => {
         });
 
         await nuevoPedido.save();
-        
-        // 📌 Enviar notificación al administrador
         enviarCorreoAdmin(nuevoPedido, req.file);
 
         console.log("✅ Pedido guardado y correo enviado.");
@@ -203,3 +214,104 @@ app.use((req, res) => {
 app.listen(PORT, () => {
     console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
 });
+
+
+/// Por Implementar
+// app.post('/api/productos', async (req, res) => {
+//     try {
+//         const { id, nombre, precio, descripcion, imagen, categoria } = req.body;
+
+//         // Validar que todos los campos estén completos
+//         if (!id || !nombre || !precio || !descripcion || !imagen || !categoria) {
+//             return res.status(400).json({ error: "Todos los campos son obligatorios" });
+//         }
+
+//         const nuevoProducto = new Producto({
+//             id,
+//             nombre,
+//             precio,
+//             descripcion,
+//             imagen,
+//             categoria
+//         });
+
+//         await nuevoProducto.save();
+//         res.status(201).json({ mensaje: "✅ Producto agregado con éxito", producto: nuevoProducto });
+//     } catch (error) {
+//         console.error("❌ Error al agregar producto:", error);
+//         res.status(500).json({ error: "Error al agregar producto", detalle: error.message });
+//     }
+// });
+
+// Probar la API con Postman o fetch
+// fetch("https://coocishop.onrender.com/api/productos", {
+//     method: "POST",
+//     headers: { "Content-Type": "application/json" },
+//     body: JSON.stringify({
+//         id: 99, // Asegúrate de que no se repita
+//         nombre: "Producto Nuevo",
+//         precio: 1500,
+//         descripcion: "Descripción del nuevo producto",
+//         imagen: "/img/nuevo_producto.png",
+//         categoria: "Nueva Categoría"
+//     })
+// })
+// .then(res => res.json())
+// .then(data => console.log(data))
+// .catch(err => console.error("Error:", err));
+
+// // Eliminar un producto por ID
+// app.delete('/api/productos/:id', async (req, res) => {
+//     try {
+//         const producto = await Producto.findOneAndDelete({ id: parseInt(req.params.id) });
+
+//         if (!producto) {
+//             return res.status(404).json({ error: "Producto no encontrado" });
+//         }
+
+//         res.json({ mensaje: "✅ Producto eliminado con éxito", producto });
+//     } catch (error) {
+//         console.error("❌ Error al eliminar producto:", error);
+//         res.status(500).json({ error: "Error al eliminar producto", detalle: error.message });
+//     }
+// });
+// //Como eliminar un producto con fetch|
+// fetch("https://coocishop.onrender.com/api/productos/99", {
+//     method: "DELETE"
+// })
+// .then(res => res.json())
+// .then(data => console.log(data))
+// .catch(err => console.error("Error:", err));
+
+
+// //Editar un producto por ID
+// app.put('/api/productos/:id', async (req, res) => {
+//     try {
+//         const productoActualizado = await Producto.findOneAndUpdate(
+//             { id: parseInt(req.params.id) },
+//             req.body, // Actualizar solo los datos enviados
+//             { new: true }
+//         );
+
+//         if (!productoActualizado) {
+//             return res.status(404).json({ error: "Producto no encontrado" });
+//         }
+
+//         res.json({ mensaje: "✅ Producto actualizado con éxito", producto: productoActualizado });
+//     } catch (error) {
+//         console.error("❌ Error al actualizar producto:", error);
+//         res.status(500).json({ error: "Error al actualizar producto", detalle: error.message });
+//     }
+// });
+// //Como editar un producto con put
+// fetch("https://coocishop.onrender.com/api/productos/99", {
+//     method: "PUT",
+//     headers: { "Content-Type": "application/json" },
+//     body: JSON.stringify({
+//         nombre: "Producto Modificado",
+//         precio: 2000
+//     })
+// })
+// .then(res => res.json())
+// .then(data => console.log(data))
+// .catch(err => console.error("Error:", err));

@@ -105,16 +105,30 @@ document.getElementById('checkout-form').addEventListener('submit', async functi
         return;
     }
 
+    // Validar que los productos tengan datos válidos
+    const productosValidos = carrito.filter(producto =>
+        producto.id && producto.nombre && !isNaN(Number(producto.precio)) && !isNaN(Number(producto.cantidad))
+    );
+
+    if (productosValidos.length === 0) {
+        alert("❌ Hay productos inválidos en el carrito. Por favor elimínalos.");
+        return;
+    }
+
+    const total = productosValidos.reduce((acc, producto) => {
+        return acc + (Number(producto.precio) * Number(producto.cantidad));
+    }, 0);
+
     const pedido = {
         nombreCliente: nombreCompleto,
         sucursal: sucursalEnvio,
-        productos: carrito.map(producto => ({
+        productos: productosValidos.map(producto => ({
             id: producto.id,
             nombre: producto.nombre,
-            precio: producto.precio,
-            cantidad: producto.cantidad
+            precio: Number(producto.precio),
+            cantidad: Number(producto.cantidad)
         })),
-        total: carrito.reduce((acc, producto) => acc + producto.precio * producto.cantidad, 0)
+        total
     };
 
     const formData = new FormData();
@@ -124,7 +138,6 @@ document.getElementById('checkout-form').addEventListener('submit', async functi
     formData.append('total', pedido.total);
     formData.append('comprobantePago', comprobantePago);
 
-    // 📌 Enviar pedido al backend
     try {
         const response = await fetch("https://coocishop.onrender.com/api/pedidos", {
             method: "POST",
@@ -145,6 +158,7 @@ document.getElementById('checkout-form').addEventListener('submit', async functi
         console.error("❌ Error al enviar pedido:", error);
         alert("❌ Hubo un problema con el servidor.");
     }
+
     actualizarCarritoNavbar();
 });
 

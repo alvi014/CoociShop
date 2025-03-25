@@ -86,25 +86,35 @@ async function mostrarVistaPrevia(productoId) {
     }
 }
 
-// 📌 Agregar producto al carrito
+// función de agregar al carrito
 function agregarAlCarrito(productoId) {
-    const cantidad = parseInt(document.getElementById('cantidadProducto').value);
-    if (cantidad <= 0) {
+    if (!productoId || isNaN(productoId)) {
+        mostrarNotificacion("error", "ID de producto inválido.");
+        return;
+    }
+
+    const cantidadInput = document.getElementById('cantidadProducto');
+    const cantidad = parseInt(cantidadInput?.value);
+    
+    if (isNaN(cantidad) || cantidad <= 0) {
         mostrarNotificacion("error", "Ingrese una cantidad válida.");
         return;
     }
 
     fetch(`http://localhost:5000/api/productos/${productoId}`)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) throw new Error("No se pudo obtener el producto.");
+            return response.json();
+        })
         .then(producto => {
-            if (!producto) {
-                mostrarNotificacion("error", "Producto no encontrado.");
+            if (!producto || !producto.id) {
+                mostrarNotificacion("error", "Producto no encontrado o ID inválido.");
                 return;
             }
 
             let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
-            let productoEnCarrito = carrito.find(p => p.id === productoId);
-            
+            let productoEnCarrito = carrito.find(p => p.id === producto.id);
+
             if (productoEnCarrito) {
                 productoEnCarrito.cantidad += cantidad;
             } else {
@@ -118,8 +128,12 @@ function agregarAlCarrito(productoId) {
             const modalElement = document.getElementById('productModal');
             bootstrap.Modal.getInstance(modalElement).hide();
         })
-        .catch(error => console.error("❌ Error al agregar al carrito:", error));
+        .catch(error => {
+            console.error("❌ Error al agregar al carrito:", error);
+            mostrarNotificacion("error", error.message);
+        });
 }
+
 
 // 📌 Mostrar notificación visual
 function mostrarNotificacion(tipo, mensaje) {
