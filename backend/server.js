@@ -35,19 +35,35 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 // 📌 Importar rutas de autenticación y administración
 const authRoutes = require("./routes/auth");
-// 📌 Usar rutas de autenticación
-app.use("/api/auth", authRoutes); 
 const adminRoutes = require("./routes/adminRoutes");
 
 // 📌 Middleware
+app.use(cors({
+    origin: allowedOrigins,
+    credentials: true
+  }));
+
 app.use(express.json());
-app.use(cors());
+const allowedOrigins = [
+    "http://localhost:5500",         // si usas Live Server
+    "http://127.0.0.1:5500",         // acceso directo
+    "https://coocishop.onrender.com" // producción (opcional)
+  ];
+  
+ 
 
-
+// 📌 Usar rutas de autenticación
+app.use("/api/auth", authRoutes); 
 
 
 // 📌 Usar rutas protegidas para administradores
 app.use("/api/admin", adminRoutes);
+
+
+app.get("/api/ping", (req, res) => {
+    res.json({ message: "🟢 Backend en línea" });
+  });
+  
 
 // =========================
 // 📌 Rutas de Productos
