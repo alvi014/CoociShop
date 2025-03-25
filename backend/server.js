@@ -38,18 +38,24 @@ const authRoutes = require("./routes/auth");
 const adminRoutes = require("./routes/adminRoutes");
 
 // 📌 Middleware
+const allowedOrigins = [
+    "http://127.0.0.1:5500",
+    "http://localhost:5500",
+    "https://coocishop.onrender.com"
+];
+
 app.use(cors({
-    origin: allowedOrigins,
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error("❌ CORS no permitido para este origen"));
+        }
+    },
     credentials: true
-  }));
+}));
 
 app.use(express.json());
-const allowedOrigins = [
-    "http://localhost:5500",         // si usas Live Server
-    "http://127.0.0.1:5500",         // acceso directo
-    "https://coocishop.onrender.com" // producción (opcional)
-  ];
-  
  
 
 // 📌 Usar rutas de autenticación
