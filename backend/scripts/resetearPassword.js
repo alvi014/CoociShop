@@ -1,4 +1,4 @@
-require("dotenv").config();
+require("dotenv").config({ path: "../.env" });
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const Admin = require("../models/Admin");
@@ -14,7 +14,7 @@ mongoose.connect(process.env.MONGO_URI, {
 
 const resetearPassword = async () => {
     const email = "alvarovictor06@gmail.com";
-    const nuevaPassword = "alvi014";
+    const nuevaPassword = "alvaro4605";
 
     try {
         const admin = await Admin.findOne({ email });
@@ -30,6 +30,8 @@ const resetearPassword = async () => {
 
         await admin.save();
         console.log("✅ Contraseña reseteada correctamente");
+        console.log("🧪 URI usada:", process.env.MONGO_URI);
+
     } catch (err) {
         console.error("❌ Error al resetear:", err);
     } finally {

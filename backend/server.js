@@ -39,22 +39,23 @@ const adminRoutes = require("./routes/adminRoutes");
 
 // 📌 Middleware
 const allowedOrigins = [
-    "http://127.0.0.1:5500",
     "http://localhost:5500",
+    "http://127.0.0.1:5500",
     "https://coocishop.onrender.com"
-];
-
-app.use(cors({
+  ];
+  
+  app.use(cors({
     origin: function (origin, callback) {
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error("❌ CORS no permitido para este origen"));
-        }
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.log("❌ CORS bloqueado para:", origin);
+        callback(new Error("CORS no permitido"));
+      }
     },
     credentials: true
-}));
-
+  }));
+  
 app.use(express.json());
  
 
