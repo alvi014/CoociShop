@@ -14,7 +14,7 @@ mongoose.connect(process.env.MONGO_URI, {
 
 const resetearPassword = async () => {
     const email = "alvarovictor06@gmail.com";
-    const nuevaPassword = "alvi014";
+    const nuevaPassword = "alvaro4605";
     const hashedPassword = await bcrypt.hash(nuevaPassword, 10);
 
     try {
