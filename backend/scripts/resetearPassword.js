@@ -8,30 +8,32 @@ mongoose.connect(process.env.MONGO_URI, {
     useUnifiedTopology: true
 }).then(() => console.log("✅ Conectado a MongoDB"))
   .catch(err => {
-    console.error("❌ Error en la conexión:", err);
+    console.error("❌ Error en conexión:", err);
     process.exit(1);
 });
 
 const resetearPassword = async () => {
     const email = "alvarovictor06@gmail.com";
-    const nuevaPassword = "alvaro4605";
-    const hashedPassword = await bcrypt.hash(nuevaPassword, 10);
+    const nuevaPassword = "alvi014";
 
     try {
         const admin = await Admin.findOne({ email });
-
         if (!admin) {
             console.log("❌ Admin no encontrado");
             return mongoose.connection.close();
         }
 
-        admin.password = hashedPassword;
-        await admin.save();
+        const hashedPassword = await bcrypt.hash(nuevaPassword, 10);
+        console.log("🔐 Nuevo hash:", hashedPassword); // ✅ Aquí adentro
 
-        console.log("✅ Contraseña reseteada correctamente.");
-        mongoose.connection.close();
+        admin.password = hashedPassword;
+
+        await admin.save();
+        console.log("✅ Contraseña reseteada correctamente");
     } catch (err) {
-        console.error("❌ Error al resetear contraseña:", err);
+        console.error("❌ Error al resetear:", err);
+    } finally {
+        console.log("📛 Base de datos conectada:", mongoose.connection.name);
         mongoose.connection.close();
     }
 };

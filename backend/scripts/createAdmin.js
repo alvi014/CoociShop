@@ -12,7 +12,7 @@ mongoose.connect(process.env.MONGO_URI, {
 
 const crearAdmin = async () => {
     try {
-        const email = "alvarovictor06@gmaile.com";
+        const email = "avz@gmail.com";
         const password = "alvi014";
         const hashedPassword = await bcrypt.hash(password, 10);
 
