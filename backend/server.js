@@ -28,8 +28,8 @@ const Pedido = require('./models/Pedido');
 
 // 📌 Crear la aplicación de Express
 const app = express();
-const PORT = process.env.PORT;
-
+// const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3000;
 // 📌 Configurar `multer` para manejar archivos
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -66,8 +66,10 @@ app.get("/api/ping", (req, res) => {
 });
 
 // 📡 Iniciar servidor
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`🚀 Servidor escuchando en puerto ${PORT}`);
 });
 
 
