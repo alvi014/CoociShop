@@ -10,7 +10,7 @@ document.getElementById("admin-login-form").addEventListener("submit", async fun
     }
 
     try {
-        const response = await fetch("https://coocishop.onrender.com/api/auth/login", {
+        const response = await fetch("https://coocishop.onrender.com", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
