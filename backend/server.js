@@ -10,17 +10,17 @@ const multer = require('multer');
 
 // 📌 Verificar variables de entorno antes de continuar
 if (!process.env.MONGO_URI) {
-    console.error("❌ ERROR: No se encontró MONGO_URI en el archivo .env");
-    process.exit(1);
+  console.error("❌ ERROR: No se encontró MONGO_URI en el archivo .env");
+  process.exit(1);
 }
 
 // 📌 Conectar a MongoDB antes de importar modelos
 mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log('✅ Conectado a MongoDB'))
-    .catch(err => {
-        console.error('❌ Error al conectar a MongoDB:', err);
-        process.exit(1);
-    });
+  .then(() => console.log('✅ Conectado a MongoDB'))
+  .catch(err => {
+    console.error('❌ Error al conectar a MongoDB:', err);
+    process.exit(1);
+  });
 
 // 📌 Importar modelos después de la conexión
 const Producto = require('./models/Producto');
@@ -28,12 +28,12 @@ const Pedido = require('./models/Pedido');
 
 // 📌 Crear la aplicación de Express
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT;
 
 // 📌 Configurar `multer` para manejar archivos
 const upload = multer({ storage: multer.memoryStorage() });
 
-// 📌 Middleware
+// 📌 Middleware CORS
 app.use(cors({
   origin: function (origin, callback) {
     const allowedOrigins = [
@@ -53,24 +53,23 @@ app.use(cors({
 
 app.use(express.json());
 
-// ✅ Importar rutas solo una vez
+// ✅ Importar rutas
 const authRoutes = require("./routes/auth");
 app.use("/api/auth", authRoutes);
 
 const adminRoutes = require("./routes/adminRoutes");
 app.use("/api/admin", adminRoutes);
 
-const PORT = process.env.PORT;
+// ✅ Ruta de prueba
+app.get("/api/ping", (req, res) => {
+  res.json({ message: "🟢 Backend en línea" });
+});
 
+// 📡 Iniciar servidor
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
 });
 
-
-app.get("/api/ping", (req, res) => {
-    res.json({ message: "🟢 Backend en línea" });
-  });
-  
 
 // =========================
 // 📌 Rutas de Productos
