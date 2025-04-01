@@ -45,6 +45,8 @@ router.post("/login", async (req, res) => {
         console.log("🔒 Password hash en DB:", admin.password);
         console.log("🔑 Password ingresada:", password);
 
+        console.log("📥 BODY recibido:", req.body);
+
         const isMatch = await bcrypt.compare(password, admin.password);
         console.log("🔁 Resultado bcrypt.compare:", isMatch);
 
