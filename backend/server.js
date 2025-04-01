@@ -41,6 +41,7 @@ app.use("/api/auth", authRoutes);
 const adminRoutes = require("./routes/adminRoutes");
 
 // 📌 Middleware
+// 📌 Middleware (debe ir antes de usar rutas)
 const allowedOrigins = [
     "http://localhost:5500",
     "http://127.0.0.1:5500",
@@ -59,13 +60,15 @@ const allowedOrigins = [
     credentials: true
   }));
   
-app.use(express.json());
- 
-
-
-
-// 📌 Usar rutas protegidas para administradores
-app.use("/api/admin", adminRoutes);
+  app.use(express.json()); // Luego de CORS
+  
+  // 📌 Rutas (después del middleware)
+  const authRoutes = require("./routes/auth");
+  app.use("/api/auth", authRoutes);
+  
+  const adminRoutes = require("./routes/adminRoutes");
+  app.use("/api/admin", adminRoutes);
+  
 
 
 app.get("/api/ping", (req, res) => {
