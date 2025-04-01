@@ -22,18 +22,18 @@ mongoose.connect(process.env.MONGO_URI)
     process.exit(1);
   });
 
-// 📌 Importar modelos después de la conexión
+// 📌 Importar modelos
 const Producto = require('./models/Producto');
 const Pedido = require('./models/Pedido');
 
-// 📌 Crear la aplicación de Express
+// 📌 Crear la app de Express
 const app = express();
-// const PORT = process.env.PORT;
 const PORT = process.env.PORT || 3000;
-// 📌 Configurar `multer` para manejar archivos
+
+// 📌 Configurar multer
 const upload = multer({ storage: multer.memoryStorage() });
 
-// 📌 Middleware CORS
+// 📌 Middleware
 app.use(cors({
   origin: function (origin, callback) {
     const allowedOrigins = [
@@ -53,191 +53,126 @@ app.use(cors({
 
 app.use(express.json());
 
-// ✅ Importar rutas
+// 📌 Rutas
 const authRoutes = require("./routes/auth");
 app.use("/api/auth", authRoutes);
 
 const adminRoutes = require("./routes/adminRoutes");
 app.use("/api/admin", adminRoutes);
 
-// ✅ Ruta de prueba
+// 📌 Ping
 app.get("/api/ping", (req, res) => {
   res.json({ message: "🟢 Backend en línea" });
 });
 
-// 📡 Iniciar servidor
-const PORT = process.env.PORT || 3000;
+app.get('/', (req, res) => {
+  res.send("✅ Backend de CoociShop funcionando. Usa /api/productos para ver los productos.");
+});
 
+app.get('/api/productos', async (req, res) => {
+  try {
+    const productos = await Producto.find();
+    console.log(`✅ Productos obtenidos (${productos.length})`);
+    res.json(productos);
+  } catch (error) {
+    console.error("❌ Error al obtener productos:", error);
+    res.status(500).json({ error: 'Error al obtener productos', detalle: error.message });
+  }
+});
+
+app.get('/api/productos/:id', async (req, res) => {
+  const id = parseInt(req.params.id);
+  if (isNaN(id)) {
+    return res.status(400).json({ error: 'ID inválido, debe ser un número.' });
+  }
+  try {
+    const producto = await Producto.findOne({ id });
+    if (!producto) return res.status(404).json({ error: 'Producto no encontrado' });
+    res.json(producto);
+  } catch (error) {
+    console.error("❌ Error al obtener el producto:", error);
+    res.status(500).json({ error: 'Error al obtener el producto', detalle: error.message });
+  }
+});
+
+// 📌 Enviar correos
+const enviarCorreoAdmin = (pedido, comprobante) => {
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.EMAIL_ADMIN,
+      pass: process.env.EMAIL_PASS
+    }
+  });
+
+  const productosHTML = pedido.productos.map(p => `
+    <tr>
+      <td><img src="${p.imagen}" alt="${p.nombre}" width="100"></td>
+      <td>${p.nombre}</td>
+      <td>${p.cantidad}</td>
+      <td>₡${p.precio}</td>
+      <td>₡${p.cantidad * p.precio}</td>
+    </tr>
+  `).join('');
+
+  const mailOptions = {
+    from: process.env.EMAIL_ADMIN,
+    to: process.env.EMAIL_ADMIN,
+    subject: '📦 Nuevo Pedido en CoociShop',
+    html: `
+      <h2>📦 Nuevo Pedido Recibido</h2>
+      <p><strong>Cliente:</strong> ${pedido.nombreCliente}</p>
+      <p><strong>Sucursal:</strong> ${pedido.sucursal}</p>
+      <p><strong>Total:</strong> <span style="color: green; font-size: 18px;">₡${pedido.total}</span></p>
+      <h3>🛒 Productos:</h3>
+      <table>${productosHTML}</table>
+    `,
+    attachments: comprobante ? [{
+      filename: comprobante.originalname,
+      content: comprobante.buffer,
+      cid: "comprobanteAdjunto"
+    }] : []
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) console.error('❌ Error al enviar el correo:', error);
+    else console.log('📩 Correo enviado:', info.response);
+  });
+};
+
+// 📌 Guardar pedidos
+app.post('/api/pedidos', upload.single('comprobantePago'), async (req, res) => {
+  try {
+    console.log("📩 Pedido recibido:", req.body);
+    const productos = JSON.parse(req.body.productos);
+
+    const nuevoPedido = new Pedido({
+      nombreCliente: req.body.nombreCliente,
+      sucursal: req.body.sucursal,
+      productos,
+      total: req.body.total,
+      comprobantePago: req.file ? req.file.originalname : null
+    });
+
+    await nuevoPedido.save();
+    enviarCorreoAdmin(nuevoPedido, req.file);
+    res.status(201).json({ mensaje: 'Pedido registrado correctamente', pedido: nuevoPedido });
+  } catch (error) {
+    console.error("❌ Error al registrar el pedido:", error);
+    res.status(500).json({ error: 'Error al registrar el pedido', detalle: error.message });
+  }
+});
+
+// 📌 Middleware 404
+app.use((req, res) => {
+  res.status(404).json({ error: "Ruta no encontrada" });
+});
+
+// ✅ Iniciar servidor
 app.listen(PORT, () => {
   console.log(`🚀 Servidor escuchando en puerto ${PORT}`);
 });
 
-
-// =========================
-// 📌 Rutas de Productos
-// =========================
-app.get('/', (req, res) => {
-    res.send("✅ Backend de CoociShop funcionando. Usa /api/productos para ver los productos.");
-});
-
-app.get('/api/productos', async (req, res) => {
-    try {
-        const productos = await Producto.find();
-        console.log(`✅ Productos obtenidos (${productos.length})`);
-        res.json(productos);
-    } catch (error) {
-        console.error("❌ Error al obtener productos:", error);
-        res.status(500).json({ error: 'Error al obtener productos', detalle: error.message });
-    }
-});
-
-// 📌 Ruta para obtener un producto por ID personalizado
-app.get('/api/productos/:id', async (req, res) => {
-    const id = parseInt(req.params.id);
-    if (isNaN(id)) {
-        return res.status(400).json({ error: 'ID inválido, debe ser un número.' });
-    }
-
-    try {
-        const producto = await Producto.findOne({ id: id });
-        if (!producto) {
-            return res.status(404).json({ error: 'Producto no encontrado' });
-        }
-        res.json(producto);
-    } catch (error) {
-        console.error("❌ Error al obtener el producto:", error);
-        res.status(500).json({ error: 'Error al obtener el producto', detalle: error.message });
-    }
-});
-
-
-// =========================
-// 📌 Función para enviar correos
-// =========================
-const enviarCorreoAdmin = (pedido, comprobante) => {
-    const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: process.env.EMAIL_ADMIN,
-            pass: process.env.EMAIL_PASS
-        }
-    });
-
-    let productosHTML = pedido.productos.map(p => `
-        <tr>
-            <td><img src="${p.imagen}" alt="${p.nombre}" width="100" style="border-radius: 8px;"></td>
-            <td>${p.nombre}</td>
-            <td>${p.cantidad}</td>
-            <td>₡${p.precio}</td>
-            <td>₡${p.cantidad * p.precio}</td>
-        </tr>
-    `).join('');
-
-    let comprobanteHTML = "";
-    if (comprobante) {
-        const fileExtension = comprobante.originalname.split('.').pop().toLowerCase();
-        if (["jpg", "jpeg", "png"].includes(fileExtension)) {
-            const imageBase64 = comprobante.buffer.toString('base64');
-            comprobanteHTML = `<p><strong>📎 Comprobante:</strong> <br>
-                <img src="data:image/${fileExtension};base64,${imageBase64}" width="300" style="border:1px solid #ddd; border-radius: 8px;">
-            </p>`;
-        } else {
-            comprobanteHTML = `<p><strong>📎 Comprobante:</strong> <br>
-                <a href="cid:comprobanteAdjunto" download="${comprobante.originalname}">Descargar Comprobante</a>
-            </p>`;
-        }
-    }
-
-    const mailOptions = {
-        from: process.env.EMAIL_ADMIN,
-        to: process.env.EMAIL_ADMIN,
-        subject: '📦 Nuevo Pedido en CoociShop',
-        html: `
-            <h2 style="color: #333;">📦 Nuevo Pedido Recibido</h2>
-            <p><strong>Cliente:</strong> ${pedido.nombreCliente}</p>
-            <p><strong>Sucursal:</strong> ${pedido.sucursal}</p>
-            <p><strong>Total:</strong> <span style="color: green; font-size: 18px;">₡${pedido.total}</span></p>
-            
-            <h3>🛒 Productos:</h3>
-            <table style="border-collapse: collapse; width: 100%; text-align: left;">
-                <thead>
-                    <tr style="background-color: #f2f2f2;">
-                        <th>Imagen</th>
-                        <th>Producto</th>
-                        <th>Cantidad</th>
-                        <th>Precio</th>
-                        <th>Subtotal</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${productosHTML}
-                </tbody>
-            </table>
-            ${comprobanteHTML}
-        `,
-        attachments: comprobante ? [{
-            filename: comprobante.originalname,
-            content: comprobante.buffer,
-            cid: "comprobanteAdjunto"
-        }] : []
-    };
-
-    transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-            console.error('❌ Error al enviar el correo:', error);
-        } else {
-            console.log('📩 Correo enviado:', info.response);
-        }
-    });
-};
-
-// =========================
-// 📌 Ruta para registrar pedidos
-// =========================
-app.post('/api/pedidos', upload.single('comprobantePago'), async (req, res) => {
-    try {
-        console.log("📩 Pedido recibido en el backend:", req.body);
-
-        let productos;
-        try {
-            productos = JSON.parse(req.body.productos);
-        } catch (error) {
-            console.error("❌ Error al procesar los productos:", error);
-            return res.status(400).json({ error: "Formato incorrecto en los productos" });
-        }
-
-        const nuevoPedido = new Pedido({
-            nombreCliente: req.body.nombreCliente,
-            sucursal: req.body.sucursal,
-            productos: productos,
-            total: req.body.total,
-            comprobantePago: req.file ? req.file.originalname : null
-        });
-
-        await nuevoPedido.save();
-        enviarCorreoAdmin(nuevoPedido, req.file);
-
-        console.log("✅ Pedido guardado y correo enviado.");
-        res.status(201).json({ mensaje: 'Pedido registrado correctamente', pedido: nuevoPedido });
-    } catch (error) {
-        console.error("❌ Error al registrar el pedido:", error);
-        res.status(500).json({ error: 'Error al registrar el pedido', detalle: error.message });
-    }
-});
-
-// =========================
-// 📌 Middleware para manejar rutas no encontradas (404)
-// =========================
-app.use((req, res) => {
-    res.status(404).json({ error: "Ruta no encontrada" });
-});
-
-// =========================
-// 📌 Iniciar el Servidor
-// =========================
-app.listen(PORT, () => {
-    console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
-});
 
 
 /// Por Implementar
