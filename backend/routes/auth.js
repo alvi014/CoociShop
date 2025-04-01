@@ -5,6 +5,8 @@ const Admin = require("../models/Admin");
 
 const router = express.Router();
 
+console.log("📡 Auth router cargado correctamente");
+
 // ✅ Ruta de prueba
 router.get("/test", (req, res) => {
     res.json({ message: "Auth API funcionando ✅" });
