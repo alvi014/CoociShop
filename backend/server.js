@@ -33,8 +33,6 @@ const PORT = process.env.PORT || 5000;
 // 📌 Configurar `multer` para manejar archivos
 const upload = multer({ storage: multer.memoryStorage() });
 
-// 📌 Importar rutas de autenticación y administración
-const authRoutes = require("./routes/auth");
 
 // 📌 Usar rutas de autenticación
 app.use("/api/auth", authRoutes); 
