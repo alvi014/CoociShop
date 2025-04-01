@@ -10,28 +10,27 @@ document.getElementById("admin-login-form").addEventListener("submit", async fun
     }
 
     try {
-        const response = await fetch("https://coocishop.onrender.com", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            email,
-            password
-          })
+        const response = await fetch("https://coocishop.onrender.com/api/auth/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                email,
+                password
+            })
         });
-      
+
         const data = await response.json();
-      
+
         if (response.ok && data.token) {
-          localStorage.setItem("token", data.token);
-          window.location.href = "/gestionProducto.html";
+            localStorage.setItem("token", data.token);
+            window.location.href = "/gestionProducto.html";
         } else {
-          alert(`❌ ${data.error || "Credenciales incorrectas"}`);
+            alert(`❌ ${data.error || "Credenciales incorrectas"}`);
         }
-      } catch (error) {
+    } catch (error) {
         console.error("❌ Error en el login:", error);
         alert("❌ No se pudo conectar con el servidor.");
-      }
-      
+    }
 });
