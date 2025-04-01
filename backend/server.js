@@ -33,41 +33,39 @@ const PORT = process.env.PORT || 5000;
 // 📌 Configurar `multer` para manejar archivos
 const upload = multer({ storage: multer.memoryStorage() });
 
-
-// 📌 Usar rutas de autenticación
-app.use("/api/auth", authRoutes); 
-const adminRoutes = require("./routes/adminRoutes");
-
 // 📌 Middleware
-// 📌 Middleware (debe ir antes de usar rutas)
-const allowedOrigins = [
-    "http://localhost:5500",
-    "http://127.0.0.1:5500",
-    "https://coocishop.onrender.com"
-  ];
-  
-  app.use(cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        console.log("❌ CORS bloqueado para:", origin);
-        callback(new Error("CORS no permitido"));
-      }
-    },
-    credentials: true
-  }));
-  
-  app.use(express.json()); // Luego de CORS
-  
-  // 📌 Rutas (después del middleware)
-  const authRoutes = require("./routes/auth");
-  app.use("/api/auth", authRoutes);
-  
-  const adminRoutes = require("./routes/adminRoutes");
-  app.use("/api/admin", adminRoutes);
-  
+app.use(cors({
+  origin: function (origin, callback) {
+    const allowedOrigins = [
+      "http://localhost:5500",
+      "http://127.0.0.1:5500",
+      "https://coocishop.onrender.com"
+    ];
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log("❌ CORS bloqueado para:", origin);
+      callback(new Error("CORS no permitido"));
+    }
+  },
+  credentials: true
+}));
 
+app.use(express.json());
+
+// ✅ Importar rutas solo una vez
+const authRoutes = require("./routes/auth");
+app.use("/api/auth", authRoutes);
+
+const adminRoutes = require("./routes/adminRoutes");
+app.use("/api/admin", adminRoutes);
+
+// 📌 Escuchar en puerto
+app.listen(PORT, () => {
+  console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
+});
+
+  
 
 app.get("/api/ping", (req, res) => {
     res.json({ message: "🟢 Backend en línea" });
