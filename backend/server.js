@@ -35,6 +35,9 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 // 📌 Importar rutas de autenticación y administración
 const authRoutes = require("./routes/auth");
+
+// 📌 Usar rutas de autenticación
+app.use("/api/auth", authRoutes); 
 const adminRoutes = require("./routes/adminRoutes");
 
 // 📌 Middleware
@@ -59,8 +62,6 @@ const allowedOrigins = [
 app.use(express.json());
  
 
-// 📌 Usar rutas de autenticación
-app.use("/api/auth", authRoutes); 
 
 
 // 📌 Usar rutas protegidas para administradores
