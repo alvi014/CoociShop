@@ -70,11 +70,13 @@ async function mostrarVistaPrevia(productoId) {
         document.getElementById('productModalLabel').textContent = producto.nombre;
         document.getElementById('productModalBody').innerHTML = `
             <img src="${producto.imagen}" class="img-fluid mb-3" alt="${producto.nombre}">
-            <p>${producto.descripcion}</p>
+            <p><strong>${producto.descripcion}</strong></p>
             <p><strong>Precio: ₡${producto.precio}</strong></p>
+            <p>Stock Disponible: ${producto.stock}</p>
+
             <div class="mb-3">
                 <label for="cantidadProducto" class="form-label">Cantidad:</label>
-                <input type="number" id="cantidadProducto" class="form-control" value="1" min="1">
+                <input type="number" id="cantidadProducto" class="form-control" value="1" min="1" max ="${producto.stock}">
             </div>
             <button class="btn btn-primary" onclick="agregarAlCarrito(${producto.id})">Agregar al carrito</button>
         `;
@@ -112,6 +114,12 @@ function agregarAlCarrito(productoId) {
                 return;
             }
 
+            // ✅ Validar stock aquí
+            if (cantidad > producto.stock) {
+                mostrarNotificacion("error", `Solo hay ${producto.stock} unidades disponibles.`);
+                return;
+            }
+
             let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
             let productoEnCarrito = carrito.find(p => p.id === producto.id);
 
@@ -133,6 +141,7 @@ function agregarAlCarrito(productoId) {
             mostrarNotificacion("error", error.message);
         });
 }
+
 
 
 // 📌 Mostrar notificación visual

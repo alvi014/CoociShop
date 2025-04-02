@@ -141,11 +141,35 @@ const enviarCorreoAdmin = (pedido, comprobante) => {
 };
 
 // 📌 Guardar pedidos
+// 📌 Guardar pedidos con validación y actualización de stock
 app.post('/api/pedidos', upload.single('comprobantePago'), async (req, res) => {
   try {
     console.log("📩 Pedido recibido:", req.body);
+
     const productos = JSON.parse(req.body.productos);
 
+    // 🔍 Verificar stock disponible por cada producto
+    for (let p of productos) {
+      const prodDB = await Producto.findOne({ id: p.id });
+
+      if (!prodDB) {
+        return res.status(404).json({ error: `Producto con ID ${p.id} no encontrado.` });
+      }
+
+      if (prodDB.stock < p.cantidad) {
+        return res.status(400).json({
+          error: `❌ Stock insuficiente para "${prodDB.nombre}". Disponible: ${prodDB.stock}`
+        });
+      }
+    }
+
+    // ➖ Descontar stock por cada producto
+    for (let p of productos) {
+      await Producto.updateOne({ id: p.id }, { $inc: { stock: -p.cantidad } });
+      console.log(`🧾 Stock actualizado (ID ${p.id}): -${p.cantidad}`);
+    }
+
+    // 💾 Guardar el pedido en MongoDB
     const nuevoPedido = new Pedido({
       nombreCliente: req.body.nombreCliente,
       sucursal: req.body.sucursal,
@@ -155,13 +179,18 @@ app.post('/api/pedidos', upload.single('comprobantePago'), async (req, res) => {
     });
 
     await nuevoPedido.save();
+
+    // 📬 Enviar correo
     enviarCorreoAdmin(nuevoPedido, req.file);
-    res.status(201).json({ mensaje: 'Pedido registrado correctamente', pedido: nuevoPedido });
+
+    res.status(201).json({ mensaje: '✅ Pedido registrado correctamente', pedido: nuevoPedido });
+
   } catch (error) {
     console.error("❌ Error al registrar el pedido:", error);
     res.status(500).json({ error: 'Error al registrar el pedido', detalle: error.message });
   }
 });
+
 
 // 📌 Middleware 404
 app.use((req, res) => {
