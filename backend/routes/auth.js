@@ -1,3 +1,4 @@
+// backend/routes/auth.js
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -14,7 +15,8 @@ router.get("/test", (req, res) => {
 
 // ✅ Registro
 router.post("/register", async (req, res) => {
-    const { email, password } = req.body;
+    const email = req.body.email?.trim();
+    const password = req.body.password?.trim();
 
     try {
         let admin = await Admin.findOne({ email });
@@ -34,7 +36,8 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
     console.log("✅ POST /api/auth/login llamado");
 
-    const { email, password } = req.body;
+    const email = req.body.email?.trim();
+    const password = req.body.password?.trim();
 
     try {
         const admin = await Admin.findOne({ email });
@@ -46,11 +49,8 @@ router.post("/login", async (req, res) => {
 
         console.log("🔒 Password hash en DB:", admin.password);
         console.log("🔑 Password ingresada:", password);
-
         console.log("📥 BODY recibido:", req.body);
-
         console.log("📏 Longitud del hash:", admin.password.length);
-
 
         const isMatch = await bcrypt.compare(password, admin.password);
         console.log("🔁 Resultado bcrypt.compare:", isMatch);
