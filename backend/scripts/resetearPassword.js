@@ -1,6 +1,7 @@
 // backend/scripts/resetearPassword.js
 
-require("dotenv").config({ path: "../.env" });
+require("dotenv").config();
+
 
 console.log("🧪 MONGO_URI DETECTADO:", process.env.MONGO_URI);
 
@@ -33,7 +34,7 @@ async function resetearPassword() {
     console.log("🔒 Hash ANTERIOR:", admin.password);
 
     const hashedPassword = await bcrypt.hash(nuevaPassword, 10);
-    admin.password = hashedPassword;
+    admin.password = nuevaPassword;
     await admin.save();
 
     console.log("🔐 Nuevo hash generado:", hashedPassword);
