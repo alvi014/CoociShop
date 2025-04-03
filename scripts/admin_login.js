@@ -23,7 +23,7 @@ document.getElementById("admin-login-form").addEventListener("submit", async fun
   
       if (response.ok && data.token) {
         localStorage.setItem("token", data.token);
-        window.location.href = "/gestionProducto.html";
+        window.location.href = "/html/gestionProducto.html";
       } else {
         alert(`❌ ${data.message || "Credenciales incorrectas"}`);
       }

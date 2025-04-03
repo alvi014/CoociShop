@@ -1,42 +1,61 @@
+// backend/routes/adminRoutes.js
+
 const express = require("express");
-const { verifyAdmin } = require("../middleware/auth"); // Middleware para proteger rutas
-
 const router = express.Router();
+const Producto = require("../models/Producto");
 
-// 📌 Ruta protegida: Panel de administración
-router.get("/dashboard", verifyAdmin, (req, res) => {
-    res.json({ message: "Bienvenido al panel de administración", user: req.user });
+// ✅ Agregar producto
+router.post("/producto", async (req, res) => {
+  try {
+    const { id, nombre, descripcion, precio, stock, categoria, imagen } = req.body;
+
+    if (!id || !nombre || !precio || !stock || !categoria || !imagen) {
+      return res.status(400).json({ error: "Todos los campos son obligatorios" });
+    }
+
+    const existente = await Producto.findOne({ id });
+    if (existente) return res.status(400).json({ error: "Ya existe un producto con ese ID" });
+
+    const nuevoProducto = new Producto({ id, nombre, descripcion, precio, stock, categoria, imagen });
+    await nuevoProducto.save();
+
+    res.status(201).json({ message: "Producto agregado correctamente", producto: nuevoProducto });
+  } catch (err) {
+    console.error("❌ Error al agregar producto:", err);
+    res.status(500).json({ error: "Error al agregar producto", detalle: err.message });
+  }
 });
 
-// 📌 Ruta protegida: Obtener lista de pedidos
-router.get("/pedidos", verifyAdmin, async (req, res) => {
-    try {
-        const pedidos = await Pedido.find();
-        res.json(pedidos);
-    } catch (error) {
-        res.status(500).json({ message: "Error al obtener pedidos", error });
-    }
+// ✅ Editar producto
+router.put("/producto/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updates = req.body;
+
+    const actualizado = await Producto.findOneAndUpdate({ id: parseInt(id) }, updates, { new: true });
+
+    if (!actualizado) return res.status(404).json({ error: "Producto no encontrado" });
+
+    res.json({ message: "Producto actualizado", producto: actualizado });
+  } catch (err) {
+    console.error("❌ Error al editar producto:", err);
+    res.status(500).json({ error: "Error al editar producto", detalle: err.message });
+  }
 });
 
-// 📌 Ruta protegida: Crear un nuevo producto
-router.post("/productos", verifyAdmin, async (req, res) => {
-    try {
-        const nuevoProducto = new Producto(req.body);
-        await nuevoProducto.save();
-        res.status(201).json({ message: "Producto creado correctamente" });
-    } catch (error) {
-        res.status(500).json({ message: "Error al crear el producto", error });
-    }
-});
+// ✅ Eliminar producto
+router.delete("/producto/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
 
-// 📌 Ruta protegida: Eliminar un producto
-router.delete("/productos/:id", verifyAdmin, async (req, res) => {
-    try {
-        await Producto.findByIdAndDelete(req.params.id);
-        res.json({ message: "Producto eliminado correctamente" });
-    } catch (error) {
-        res.status(500).json({ message: "Error al eliminar el producto", error });
-    }
+    const eliminado = await Producto.findOneAndDelete({ id: parseInt(id) });
+    if (!eliminado) return res.status(404).json({ error: "Producto no encontrado" });
+
+    res.json({ message: "Producto eliminado", producto: eliminado });
+  } catch (err) {
+    console.error("❌ Error al eliminar producto:", err);
+    res.status(500).json({ error: "Error al eliminar producto", detalle: err.message });
+  }
 });
 
 module.exports = router;
