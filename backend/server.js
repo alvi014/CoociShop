@@ -1,4 +1,4 @@
-// 📌 Cargar variables de entorno
+// 📦 Cargar variables de entorno y dependencias
 require('dotenv').config();
 console.log("🔍 URI de MongoDB:", process.env.MONGO_URI || "❌ No encontrado");
 
@@ -7,14 +7,15 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
 const multer = require('multer');
+const path = require('path');
 
-// 📌 Verificar variables de entorno antes de continuar
+// 📌 Validar URI de conexión a MongoDB
 if (!process.env.MONGO_URI) {
   console.error("❌ ERROR: No se encontró MONGO_URI en el archivo .env");
   process.exit(1);
 }
 
-// 📌 Conectar a MongoDB antes de importar modelos
+// 📌 Conexión a MongoDB
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ Conectado a MongoDB'))
   .catch(err => {
@@ -26,14 +27,24 @@ mongoose.connect(process.env.MONGO_URI)
 const Producto = require('./models/Producto');
 const Pedido = require('./models/Pedido');
 
-// 📌 Crear la app de Express
+// 📌 Inicializar app
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 📌 Configurar multer
-const upload = multer({ storage: multer.memoryStorage() });
+// 📁 Servir archivos estáticos desde /img
+app.use('/img', express.static(path.join(__dirname, 'img')));
 
-// 📌 Middleware
+// 📤 Configurar multer para subir imágenes en /img
+const storage = multer.diskStorage({
+  destination: path.join(__dirname, 'img'),
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    cb(null, Date.now() + ext);
+  }
+});
+const upload = multer({ storage });
+
+// 🌐 Configuración de CORS
 app.use(cors({
   origin: function (origin, callback) {
     const allowedOrigins = [
@@ -51,24 +62,34 @@ app.use(cors({
   credentials: true
 }));
 
+// 🔧 Middleware para parsear JSON
 app.use(express.json());
 
-// 📌 Rutas
+// 🔌 Rutas principales
 const authRoutes = require("./routes/auth");
 app.use("/api/auth", authRoutes);
 
 const adminRoutes = require("./routes/adminRoutes");
 app.use("/api/admin", adminRoutes);
 
-// 📌 Ping
+// 📤 Endpoint para subir imágenes (usado en productos)
+app.post('/api/admin/upload', upload.single('imagen'), (req, res) => {
+  if (!req.file) return res.status(400).json({ error: "No se subió ningún archivo" });
+  const url = `/img/${req.file.filename}`;
+  res.status(200).json({ url });
+});
+
+// ✅ Ping para verificar estado del servidor
 app.get("/api/ping", (req, res) => {
   res.json({ message: "🟢 Backend en línea" });
 });
 
+// 🏠 Página principal
 app.get('/', (req, res) => {
   res.send("✅ Backend de CoociShop funcionando. Usa /api/productos para ver los productos.");
 });
 
+// 📦 Obtener todos los productos
 app.get('/api/productos', async (req, res) => {
   try {
     const productos = await Producto.find();
@@ -80,6 +101,7 @@ app.get('/api/productos', async (req, res) => {
   }
 });
 
+// 🔍 Obtener producto por ID
 app.get('/api/productos/:id', async (req, res) => {
   const id = parseInt(req.params.id);
   if (isNaN(id)) {
@@ -95,7 +117,7 @@ app.get('/api/productos/:id', async (req, res) => {
   }
 });
 
-// 📌 Enviar correos
+// 📧 Enviar correos de pedidos
 const enviarCorreoAdmin = (pedido, comprobante) => {
   const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -140,21 +162,19 @@ const enviarCorreoAdmin = (pedido, comprobante) => {
   });
 };
 
-// 📌 Guardar pedidos con validación y actualización de stock
+// 🧾 Guardar pedidos con comprobante y actualizar stock
 app.post('/api/pedidos', upload.single('comprobantePago'), async (req, res) => {
   try {
     console.log("📩 Pedido recibido:", req.body);
 
     const productos = JSON.parse(req.body.productos);
 
-    // 🔍 Verificar stock disponible por cada producto
+    // 🧮 Validación de stock
     for (let p of productos) {
       const prodDB = await Producto.findOne({ id: p.id });
-
       if (!prodDB) {
         return res.status(404).json({ error: `Producto con ID ${p.id} no encontrado.` });
       }
-
       if (prodDB.stock < p.cantidad) {
         return res.status(400).json({
           error: `❌ Stock insuficiente para "${prodDB.nombre}". Disponible: ${prodDB.stock}`
@@ -162,13 +182,13 @@ app.post('/api/pedidos', upload.single('comprobantePago'), async (req, res) => {
       }
     }
 
-    // ➖ Descontar stock por cada producto
+    // ➖ Descontar stock
     for (let p of productos) {
       await Producto.updateOne({ id: p.id }, { $inc: { stock: -p.cantidad } });
       console.log(`🧾 Stock actualizado (ID ${p.id}): -${p.cantidad}`);
     }
 
-    // 💾 Guardar el pedido en MongoDB
+    // 💾 Guardar pedido en BD
     const nuevoPedido = new Pedido({
       nombreCliente: req.body.nombreCliente,
       sucursal: req.body.sucursal,
@@ -179,27 +199,22 @@ app.post('/api/pedidos', upload.single('comprobantePago'), async (req, res) => {
 
     await nuevoPedido.save();
 
-    // 📬 Enviar correo
+    // 📤 Enviar correo a admin
     enviarCorreoAdmin(nuevoPedido, req.file);
 
     res.status(201).json({ mensaje: '✅ Pedido registrado correctamente', pedido: nuevoPedido });
-
   } catch (error) {
     console.error("❌ Error al registrar el pedido:", error);
     res.status(500).json({ error: 'Error al registrar el pedido', detalle: error.message });
   }
 });
 
-
-// 📌 Middleware 404
+// ❌ Middleware para rutas no encontradas
 app.use((req, res) => {
   res.status(404).json({ error: "Ruta no encontrada" });
 });
 
-// ✅ Iniciar servidor
+// 🚀 Iniciar servidor
 app.listen(PORT, () => {
   console.log(`🚀 Servidor escuchando en puerto ${PORT}`);
 });
-
-
-

@@ -5,10 +5,11 @@ const tablaBody = document.getElementById("productos-body");
 const formContainer = document.getElementById("formulario-container");
 const filtroCategoria = document.getElementById("filtro-categoria");
 let productosOriginales = [];
+let categoriasUnicas = [];
 
 window.addEventListener("DOMContentLoaded", async () => {
   await cargarProductos();
-  filtroCategoria.addEventListener("change", filtrarPorCategoria);
+  if (filtroCategoria) filtroCategoria.addEventListener("change", filtrarPorCategoria);
 });
 
 async function cargarProductos() {
@@ -16,6 +17,8 @@ async function cargarProductos() {
     const res = await fetch(`${API_URL}/productos`);
     const productos = await res.json();
     productosOriginales = productos;
+    categoriasUnicas = [...new Set(productos.map(p => (p.categoria || "").trim()))];
+    renderizarSelectCategorias();
     renderizarProductos(productos);
   } catch (err) {
     console.error("❌ Error al cargar productos:", err);
@@ -39,14 +42,17 @@ function renderizarProductos(lista) {
   });
 }
 
+function renderizarSelectCategorias() {
+  if (!filtroCategoria) return;
+  filtroCategoria.innerHTML = `<option value="">TODAS</option>`;
+  categoriasUnicas.forEach(cat => {
+    filtroCategoria.innerHTML += `<option value="${cat}">${cat}</option>`;
+  });
+}
+
 function filtrarPorCategoria() {
   const categoria = filtroCategoria.value.trim();
-  console.log("📌 Filtro seleccionado:", categoria);
-
-  if (!categoria) {
-    renderizarProductos(productosOriginales);
-    return;
-  }
+  if (!categoria) return renderizarProductos(productosOriginales);
 
   const filtrados = productosOriginales.filter(p => {
     const prodCat = (p.categoria || "").toUpperCase().trim();
@@ -54,7 +60,6 @@ function filtrarPorCategoria() {
     return prodCat === filtroCat;
   });
 
-  console.log("🔍 Productos encontrados:", filtrados.length);
   renderizarProductos(filtrados);
 }
 
@@ -64,20 +69,22 @@ function mostrarFormulario(tipo) {
   else if (tipo === "eliminar") mostrarFormularioEliminar();
 }
 
-// ... [El resto del código permanece igual, funciones agregar/editar/eliminar] ...
-
-
 function mostrarFormularioAgregar() {
   formContainer.innerHTML = `
     <h3>➕ Agregar Producto</h3>
-    <form onsubmit="agregarProducto(event)">
+    <form onsubmit="agregarProducto(event)" enctype="multipart/form-data">
       <input class="form-control mb-2" type="number" placeholder="ID" id="prod-id" required />
       <input class="form-control mb-2" type="text" placeholder="Nombre" id="prod-nombre" required />
       <input class="form-control mb-2" type="text" placeholder="Descripción" id="prod-descripcion" />
       <input class="form-control mb-2" type="number" placeholder="Precio" id="prod-precio" required />
       <input class="form-control mb-2" type="number" placeholder="Stock" id="prod-stock" required />
-      <input class="form-control mb-2" type="text" placeholder="Categoría" id="prod-categoria" required />
-      <input class="form-control mb-2" type="text" placeholder="URL Imagen" id="prod-imagen" required />
+      <label class="form-label">Categoría:</label>
+      <select class="form-select mb-2" id="prod-categoria-select">
+        <option value="">Seleccionar existente</option>
+        ${categoriasUnicas.map(c => `<option value="${c}">${c}</option>`).join('')}
+      </select>
+      <input class="form-control mb-2" type="text" placeholder="O ingrese nueva categoría" id="prod-categoria-nueva" />
+      <input class="form-control mb-2" type="file" id="prod-img-file" accept="image/*" required />
       <button type="submit" class="btn btn-success">Guardar</button>
     </form>
   `;
@@ -86,17 +93,37 @@ function mostrarFormularioAgregar() {
 async function agregarProducto(e) {
   e.preventDefault();
 
-  const producto = {
-    id: parseInt(document.getElementById("prod-id").value),
-    nombre: document.getElementById("prod-nombre").value.trim(),
-    descripcion: document.getElementById("prod-descripcion").value.trim(),
-    precio: parseFloat(document.getElementById("prod-precio").value),
-    stock: parseInt(document.getElementById("prod-stock").value),
-    categoria: document.getElementById("prod-categoria").value.trim(),
-    imagen: document.getElementById("prod-imagen").value.trim(),
-  };
+  const nuevaCategoria = document.getElementById("prod-categoria-nueva").value.trim();
+  const seleccionCategoria = document.getElementById("prod-categoria-select").value.trim();
+  const fileInput = document.getElementById("prod-img-file");
+  const imagenFile = fileInput.files[0];
+
+  if (!imagenFile) return alert("❌ Debes seleccionar una imagen");
 
   try {
+    const formData = new FormData();
+    formData.append("imagen", imagenFile);
+
+    const uploadRes = await fetch(`${API_URL}/admin/upload`, {
+      method: "POST",
+      body: formData
+    });
+
+    const uploadData = await uploadRes.json();
+    if (!uploadRes.ok) return alert(`❌ Error al subir imagen: ${uploadData.error || uploadData.message}`);
+
+    const producto = {
+      id: parseInt(document.getElementById("prod-id").value),
+      nombre: document.getElementById("prod-nombre").value.trim(),
+      descripcion: document.getElementById("prod-descripcion").value.trim(),
+      precio: parseFloat(document.getElementById("prod-precio").value),
+      stock: parseInt(document.getElementById("prod-stock").value),
+      categoria: nuevaCategoria || seleccionCategoria,
+      imagen: uploadData.url
+    };
+
+    if (!producto.categoria) return alert("❌ Debes seleccionar o escribir una categoría");
+
     const res = await fetch(`${API_URL}/admin/producto`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -113,6 +140,7 @@ async function agregarProducto(e) {
   }
 }
 
+// ✅ Los formularios de editar y eliminar quedan igual por ahora
 function mostrarFormularioEditar() {
   formContainer.innerHTML = `
     <h3>✏️ Editar Producto</h3>
@@ -122,7 +150,11 @@ function mostrarFormularioEditar() {
       <input class="form-control mb-2" type="text" placeholder="Nueva descripción" id="edit-descripcion" />
       <input class="form-control mb-2" type="number" placeholder="Nuevo precio" id="edit-precio" />
       <input class="form-control mb-2" type="number" placeholder="Nuevo stock" id="edit-stock" />
-      <input class="form-control mb-2" type="text" placeholder="Nueva categoría" id="edit-categoria" />
+      <select class="form-select mb-2" id="edit-categoria">
+        <option value="">Seleccionar existente</option>
+        ${categoriasUnicas.map(c => `<option value="${c}">${c}</option>`).join('')}
+      </select>
+      <input class="form-control mb-2" type="text" placeholder="O ingrese nueva categoría" id="edit-categoria-nueva" />
       <input class="form-control mb-2" type="text" placeholder="Nueva imagen" id="edit-imagen" />
       <button type="submit" class="btn btn-warning">Actualizar</button>
     </form>
@@ -132,12 +164,16 @@ function mostrarFormularioEditar() {
 async function editarProducto(e) {
   e.preventDefault();
   const id = parseInt(document.getElementById("edit-id").value);
+
+  const nuevaCategoria = document.getElementById("edit-categoria-nueva").value.trim();
+  const seleccionCategoria = document.getElementById("edit-categoria").value.trim();
+
   const body = {
     nombre: document.getElementById("edit-nombre").value.trim(),
     descripcion: document.getElementById("edit-descripcion").value.trim(),
     precio: parseFloat(document.getElementById("edit-precio").value),
     stock: parseInt(document.getElementById("edit-stock").value),
-    categoria: document.getElementById("edit-categoria").value.trim(),
+    categoria: nuevaCategoria || seleccionCategoria,
     imagen: document.getElementById("edit-imagen").value.trim(),
   };
   Object.keys(body).forEach(key => { if (!body[key]) delete body[key]; });
