@@ -75,9 +75,12 @@ app.use("/api/admin", adminRoutes);
 // 📤 Endpoint para subir imágenes (usado en productos)
 app.post('/api/admin/upload', upload.single('imagen'), (req, res) => {
   if (!req.file) return res.status(400).json({ error: "No se subió ningún archivo" });
-  const url = `/img/${req.file.filename}`;
+
+  // ✅ URL completa desde el dominio Render
+  const url = `https://coocishop.onrender.com/img/${req.file.filename}`;
   res.status(200).json({ url });
 });
+
 
 // ✅ Ping para verificar estado del servidor
 app.get("/api/ping", (req, res) => {
