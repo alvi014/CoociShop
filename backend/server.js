@@ -32,7 +32,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // 📁 Servir archivos estáticos desde /img
-app.use('/img', express.static(path.join(__dirname, 'img')));
+app.use('/img', express.static(path.join(__dirname, '..', 'img')));
 
 // 📤 Configurar multer para subir imágenes en /img
 const storage = multer.diskStorage({
