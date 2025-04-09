@@ -72,7 +72,7 @@ function mostrarFormulario(tipo) {
 function mostrarFormularioAgregar() {
   formContainer.innerHTML = `
     <h3>➕ Agregar Producto</h3>
-    <form onsubmit="agregarProducto(event)" enctype="multipart/form-data">
+    <form onsubmit="agregarProducto(event)">
       <input class="form-control mb-2" type="number" placeholder="ID" id="prod-id" required />
       <input class="form-control mb-2" type="text" placeholder="Nombre" id="prod-nombre" required />
       <input class="form-control mb-2" type="text" placeholder="Descripción" id="prod-descripcion" />
@@ -84,10 +84,24 @@ function mostrarFormularioAgregar() {
         ${categoriasUnicas.map(c => `<option value="${c}">${c}</option>`).join('')}
       </select>
       <input class="form-control mb-2" type="text" placeholder="O ingrese nueva categoría" id="prod-categoria-nueva" />
-      <input class="form-control mb-2" type="file" id="prod-img-file" accept="image/*" required />
+      <input class="form-control mb-2" type="text" placeholder="Nombre del archivo de imagen (ej. producto.png)" id="prod-imagen" oninput="actualizarPreviewImagen()" required />
+      <img id="preview-imagen" src="" style="display:none; width:80px;" />
       <button type="submit" class="btn btn-success">Guardar</button>
     </form>
   `;
+}
+
+function actualizarPreviewImagen() {
+  const input = document.getElementById("prod-imagen");
+  const preview = document.getElementById("preview-imagen");
+  const url = input.value.trim();
+  if (url) {
+    preview.src = `https://coocishop.onrender.com/img/${url}`;
+    preview.style.display = "block";
+  } else {
+    preview.src = "";
+    preview.style.display = "none";
+  }
 }
 
 async function agregarProducto(e) {
@@ -95,35 +109,23 @@ async function agregarProducto(e) {
 
   const nuevaCategoria = document.getElementById("prod-categoria-nueva").value.trim();
   const seleccionCategoria = document.getElementById("prod-categoria-select").value.trim();
-  const fileInput = document.getElementById("prod-img-file");
-  const imagenFile = fileInput.files[0];
+  const imagenNombre = document.getElementById("prod-imagen").value.trim();
 
-  if (!imagenFile) return alert("❌ Debes seleccionar una imagen");
+  const producto = {
+    id: parseInt(document.getElementById("prod-id").value),
+    nombre: document.getElementById("prod-nombre").value.trim(),
+    descripcion: document.getElementById("prod-descripcion").value.trim(),
+    precio: parseFloat(document.getElementById("prod-precio").value),
+    stock: parseInt(document.getElementById("prod-stock").value),
+    categoria: nuevaCategoria || seleccionCategoria,
+    imagen: `https://coocishop.onrender.com/img/${imagenNombre}`,
+  };
+
+  if (!producto.categoria || !imagenNombre) {
+    return alert("❌ Debes ingresar una categoría e imagen válida.");
+  }
 
   try {
-    const formData = new FormData();
-    formData.append("imagen", imagenFile);
-
-    const uploadRes = await fetch(`${API_URL}/admin/upload`, {
-      method: "POST",
-      body: formData
-    });
-
-    const uploadData = await uploadRes.json();
-    if (!uploadRes.ok) return alert(`❌ Error al subir imagen: ${uploadData.error || uploadData.message}`);
-
-    const producto = {
-      id: parseInt(document.getElementById("prod-id").value),
-      nombre: document.getElementById("prod-nombre").value.trim(),
-      descripcion: document.getElementById("prod-descripcion").value.trim(),
-      precio: parseFloat(document.getElementById("prod-precio").value),
-      stock: parseInt(document.getElementById("prod-stock").value),
-      categoria: nuevaCategoria || seleccionCategoria,
-      imagen: uploadData.url
-    };
-
-    if (!producto.categoria) return alert("❌ Debes seleccionar o escribir una categoría");
-
     const res = await fetch(`${API_URL}/admin/producto`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -140,7 +142,6 @@ async function agregarProducto(e) {
   }
 }
 
-// ✅ Los formularios de editar y eliminar quedan igual por ahora
 function mostrarFormularioEditar() {
   formContainer.innerHTML = `
     <h3>✏️ Editar Producto</h3>
@@ -155,7 +156,7 @@ function mostrarFormularioEditar() {
         ${categoriasUnicas.map(c => `<option value="${c}">${c}</option>`).join('')}
       </select>
       <input class="form-control mb-2" type="text" placeholder="O ingrese nueva categoría" id="edit-categoria-nueva" />
-      <input class="form-control mb-2" type="text" placeholder="Nueva imagen" id="edit-imagen" />
+      <input class="form-control mb-2" type="text" placeholder="Nueva imagen (ej. producto.png)" id="edit-imagen" />
       <button type="submit" class="btn btn-warning">Actualizar</button>
     </form>
   `;
