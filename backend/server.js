@@ -82,6 +82,10 @@ app.post('/api/admin/upload', upload.single('imagen'), (req, res) => {
 });
 
 
+const path = require('path');
+app.use('/img', express.static(path.join(__dirname, 'img')));
+
+
 // ✅ Ping para verificar estado del servidor
 app.get("/api/ping", (req, res) => {
   res.json({ message: "🟢 Backend en línea" });
