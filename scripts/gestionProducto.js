@@ -104,8 +104,15 @@ function actualizarPreviewImagen() {
   }
 }
 
+function limpiarInputs() {
+  formContainer.querySelectorAll("input[type='text'], input[type='number']").forEach(input => {
+    input.value = input.value.trim();
+  });
+}
+
 async function agregarProducto(e) {
   e.preventDefault();
+  limpiarInputs();
 
   const nuevaCategoria = document.getElementById("prod-categoria-nueva").value.trim();
   const seleccionCategoria = document.getElementById("prod-categoria-select").value.trim();
@@ -164,19 +171,20 @@ function mostrarFormularioEditar() {
 
 async function editarProducto(e) {
   e.preventDefault();
+  limpiarInputs();
   const id = parseInt(document.getElementById("edit-id").value);
 
   const nuevaCategoria = document.getElementById("edit-categoria-nueva").value.trim();
   const seleccionCategoria = document.getElementById("edit-categoria").value.trim();
 
+  const imagenNombre = document.getElementById("edit-imagen").value.trim();
   const body = {
     nombre: document.getElementById("edit-nombre").value.trim(),
     descripcion: document.getElementById("edit-descripcion").value.trim(),
     precio: parseFloat(document.getElementById("edit-precio").value),
     stock: parseInt(document.getElementById("edit-stock").value),
     categoria: nuevaCategoria || seleccionCategoria,
-    imagen: `https://coocishop.onrender.com/img/${document.getElementById("edit-imagen").value.trim()}`
-
+    imagen: imagenNombre ? `https://coocishop.onrender.com/img/${imagenNombre}` : undefined,
   };
   Object.keys(body).forEach(key => { if (!body[key]) delete body[key]; });
 
@@ -208,6 +216,7 @@ function mostrarFormularioEliminar() {
 
 async function eliminarProducto(e) {
   e.preventDefault();
+  limpiarInputs();
   const id = parseInt(document.getElementById("del-id").value);
 
   if (!confirm(`¿Seguro que deseas eliminar el producto #${id}?`)) return;
