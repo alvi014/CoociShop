@@ -175,7 +175,8 @@ async function editarProducto(e) {
     precio: parseFloat(document.getElementById("edit-precio").value),
     stock: parseInt(document.getElementById("edit-stock").value),
     categoria: nuevaCategoria || seleccionCategoria,
-    imagen: document.getElementById("edit-imagen").value.trim(),
+    imagen: `https://coocishop.onrender.com/img/${document.getElementById("edit-imagen").value.trim()}`
+
   };
   Object.keys(body).forEach(key => { if (!body[key]) delete body[key]; });
 
