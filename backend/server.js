@@ -20,13 +20,21 @@ app.use(
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "https:"],
       styleSrc: ["'self'", "https:", "'unsafe-inline'"],
-      imgSrc: ["'self'", "https:", "data:"],
+      imgSrc: [
+        "'self'",
+        "https://coocishop.onrender.com",
+        "data:",
+        "blob:",
+      ],
       connectSrc: ["'self'", "https:"],
+      fontSrc: ["'self'", "https:", "data:"],
       objectSrc: ["'none'"],
+      baseUri: ["'self'"],
       upgradeInsecureRequests: [],
     },
   })
 );
+
 
 // 🌍 Mostrar entorno
 console.log(`🌍 Modo: ${process.env.NODE_ENV || 'development'}`);
