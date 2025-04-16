@@ -7,21 +7,13 @@ const cors = require('cors');
 const nodemailer = require('nodemailer');
 const multer = require('multer');
 const path = require('path');
-const helmet = require('helmet');
 
-// ✅ Inicializar app ANTES de usar app.use
+// ✅ Inicializar app
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ✅ Helmet configurado correctamente después de inicializar express
-// 🛡️ Helmet sin CSP (para evitar bloqueo de imágenes)
-app.use(
-  helmet({
-    contentSecurityPolicy: false,
-  })
-);
-
-
+// ✅ Servir archivos estáticos
+app.use('/img', express.static(path.join(__dirname, '..', 'img')));
 
 // 🌍 Mostrar entorno
 console.log(`🌍 Modo: ${process.env.NODE_ENV || 'development'}`);
@@ -41,10 +33,6 @@ mongoose.connect(process.env.MONGO_URI)
     process.exit(1);
   });
 
-
-
-// 📁 Servir archivos estáticos desde /img
-app.use('/img', express.static(path.join(__dirname, '..', 'img')));
 
 // 📤 Configurar multer para subir imágenes en /img
 const storage = multer.diskStorage({
