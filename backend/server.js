@@ -1,7 +1,6 @@
 // 📦 Cargar variables de entorno y dependencias
 require('dotenv').config();
 
-
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -10,35 +9,11 @@ const multer = require('multer');
 const path = require('path');
 const helmet = require('helmet');
 
-
-
-// ✅ Verificar y mostrar entorno
-console.log(`🌍 Modo: ${process.env.NODE_ENV || 'development'}`);
-// ✅ Validar Mongo URI sin mostrarla
-if (process.env.MONGO_URI) {
-  console.log("🔐 MONGO_URI cargada correctamente desde entorno");
-} else {
-  console.error("❌ MONGO_URI no encontrada. Verifica tu .env o variables de entorno en Render");
-  process.exit(1);
-}
-
-// 📌 Conexión a MongoDB
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('✅ Conectado a MongoDB'))
-  .catch(err => {
-    console.error('❌ Error al conectar a MongoDB:', err);
-    process.exit(1);
-  });
-
-// 📌 Importar modelos
-const Producto = require('./models/Producto');
-const Pedido = require('./models/Pedido');
-
-// 📌 Inicializar app
+// ✅ Inicializar app ANTES de usar app.use
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 📌 Configurar Helmet para seguridad
+// ✅ Helmet configurado correctamente después de inicializar express
 app.use(
   helmet.contentSecurityPolicy({
     directives: {
@@ -52,6 +27,25 @@ app.use(
     },
   })
 );
+
+// 🌍 Mostrar entorno
+console.log(`🌍 Modo: ${process.env.NODE_ENV || 'development'}`);
+
+// 🔐 Validar URI
+if (!process.env.MONGO_URI) {
+  console.error("❌ MONGO_URI no encontrada. Verifica tu .env o variables en Render");
+  process.exit(1);
+}
+console.log("🔐 MONGO_URI cargada correctamente desde entorno");
+
+// 📌 Conexión a MongoDB
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('✅ Conectado a MongoDB'))
+  .catch(err => {
+    console.error('❌ Error al conectar a MongoDB:', err);
+    process.exit(1);
+  });
+
 
 
 // 📁 Servir archivos estáticos desde /img
