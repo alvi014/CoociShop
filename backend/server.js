@@ -165,6 +165,7 @@ const enviarCorreoAdmin = (pedido, comprobante) => {
 };
 
 // 🧾 Guardar pedidos con comprobante y actualizar stock
+
 app.post('/api/pedidos', upload.single('comprobantePago'), async (req, res) => {
   try {
     console.log("📩 Pedido recibido:", req.body);
@@ -210,6 +211,7 @@ app.post('/api/pedidos', upload.single('comprobantePago'), async (req, res) => {
     res.status(500).json({ error: 'Error al registrar el pedido', detalle: error.message });
   }
 });
+
 
 // ❌ Middleware para rutas no encontradas
 app.use((req, res) => {
