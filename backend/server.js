@@ -1,6 +1,6 @@
 // 📦 Cargar variables de entorno y dependencias
 require('dotenv').config();
-console.log("🔍 URI de MongoDB:", process.env.MONGO_URI || "❌ No encontrado");
+
 
 const express = require('express');
 const mongoose = require('mongoose');
@@ -9,7 +9,7 @@ const nodemailer = require('nodemailer');
 const multer = require('multer');
 const path = require('path');
 const helmet = require('helmet');
-app.use(helmet());
+
 
 
 // ✅ Verificar y mostrar entorno
