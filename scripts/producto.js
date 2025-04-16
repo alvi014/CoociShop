@@ -10,7 +10,12 @@ async function cargarProductosPorCategoria() {
         const categoriaSeleccionada = params.get("categoria") || "TODOS";
 
         // Obtener productos del backend
-        let response = await fetch("http://localhost:5000/api/productos");
+        const API_URL = location.hostname === "localhost"
+        ? "http://localhost:5000/api/productos"
+        : "https://coocishop.onrender.com/api/productos";
+      
+      let response = await fetch(API_URL);
+      
         let productos = await response.json();
 
         if (!Array.isArray(productos)) {
