@@ -14,26 +14,13 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // ✅ Helmet configurado correctamente después de inicializar express
+// 🛡️ Helmet sin CSP (para evitar bloqueo de imágenes)
 app.use(
-  helmet.contentSecurityPolicy({
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "https:"],
-      styleSrc: ["'self'", "https:", "'unsafe-inline'"],
-      imgSrc: [
-        "'self'",
-        "https://coocishop.onrender.com",
-        "data:",
-        "blob:",
-      ],
-      connectSrc: ["'self'", "https:"],
-      fontSrc: ["'self'", "https:", "data:"],
-      objectSrc: ["'none'"],
-      baseUri: ["'self'"],
-      upgradeInsecureRequests: [],
-    },
+  helmet({
+    contentSecurityPolicy: false,
   })
 );
+
 
 
 // 🌍 Mostrar entorno
