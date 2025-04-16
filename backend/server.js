@@ -204,12 +204,16 @@ app.post('/api/pedidos', upload.single('comprobantePago'), async (req, res) => {
 
     // 📤 Enviar correo a admin
     enviarCorreoAdmin(nuevoPedido, req.file);
+    console.log("📤 Preparando envío de correo...");
+
 
     res.status(201).json({ mensaje: '✅ Pedido registrado correctamente', pedido: nuevoPedido });
   } catch (error) {
-    console.error("❌ Error al registrar el pedido:", error);
-    res.status(500).json({ error: 'Error al registrar el pedido', detalle: error.message });
+    console.error("❌ Error al registrar el pedido:", error.message);
+    console.error(error.stack); // ⬅️ Esto mostrará la traza completa del error
+    res.status(500).json({ error: 'Error interno', detalle: error.message });
   }
+  
 });
 
 
