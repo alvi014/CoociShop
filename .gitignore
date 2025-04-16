@@ -8,3 +8,5 @@
 # Configuración de paquetes
 packages/
 
+# .Archivo de configuración de usuario
+.env

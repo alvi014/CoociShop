@@ -32,36 +32,30 @@ router.post("/register", async (req, res) => {
     }
 });
 
+
 // ✅ Login
 router.post("/login", async (req, res) => {
-    console.log("✅ POST /api/auth/login llamado");
-
     const email = req.body.email?.trim();
     const password = req.body.password?.trim();
 
+    if (!email || !password) {
+        return res.status(400).json({ message: "Email y contraseña son obligatorios" });
+    }
+
     try {
         const admin = await Admin.findOne({ email });
-
         if (!admin) {
-            console.log("❌ Usuario no encontrado:", email);
             return res.status(400).json({ message: "Usuario no encontrado" });
         }
 
-        console.log("🔒 Password hash en DB:", admin.password);
-        console.log("🔑 Password ingresada:", password);
-        console.log("📥 BODY recibido:", req.body);
-        console.log("📏 Longitud del hash:", admin.password.length);
-
         const isMatch = await bcrypt.compare(password, admin.password);
-        console.log("🔁 Resultado bcrypt.compare:", isMatch);
-
         if (!isMatch) {
             return res.status(400).json({ message: "Contraseña incorrecta" });
         }
 
         const token = jwt.sign(
             { id: admin._id, email: admin.email },
-            "secreto_admin",
+            process.env.JWT_SECRET,
             { expiresIn: "2h" }
         );
 

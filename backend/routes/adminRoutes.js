@@ -28,11 +28,17 @@ router.post("/producto", async (req, res) => {
 
 // ✅ Editar producto
 router.put("/producto/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const updates = req.body;
+  const idNum = parseInt(req.params.id);
+  if (isNaN(idNum)) {
+    return res.status(400).json({ error: "ID inválido, debe ser numérico" });
+  }
 
-    const actualizado = await Producto.findOneAndUpdate({ id: parseInt(id) }, updates, { new: true });
+  try {
+    const actualizado = await Producto.findOneAndUpdate(
+      { id: idNum },
+      req.body,
+      { new: true }
+    );
 
     if (!actualizado) return res.status(404).json({ error: "Producto no encontrado" });
 
@@ -42,6 +48,7 @@ router.put("/producto/:id", async (req, res) => {
     res.status(500).json({ error: "Error al editar producto", detalle: err.message });
   }
 });
+
 
 // ✅ Eliminar producto
 router.delete("/producto/:id", async (req, res) => {
