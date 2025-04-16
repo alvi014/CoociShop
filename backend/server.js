@@ -8,10 +8,17 @@ const cors = require('cors');
 const nodemailer = require('nodemailer');
 const multer = require('multer');
 const path = require('path');
+const helmet = require('helmet');
+app.use(helmet());
 
-// 📌 Validar URI de conexión a MongoDB
-if (!process.env.MONGO_URI) {
-  console.error("❌ ERROR: No se encontró MONGO_URI en el archivo .env");
+
+// ✅ Verificar y mostrar entorno
+console.log(`🌍 Modo: ${process.env.NODE_ENV || 'development'}`);
+// ✅ Validar Mongo URI sin mostrarla
+if (process.env.MONGO_URI) {
+  console.log("🔐 MONGO_URI cargada correctamente desde entorno");
+} else {
+  console.error("❌ MONGO_URI no encontrada. Verifica tu .env o variables de entorno en Render");
   process.exit(1);
 }
 
@@ -30,6 +37,22 @@ const Pedido = require('./models/Pedido');
 // 📌 Inicializar app
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// 📌 Configurar Helmet para seguridad
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "https:"],
+      styleSrc: ["'self'", "https:", "'unsafe-inline'"],
+      imgSrc: ["'self'", "https:", "data:"],
+      connectSrc: ["'self'", "https:"],
+      objectSrc: ["'none'"],
+      upgradeInsecureRequests: [],
+    },
+  })
+);
+
 
 // 📁 Servir archivos estáticos desde /img
 app.use('/img', express.static(path.join(__dirname, '..', 'img')));
