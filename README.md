@@ -80,3 +80,36 @@ Página de **"Cómo Comprar"** en **CoociShop**, que guía al usuario en los pas
 ### Archivos utilizados:
 - `styles.css`: Estilos personalizados.
 - `scripts.js/inicio.js`: Barra de navegación dinámica.
+- 
+
+##🚀 Uso
+Este proyecto consiste en una tienda virtual donde los socios pueden adquirir productos promocionales de la cooperativa.
+Su estructura incluye frontend estático + backend en Node.js + MongoDB + Express.
+
+## ✨ Características principales
+Autenticación de administrador con JWT
+
+Carga y visualización de productos dinámicos
+
+Carga de imágenes con Multer
+
+Envío de correos automáticos con Nodemailer
+
+Control de stock por pedido
+
+Upload de comprobantes de pago
+
+## 🛠️ Variables de Entorno
+Copia el archivo .env.example y completá los valores:
+
+env
+Copiar
+Editar
+# .env.example
+
+MONGO_URI=
+PORT=3000
+EMAIL_ADMIN=
+EMAIL_PASS=
+JWT_SECRET=
+NODE_ENV=development
