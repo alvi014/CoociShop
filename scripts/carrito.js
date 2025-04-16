@@ -138,6 +138,9 @@ document.getElementById('checkout-form').addEventListener('submit', async functi
     formData.append('total', pedido.total);
     formData.append('comprobantePago', comprobantePago);
 
+    console.log("🛒 Productos recibidos:", pedido.productos);
+
+
     try {
         const response = await fetch("https://coocishop.onrender.com/api/pedidos", {
             method: "POST",
