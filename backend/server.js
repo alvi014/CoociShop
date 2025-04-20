@@ -7,6 +7,10 @@ const nodemailer = require('nodemailer');
 const multer = require('multer');
 const path = require('path');
 
+// ✅ Importar modelos
+const Producto = require('./models/Producto');
+const Pedido = require('./models/Pedido');
+
 // ✅ Inicializar app
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -74,7 +78,6 @@ app.use("/api/admin", adminRoutes);
 app.post('/api/admin/upload', upload.single('imagen'), (req, res) => {
   if (!req.file) return res.status(400).json({ error: "No se subió ningún archivo" });
 
-  // ✅ URL completa desde el dominio Render
   const url = `https://coocishop.onrender.com/img/${req.file.filename}`;
   res.status(200).json({ url });
 });
@@ -164,14 +167,12 @@ const enviarCorreoAdmin = (pedido, comprobante) => {
 };
 
 // 🧾 Guardar pedidos con comprobante y actualizar stock
-
 app.post('/api/pedidos', upload.single('comprobantePago'), async (req, res) => {
   try {
     console.log("📩 Pedido recibido:", req.body);
 
     const productos = JSON.parse(req.body.productos);
 
-    // 🧮 Validación de stock
     for (let p of productos) {
       const prodDB = await Producto.findOne({ id: p.id });
       if (!prodDB) {
@@ -184,13 +185,11 @@ app.post('/api/pedidos', upload.single('comprobantePago'), async (req, res) => {
       }
     }
 
-    // ➖ Descontar stock
     for (let p of productos) {
       await Producto.updateOne({ id: p.id }, { $inc: { stock: -p.cantidad } });
       console.log(`🧾 Stock actualizado (ID ${p.id}): -${p.cantidad}`);
     }
 
-    // 💾 Guardar pedido en BD
     const nuevoPedido = new Pedido({
       nombreCliente: req.body.nombreCliente,
       sucursal: req.body.sucursal,
@@ -201,18 +200,15 @@ app.post('/api/pedidos', upload.single('comprobantePago'), async (req, res) => {
 
     await nuevoPedido.save();
 
-    // 📤 Enviar correo a admin
     enviarCorreoAdmin(nuevoPedido, req.file);
     console.log("📤 Preparando envío de correo...");
-
 
     res.status(201).json({ mensaje: '✅ Pedido registrado correctamente', pedido: nuevoPedido });
   } catch (error) {
     console.error("❌ Error al registrar el pedido:", error.message);
-    console.error(error.stack); // ⬅️ Esto mostrará la traza completa del error
+    console.error(error.stack);
     res.status(500).json({ error: 'Error interno', detalle: error.message });
   }
-  
 });
 
 // ❌ Middleware para rutas no encontradas
@@ -224,3 +220,4 @@ app.use((req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
 });
+  
