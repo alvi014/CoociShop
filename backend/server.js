@@ -98,10 +98,12 @@ app.get('/api/productos', async (req, res) => {
     console.log(`✅ Productos obtenidos (${productos.length})`);
     res.json(productos);
   } catch (error) {
-    console.error("❌ Error al obtener productos:", error);
+    console.error("❌ Error al obtener productos:", error.message);
+    console.error(error.stack);
     res.status(500).json({ error: 'Error al obtener productos', detalle: error.message });
   }
 });
+
 
 // 🔍 Obtener producto por ID
 app.get('/api/productos/:id', async (req, res) => {

@@ -3,6 +3,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     actualizarCarritoNavbar(); // Actualiza el contador del carrito en la navbar
 });
 
+// 📌 Base URL dinámica según entorno
+const BASE_URL = location.hostname === "localhost"
+  ? "http://localhost:5000"
+  : "https://coocishop.onrender.com";
+
 // 📌 Cargar productos por categoría desde el backend
 async function cargarProductosPorCategoria() {
     try {
@@ -10,12 +15,7 @@ async function cargarProductosPorCategoria() {
         const categoriaSeleccionada = params.get("categoria") || "TODOS";
 
         // Obtener productos del backend
-        const API_URL = location.hostname === "localhost"
-        ? "http://localhost:5000/api/productos"
-        : "https://coocishop.onrender.com/api/productos";
-      
-      let response = await fetch(API_URL);
-      
+        let response = await fetch(`${BASE_URL}/api/productos`);
         let productos = await response.json();
 
         if (!Array.isArray(productos)) {
@@ -64,7 +64,7 @@ function generarProductos(productos) {
 // 📌 Mostrar el modal con la vista previa del producto
 async function mostrarVistaPrevia(productoId) {
     try {
-        let response = await fetch(`http://localhost:5000/api/productos/${productoId}`);
+        let response = await fetch(`${BASE_URL}/api/productos/${productoId}`);
         let producto = await response.json();
 
         if (!producto) {
@@ -108,7 +108,7 @@ function agregarAlCarrito(productoId) {
         return;
     }
 
-    fetch(`http://localhost:5000/api/productos/${productoId}`)
+    fetch(`${BASE_URL}/api/productos/${productoId}`)
         .then(response => {
             if (!response.ok) throw new Error("No se pudo obtener el producto.");
             return response.json();
@@ -146,8 +146,6 @@ function agregarAlCarrito(productoId) {
             mostrarNotificacion("error", error.message);
         });
 }
-
-
 
 // 📌 Mostrar notificación visual
 function mostrarNotificacion(tipo, mensaje) {
