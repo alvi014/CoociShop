@@ -17,21 +17,36 @@
     <!-- Contenedor principal -->
     <div class="container-fluid mt-5 pt-5">
         <div class="row">
-            <!-- Botón para mostrar el submenú en dispositivos móviles -->
-            <div class="d-md-none text-center mb-3">
-                <button id="toggle-menu" class="btn btn-primary">☰ Categorías</button>
+            <!-- Botón desplegable solo visible en mobile -->
+            <div class="d-md-none text-center mb-3 dropdown">
+                <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownCategoriasMobile"
+                    data-bs-toggle="dropdown" aria-expanded="false">
+                    ☰ Categorías
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownCategoriasMobile">
+                    <li><a class="dropdown-item" href="producto.html?categoria=COOCIQUE">COOCIQUE</a></li>
+                    <li><a class="dropdown-item" href="producto.html?categoria=COOCIQUE MUJER">COOCIQUE MUJER</a></li>
+                    <li><a class="dropdown-item" href="producto.html?categoria=COOCIQUE NG">COOCIQUE NG</a></li>
+                    <li><a class="dropdown-item" href="producto.html?categoria=COOCIQUE GD">COOCIQUE GD</a></li>
+                </ul>
             </div>
+
 
             <!-- Submenú de Categorías -->
             <div class="col-md-3">
                 <div id="submenu" class="sticky-top">
                     <h3 class="titulo-categorias">Categorías</h3>
                     <ul class="list-group">
-                        <li class="list-group-item"><a href="producto.html?categoria=COOCIQUE" class="text-decoration-none categoria">COOCIQUE</a></li>
-                        <li class="list-group-item"><a href="producto.html?categoria=COOCIQUE MUJER" class="text-decoration-none categoria">COOCIQUE MUJER</a></li>
-                        <li class="list-group-item"><a href="producto.html?categoria=COOCIQUE NG" class="text-decoration-none categoria">COOCIQUE NG</a></li>
-                        <li class="list-group-item"><a href="producto.html?categoria=COOCIQUE GD" class="text-decoration-none categoria">COOCIQUE GD</a></li>
-                        <li class="list-group-item"><a href="producto.html?categoria=TODOS" class="text-decoration-none">TODOS LOS PRODUCTOS</a></li>
+                        <li class="list-group-item"><a href="producto.html?categoria=COOCIQUE"
+                                class="text-decoration-none categoria">COOCIQUE</a></li>
+                        <li class="list-group-item"><a href="producto.html?categoria=COOCIQUE MUJER"
+                                class="text-decoration-none categoria">COOCIQUE MUJER</a></li>
+                        <li class="list-group-item"><a href="producto.html?categoria=COOCIQUE NG"
+                                class="text-decoration-none categoria">COOCIQUE NG</a></li>
+                        <li class="list-group-item"><a href="producto.html?categoria=COOCIQUE GD"
+                                class="text-decoration-none categoria">COOCIQUE GD</a></li>
+                        <li class="list-group-item"><a href="producto.html?categoria=TODOS"
+                                class="text-decoration-none">TODOS LOS PRODUCTOS</a></li>
                     </ul>
                 </div>
             </div>
@@ -48,23 +63,23 @@
 
     <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
         <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="productModalLabel"></h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="productModalLabel"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body" id="productModalBody">
+                    <!-- Aquí se cargará el contenido dinámicamente -->
+                </div>
             </div>
-            <div class="modal-body" id="productModalBody">
-              <!-- Aquí se cargará el contenido dinámicamente -->
-            </div>
-          </div>
         </div>
-      </div>
-      
- <!-- Footer -->
- <footer class="text-center mt-5">
-    <p>&copy; 2025 CoociShop. Todos los derechos reservados.</p>
-</footer>
-    
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center mt-5">
+        <p>&copy; 2025 CoociShop. Todos los derechos reservados.</p>
+    </footer>
+
 
 
     <!-- Scripts -->

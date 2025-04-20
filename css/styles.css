@@ -7,6 +7,9 @@ body {
     background-color: #f8f9fa;
     margin: 0;
     padding: 0;
+      
+      
+      
 }
 
 /* ===================== */
@@ -62,15 +65,15 @@ body {
 }
 
 .dropdown-menu .dropdown-item {
-    color: white !important;
+    color:white !important; /* Texto blanco */
     font-size: 1rem;
     transition: background 0.3s;
 }
 
-.dropdown-menu .dropdown-item:hover {
+ .dropdown-menu .dropdown-item:hover { 
     background-color: #1a44fc; /* Azul más llamativo */
-    color: white !important;
-}
+     color: white !important;} 
+
 
 /* 📌 Menú en móviles */
 .navbar-toggler {
@@ -268,6 +271,11 @@ body {
     background-color: #1448b9;
     color: #f8f9fa;
 }
+  
+  .btn-categorias-custom:hover {
+    background-color: #084298;
+  }
+  
 
 /* ===================== */
 /* 📌 Footer */
@@ -807,3 +815,14 @@ footer {
 .form-control {
     border-radius: 5px;
 }
+
+
+/* 🔵 Personalizar el botón hamburguesa en modo mobile */
+.navbar-toggler {
+    border-color: transparent;
+  }
+  
+  .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='blue' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+  }
+  
