@@ -6,6 +6,8 @@ const cors = require('cors');
 const nodemailer = require('nodemailer');
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
+
 
 // ✅ Importar modelos
 const Producto = require('./models/Producto');
@@ -30,8 +32,7 @@ console.log("🔐 MONGO_URI cargada correctamente desde entorno");
 
 // 📌 Conexión a MongoDB
 mongoose.connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
+
 })
     .then(() => console.log('✅ Conexión a MongoDB Atlas exitosa'))
     .catch(err => console.error('❌ Error al conectar a MongoDB:', err));
@@ -155,9 +156,10 @@ const enviarCorreoAdmin = (pedido, comprobante) => {
     `,
     attachments: comprobante ? [{
       filename: comprobante.originalname,
-      content: comprobante.buffer,
+      content: fs.readFileSync(path.join(__dirname, '..', 'img', comprobante.filename)),
       cid: "comprobanteAdjunto"
     }] : []
+    
   };
 
   transporter.sendMail(mailOptions, (error, info) => {
@@ -220,4 +222,3 @@ app.use((req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
 });
-  
