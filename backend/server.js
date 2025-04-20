@@ -156,7 +156,7 @@ const enviarCorreoAdmin = (pedido, comprobante) => {
     `,
     attachments: comprobante ? [{
       filename: comprobante.originalname,
-      content: fs.readFileSync(path.join(__dirname, '..', 'img', comprobante.filename)),
+      content: fs.readFileSync(path.join(__dirname, 'img', comprobante.filename)),
       cid: "comprobanteAdjunto"
     }] : []
     
