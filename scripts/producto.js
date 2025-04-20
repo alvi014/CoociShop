@@ -18,6 +18,10 @@ async function cargarProductosPorCategoria() {
         let response = await fetch(`${BASE_URL}/api/productos`);
         let productos = await response.json();
 
+        // Log the response for debugging
+        console.log("🔍 Respuesta del servidor:", productos);
+
+        // Validar que la respuesta sea un array
         if (!Array.isArray(productos)) {
             throw new Error("La respuesta del servidor no es un array válido.");
         }
@@ -30,6 +34,14 @@ async function cargarProductosPorCategoria() {
         generarProductos(productosFiltrados);
     } catch (error) {
         console.error("❌ Error al cargar productos:", error);
+
+        // Mostrar un mensaje de error en la interfaz
+        const contenedor = document.getElementById('product-container');
+        contenedor.innerHTML = `
+            <div class="alert alert-danger text-center" role="alert">
+                ❌ No se pudieron cargar los productos. Intente nuevamente más tarde.
+            </div>
+        `;
     }
 }
 
