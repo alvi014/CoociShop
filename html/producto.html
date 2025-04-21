@@ -18,24 +18,28 @@
     <div class="container-fluid mt-5 pt-5">
         <div class="row">
             <!-- Botón desplegable solo visible en mobile -->
-            <div class="d-md-none text-center mb-3 dropdown">
-                <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownCategoriasMobile"
-                    data-bs-toggle="dropdown" aria-expanded="false">
-                    ☰ Categorías
-                </button>
-                <ul class="dropdown-menu" aria-labelledby="dropdownCategoriasMobile">
-                    <li><a class="dropdown-item" href="producto.html?categoria=COOCIQUE">COOCIQUE</a></li>
-                    <li><a class="dropdown-item" href="producto.html?categoria=COOCIQUE MUJER">COOCIQUE MUJER</a></li>
-                    <li><a class="dropdown-item" href="producto.html?categoria=COOCIQUE NG">COOCIQUE NG</a></li>
-                    <li><a class="dropdown-item" href="producto.html?categoria=COOCIQUE GD">COOCIQUE GD</a></li>
-                </ul>
+            <div class="d-md-none text-center mb-3">
+                <input type="text" class="form-control mb-3 buscador-productos" placeholder="Buscar productos...">
+                <div class="dropdown">
+                    <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownCategoriasMobile"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        ☰ Categorías
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownCategoriasMobile">
+                        <li><a class="dropdown-item" href="producto.html?categoria=COOCIQUE">COOCIQUE</a></li>
+                        <li><a class="dropdown-item" href="producto.html?categoria=COOCIQUE MUJER">COOCIQUE MUJER</a></li>
+                        <li><a class="dropdown-item" href="producto.html?categoria=COOCIQUE NG">COOCIQUE NG</a></li>
+                        <li><a class="dropdown-item" href="producto.html?categoria=COOCIQUE GD">COOCIQUE GD</a></li>
+                        <li><a class="dropdown-item" href="producto.html?categoria=TODOS">TODOS LOS PRODUCTOS</a></li>
+                    </ul>
+                </div>
             </div>
-
 
             <!-- Submenú de Categorías -->
             <div class="col-md-3">
                 <div id="submenu" class="sticky-top">
                     <h3 class="titulo-categorias">Categorías</h3>
+                    <input type="text" class="form-control mb-3 buscador-productos" placeholder="Buscar productos...">
                     <ul class="list-group">
                         <li class="list-group-item"><a href="producto.html?categoria=COOCIQUE"
                                 class="text-decoration-none categoria">COOCIQUE</a></li>
@@ -79,8 +83,6 @@
     <footer class="text-center mt-5">
         <p>&copy; 2025 CoociShop. Todos los derechos reservados.</p>
     </footer>
-
-
 
     <!-- Scripts -->
     <script src="scripts/producto.js" defer></script>

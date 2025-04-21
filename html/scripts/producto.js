@@ -1,32 +1,44 @@
+// 📌 Variables globales
+let productosGlobal = []; // Guardar todos los productos para filtrar
+
+// 📌 Inicializar Bootstrap tooltips
 document.addEventListener('DOMContentLoaded', async () => {
     await cargarProductosPorCategoria();
-    actualizarCarritoNavbar(); // Actualiza el contador del carrito en la navbar
+    actualizarCarritoNavbar();
+
+    // ✅ Escuchar el input del buscador
+    const buscadores = document.querySelectorAll('.buscador-productos');
+    buscadores.forEach(input => {
+        input.addEventListener('input', function () {
+            const termino = this.value.toLowerCase().trim();
+            const productosFiltrados = productosGlobal.filter(producto =>
+                producto.nombre.toLowerCase().includes(termino)
+            );
+            generarProductos(productosFiltrados);
+        });
+    });
 });
 
-// 📌 Base URL dinámica según entorno
 const BASE_URL = location.hostname === "localhost"
   ? "http://localhost:5000"
   : "https://coocishop.onrender.com";
 
-// 📌 Cargar productos por categoría desde el backend
 async function cargarProductosPorCategoria() {
     try {
         const params = new URLSearchParams(window.location.search);
         const categoriaSeleccionada = params.get("categoria") || "TODOS";
 
-        // Obtener productos del backend
         let response = await fetch(`${BASE_URL}/api/productos`);
         let productos = await response.json();
 
-        // ✅ Arreglar URL si es relativa a Render (/img/...)
+        productosGlobal = productos;
+
         productos = productos.map(producto => {
             if (producto.imagen?.startsWith("/img/")) {
                 producto.imagen = `img/${producto.imagen.split("/").pop()}`;
             }
             return producto;
         });
-
-        console.log("🔍 Respuesta del servidor:", productos);
 
         if (!Array.isArray(productos)) {
             throw new Error("La respuesta del servidor no es un array válido.");
@@ -39,7 +51,6 @@ async function cargarProductosPorCategoria() {
         generarProductos(productosFiltrados);
     } catch (error) {
         console.error("❌ Error al cargar productos:", error);
-
         const contenedor = document.getElementById('product-container');
         contenedor.innerHTML = `
             <div class="alert alert-danger text-center" role="alert">
@@ -48,7 +59,7 @@ async function cargarProductosPorCategoria() {
         `;
     }
 }
-//
+
 function generarProductos(productos) {
     const contenedor = document.getElementById('product-container');
     contenedor.innerHTML = '';
