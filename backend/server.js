@@ -8,7 +8,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-// ✅ Importar modelos
+// ✅ Modelos
 const Producto = require('./models/Producto');
 const Pedido = require('./models/Pedido');
 
@@ -16,13 +16,7 @@ const Pedido = require('./models/Pedido');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// ✅ Configurar el motor de plantillas EJS
-const pedidosRoutes = require('./routes/pedidos');
-
-app.use(pedidosRoutes);
-
-
-// ✅ Permitir solicitudes desde Netlify
+// ✅ CORS: siempre primero
 const corsOptions = {
   origin: ['https://coocishop.netlify.app'],
   methods: 'GET,POST',
@@ -30,12 +24,21 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
+// ✅ Middlewares necesarios antes de rutas
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 // ✅ Cabecera adicional por si Netlify exige preflight
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "https://coocishop.netlify.app");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   next();
 });
+
+// ✅ Rutas después de middlewares
+const pedidosRoutes = require('./routes/pedidos');
+app.use(pedidosRoutes);
+
 
 // ✅ Servir imágenes de productos
 app.use('/img', express.static(path.join(__dirname, '..', 'img')));
