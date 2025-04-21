@@ -18,24 +18,20 @@ async function cargarProductosPorCategoria() {
         let response = await fetch(`${BASE_URL}/api/productos`);
         let productos = await response.json();
 
-        // 📌 Reparar URL de imágenes si vienen desde "/img/"
-productos = productos.map(producto => {
-    if (producto.imagen?.startsWith("/img/")) {
-        producto.imagen = `img/${producto.imagen.split("/").pop()}`;
-    }
-    return producto;
-});
+        // ✅ Arreglar URL si es relativa a Render (/img/...)
+        productos = productos.map(producto => {
+            if (producto.imagen?.startsWith("/img/")) {
+                producto.imagen = `img/${producto.imagen.split("/").pop()}`;
+            }
+            return producto;
+        });
 
-
-        // Log the response for debugging
         console.log("🔍 Respuesta del servidor:", productos);
 
-        // Validar que la respuesta sea un array
         if (!Array.isArray(productos)) {
             throw new Error("La respuesta del servidor no es un array válido.");
         }
 
-        // Filtrar por categoría si no es "TODOS"
         const productosFiltrados = (categoriaSeleccionada === "TODOS") 
             ? productos 
             : productos.filter(producto => producto.categoria === categoriaSeleccionada);
@@ -44,7 +40,6 @@ productos = productos.map(producto => {
     } catch (error) {
         console.error("❌ Error al cargar productos:", error);
 
-        // Mostrar un mensaje de error en la interfaz
         const contenedor = document.getElementById('product-container');
         contenedor.innerHTML = `
             <div class="alert alert-danger text-center" role="alert">
@@ -53,8 +48,7 @@ productos = productos.map(producto => {
         `;
     }
 }
-
-// 📌 Mostrar productos en la página
+//
 function generarProductos(productos) {
     const contenedor = document.getElementById('product-container');
     contenedor.innerHTML = '';
@@ -93,6 +87,11 @@ async function mostrarVistaPrevia(productoId) {
             return;
         }
 
+        // ✅ Reparar imagen para vista previa si tiene /img/
+        if (producto.imagen?.startsWith("/img/")) {
+            producto.imagen = `img/${producto.imagen.split("/").pop()}`;
+        }
+
         document.getElementById('productModalLabel').textContent = producto.nombre;
         document.getElementById('productModalBody').innerHTML = `
             <img src="${producto.imagen}" class="img-fluid mb-3" alt="${producto.nombre}">
@@ -113,8 +112,7 @@ async function mostrarVistaPrevia(productoId) {
         console.error("❌ Error al mostrar el modal:", error);
     }
 }
-
-// función de agregar al carrito
+// 📌 Agregar producto al carrito
 function agregarAlCarrito(productoId) {
     if (!productoId || isNaN(productoId)) {
         mostrarNotificacion("error", "ID de producto inválido.");
@@ -123,12 +121,12 @@ function agregarAlCarrito(productoId) {
 
     const cantidadInput = document.getElementById('cantidadProducto');
     const cantidad = parseInt(cantidadInput?.value);
-    
+
     if (isNaN(cantidad) || cantidad <= 0) {
         mostrarNotificacion("error", "Ingrese una cantidad válida.");
         return;
     }
-
+        // 📌 Obtener el producto del backend
     fetch(`${BASE_URL}/api/productos/${productoId}`)
         .then(response => {
             if (!response.ok) throw new Error("No se pudo obtener el producto.");
@@ -140,7 +138,6 @@ function agregarAlCarrito(productoId) {
                 return;
             }
 
-            // ✅ Validar stock aquí
             if (cantidad > producto.stock) {
                 mostrarNotificacion("error", `Solo hay ${producto.stock} unidades disponibles.`);
                 return;
@@ -167,8 +164,7 @@ function agregarAlCarrito(productoId) {
             mostrarNotificacion("error", error.message);
         });
 }
-
-// 📌 Mostrar notificación visual
+// 📌 Mostrar notificación
 function mostrarNotificacion(tipo, mensaje) {
     const toastContainer = document.getElementById("toast-container");
     if (!toastContainer) return;
@@ -186,18 +182,16 @@ function mostrarNotificacion(tipo, mensaje) {
 
     setTimeout(() => toast.remove(), 3000);
 }
-
 // 📌 Actualizar el contador del carrito en la navbar
 function actualizarCarritoNavbar() {
     let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
     let contadorCarrito = document.getElementById("cart-count");
-    
+
     if (contadorCarrito) {
         contadorCarrito.textContent = carrito.reduce((total, item) => total + item.cantidad, 0);
     }
 }
-
-// 📌 Agregar contenedor para las notificaciones
+// 📌 Crear el contenedor de notificaciones si no existe
 if (!document.getElementById("toast-container")) {
     document.body.insertAdjacentHTML("beforeend", '<div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 1050;"></div>');
 }

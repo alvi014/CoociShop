@@ -4,8 +4,7 @@ const sucursales = [
     "Zarcero", "San Ramón", "Orotina", "Naranjo", "Grecia", "La Tigra", "Fortuna", "Guatuso", "Santa Rosa", "Aguas Zarcas",
     "Venecia", "Pital", "Puerto Viejo", "Guapiles"
 ];
-
-// Función para cargar las sucursales en el menú desplegable
+// 📦 Cargar las sucursales en el select
 function cargarSucursales() {
     const sucursalEnvio = document.getElementById('sucursal-envio');
     sucursales.forEach(sucursal => {
@@ -15,8 +14,7 @@ function cargarSucursales() {
         sucursalEnvio.appendChild(option);
     });
 }
-
-// Función para mostrar los productos en el carrito
+//
 function mostrarCarrito() {
     const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
     const carritoContainer = document.getElementById('carrito-container');
@@ -31,8 +29,14 @@ function mostrarCarrito() {
         const subtotal = producto.precio * producto.cantidad;
         total += subtotal;
 
+        // ✅ Verificamos si la imagen empieza con /img y ajustamos para Netlify
+        let imagenSrc = producto.imagen;
+        if (imagenSrc?.startsWith('/img')) {
+            imagenSrc = imagenSrc.replace('/img', 'img');
+        }
+
         productRow.innerHTML = `
-            <img src="${producto.imagen}" alt="${producto.nombre}">
+            <img src="${imagenSrc}" alt="${producto.nombre}">
             <div class="carrito-item-info">
                 <h4>${producto.nombre}</h4>
                 <p>${producto.descripcion}</p>
@@ -51,7 +55,6 @@ function mostrarCarrito() {
     totalRow.innerHTML = `Total: ₡${total}`;
     carritoContainer.appendChild(totalRow);
 
-    // Agregar eventos a los botones "Eliminar"
     document.querySelectorAll('.btn-eliminar').forEach(button => {
         button.addEventListener('click', (e) => {
             const productId = e.target.dataset.productId;
@@ -59,8 +62,7 @@ function mostrarCarrito() {
         });
     });
 }
-
-// Función para eliminar un producto del carrito
+// 📦 Agregar producto al carrito
 function eliminarDelCarrito(productId) {
     let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
     const productoEnCarrito = carrito.find(producto => producto.id == productId);
@@ -72,25 +74,17 @@ function eliminarDelCarrito(productId) {
             carrito = carrito.filter(producto => producto.id != productId);
         }
 
-        // 📌 Actualizar localStorage
         localStorage.setItem('carrito', JSON.stringify(carrito));
-
-        // 📌 Refrescar la vista del carrito
         mostrarCarrito();
-
-        // 📌 ACTUALIZAR EL CONTADOR EN LA NAVBAR
         actualizarCarritoNavbar();
     }
 }
-
-
-// Mostrar el carrito al cargar la página
+// 📦 Mostrar el carrito al cargar la página y cargar las sucursales
 document.addEventListener('DOMContentLoaded', () => {
     mostrarCarrito();
     cargarSucursales();
 });
-
-// Función para enviar el pedido
+// 📦 Enviar el pedido al backend
 document.getElementById('checkout-form').addEventListener('submit', async function (e) {
     e.preventDefault();
 
@@ -105,7 +99,6 @@ document.getElementById('checkout-form').addEventListener('submit', async functi
         return;
     }
 
-    // Validar que los productos tengan datos válidos
     const productosValidos = carrito.filter(producto =>
         producto.id && producto.nombre && !isNaN(Number(producto.precio)) && !isNaN(Number(producto.cantidad))
     );
@@ -118,7 +111,7 @@ document.getElementById('checkout-form').addEventListener('submit', async functi
     const total = productosValidos.reduce((acc, producto) => {
         return acc + (Number(producto.precio) * Number(producto.cantidad));
     }, 0);
-
+// 📦 Crear el objeto del pedido
     const pedido = {
         nombreCliente: nombreCompleto,
         sucursal: sucursalEnvio,
@@ -130,16 +123,13 @@ document.getElementById('checkout-form').addEventListener('submit', async functi
         })),
         total
     };
-
+// 📦 Enviar el pedido al backend
     const formData = new FormData();
     formData.append('nombreCliente', pedido.nombreCliente);
     formData.append('sucursal', pedido.sucursal);
     formData.append('productos', JSON.stringify(pedido.productos));
     formData.append('total', pedido.total);
     formData.append('comprobantePago', comprobantePago);
-
-    console.log("🛒 Productos recibidos:", pedido.productos);
-
 
     try {
         const response = await fetch("https://coocishop.onrender.com/api/pedidos", {
@@ -164,18 +154,16 @@ document.getElementById('checkout-form').addEventListener('submit', async functi
 
     actualizarCarritoNavbar();
 });
-
-
+// 📌 Función para mostrar notificaciones
 function actualizarCarritoNavbar() {
     let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
     let contadorCarrito = document.getElementById("cart-count");
-    
+
     if (contadorCarrito) {
         contadorCarrito.textContent = carrito.reduce((total, item) => total + item.cantidad, 0);
     }
 }
-
-// 📌 Agregar contenedor para las notificaciones
+// 📌 Crear el contenedor de notificaciones si no existe
 if (!document.getElementById("toast-container")) {
     document.body.insertAdjacentHTML("beforeend", '<div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 1050;"></div>');
 }
