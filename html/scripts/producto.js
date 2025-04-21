@@ -1,12 +1,11 @@
 // 📌 Variables globales
-let productosGlobal = []; // Guardar todos los productos para filtrar
+let productosGlobal = [];
 
 // 📌 Inicializar Bootstrap tooltips
 document.addEventListener('DOMContentLoaded', async () => {
     await cargarProductosPorCategoria();
     actualizarCarritoNavbar();
 
-    // ✅ Escuchar el input del buscador
     const buscadores = document.querySelectorAll('.buscador-productos');
     buscadores.forEach(input => {
         input.addEventListener('input', function () {
@@ -22,7 +21,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 const BASE_URL = location.hostname === "localhost"
   ? "http://localhost:5000"
   : "https://coocishop.onrender.com";
-
+  
+// 📦 Cargar productos por categoría desde el backend
 async function cargarProductosPorCategoria() {
     try {
         const params = new URLSearchParams(window.location.search);
@@ -59,14 +59,14 @@ async function cargarProductosPorCategoria() {
         `;
     }
 }
-
+// 📦 Mostrar productos en la página
 function generarProductos(productos) {
     const contenedor = document.getElementById('product-container');
     contenedor.innerHTML = '';
 
     productos.forEach(producto => {
         const card = document.createElement('div');
-        card.className = 'product-card col-md-4 col-lg-3 mb-4';
+        card.className = 'product-card col-md-4 col-lg-3 mb-4 position-relative';
         card.dataset.productId = producto.id;
         card.innerHTML = `
             <img src="${producto.imagen}" class="card-img-top" alt="${producto.nombre}">
@@ -75,6 +75,9 @@ function generarProductos(productos) {
                 <p class="card-text">${producto.descripcion}</p>
                 <p class="card-text"><strong>Precio: ₡${producto.precio}</strong></p>
                 <button class="btn btn-primary ver-detalle" data-id="${producto.id}">Ver Detalle</button>
+            </div>
+            <div class="add-animation-check position-absolute top-0 end-0 p-2" style="display:none;">
+              <span class="bg-success text-white rounded-circle p-2">✔️</span>
             </div>
         `;
         contenedor.appendChild(card);
@@ -86,8 +89,7 @@ function generarProductos(productos) {
         });
     });
 }
-
-// 📌 Mostrar el modal con la vista previa del producto
+// 📦 Mostrar vista previa del producto
 async function mostrarVistaPrevia(productoId) {
     try {
         let response = await fetch(`${BASE_URL}/api/productos/${productoId}`);
@@ -98,7 +100,6 @@ async function mostrarVistaPrevia(productoId) {
             return;
         }
 
-        // ✅ Reparar imagen para vista previa si tiene /img/
         if (producto.imagen?.startsWith("/img/")) {
             producto.imagen = `img/${producto.imagen.split("/").pop()}`;
         }
@@ -109,7 +110,6 @@ async function mostrarVistaPrevia(productoId) {
             <p><strong>${producto.descripcion}</strong></p>
             <p><strong>Precio: ₡${producto.precio}</strong></p>
             <p>Stock Disponible: ${producto.stock}</p>
-
             <div class="mb-3">
                 <label for="cantidadProducto" class="form-label">Cantidad:</label>
                 <input type="number" id="cantidadProducto" class="form-control" value="1" min="1" max ="${producto.stock}">
@@ -123,7 +123,7 @@ async function mostrarVistaPrevia(productoId) {
         console.error("❌ Error al mostrar el modal:", error);
     }
 }
-// 📌 Agregar producto al carrito
+// 📦 Agregar producto al carrito
 function agregarAlCarrito(productoId) {
     if (!productoId || isNaN(productoId)) {
         mostrarNotificacion("error", "ID de producto inválido.");
@@ -137,7 +137,7 @@ function agregarAlCarrito(productoId) {
         mostrarNotificacion("error", "Ingrese una cantidad válida.");
         return;
     }
-        // 📌 Obtener el producto del backend
+ // 📌 Verificamos si la imagen empieza con /img y ajustamos para Netlify
     fetch(`${BASE_URL}/api/productos/${productoId}`)
         .then(response => {
             if (!response.ok) throw new Error("No se pudo obtener el producto.");
@@ -169,13 +169,23 @@ function agregarAlCarrito(productoId) {
 
             const modalElement = document.getElementById('productModal');
             bootstrap.Modal.getInstance(modalElement).hide();
+
+            // ✅ Mostrar ícono de animación
+            const card = document.querySelector(`[data-product-id='${producto.id}']`);
+            const check = card?.querySelector('.add-animation-check');
+            if (check) {
+              check.style.display = 'block';
+              check.style.opacity = '1';
+              setTimeout(() => check.style.opacity = '0', 1000);
+              setTimeout(() => check.style.display = 'none', 1500);
+            }
         })
         .catch(error => {
             console.error("❌ Error al agregar al carrito:", error);
             mostrarNotificacion("error", error.message);
         });
 }
-// 📌 Mostrar notificación
+// 📌 Mostrar notificación visual      
 function mostrarNotificacion(tipo, mensaje) {
     const toastContainer = document.getElementById("toast-container");
     if (!toastContainer) return;
@@ -193,7 +203,7 @@ function mostrarNotificacion(tipo, mensaje) {
 
     setTimeout(() => toast.remove(), 3000);
 }
-// 📌 Actualizar el contador del carrito en la navbar
+//  📌 Actualizar el contador del carrito en la navbar
 function actualizarCarritoNavbar() {
     let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
     let contadorCarrito = document.getElementById("cart-count");
