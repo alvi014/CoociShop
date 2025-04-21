@@ -61,9 +61,11 @@ router.post("/login", async (req, res) => {
 
         res.json({ token });
     } catch (error) {
-        console.error("❌ Error en login:", error);
+        console.error("❌ Error en login:", error.message);
+        console.error(error.stack);
         res.status(500).json({ message: "Error en el servidor", error });
-    }
+      }
+      
 });
 
 module.exports = router;

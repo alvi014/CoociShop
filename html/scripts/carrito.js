@@ -140,11 +140,12 @@ document.getElementById('checkout-form').addEventListener('submit', async functi
         const data = await response.json();
 
         if (response.ok) {
-            alert("✅ Pedido enviado con éxito.");
+            mostrarNotificacion("success", "✅ Pedido enviado con éxito.");
             localStorage.removeItem('carrito');
             mostrarCarrito();
             document.getElementById('checkout-form').reset();
-        } else {
+        }
+        else {
             alert(`❌ Error al enviar pedido: ${data.error || 'Error desconocido'}`);
         }
     } catch (error) {
@@ -166,4 +167,30 @@ function actualizarCarritoNavbar() {
 // 📌 Crear el contenedor de notificaciones si no existe
 if (!document.getElementById("toast-container")) {
     document.body.insertAdjacentHTML("beforeend", '<div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 1050;"></div>');
+}
+// 📦 Mostrar notificación visual
+function mostrarNotificacion(tipo, mensaje) {
+    const toastContainer = document.getElementById("toast-container");
+    if (!toastContainer) return;
+
+    const toast = document.createElement("div");
+    toast.className = `toast align-items-center text-bg-${tipo} border-0 show`;
+    toast.role = "alert";
+    toast.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">${mensaje}</div>
+            <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    `;
+    toastContainer.appendChild(toast);
+
+    setTimeout(() => toast.remove(), 3000);
+}
+
+// 📌 Agregar contenedor visual al HTML si no existe
+if (!document.getElementById("toast-container")) {
+    document.body.insertAdjacentHTML(
+        "beforeend",
+        `<div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 1055;"></div>`
+    );
 }
