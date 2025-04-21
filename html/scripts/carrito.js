@@ -84,6 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
     mostrarCarrito();
     cargarSucursales();
 });
+
 // 📦 Enviar el pedido al backend
 document.getElementById('checkout-form').addEventListener('submit', async function (e) {
     e.preventDefault();
@@ -111,7 +112,7 @@ document.getElementById('checkout-form').addEventListener('submit', async functi
     const total = productosValidos.reduce((acc, producto) => {
         return acc + (Number(producto.precio) * Number(producto.cantidad));
     }, 0);
-// 📦 Crear el objeto del pedido
+
     const pedido = {
         nombreCliente: nombreCompleto,
         sucursal: sucursalEnvio,
@@ -123,13 +124,23 @@ document.getElementById('checkout-form').addEventListener('submit', async functi
         })),
         total
     };
-// 📦 Enviar el pedido al backend
+
     const formData = new FormData();
     formData.append('nombreCliente', pedido.nombreCliente);
     formData.append('sucursal', pedido.sucursal);
     formData.append('productos', JSON.stringify(pedido.productos));
     formData.append('total', pedido.total);
     formData.append('comprobantePago', comprobantePago);
+
+    // ✅ Verificamos si el backend está listo
+    try {
+        const ping = await fetch("https://coocishop.onrender.com/api/ping", { cache: "no-store" });
+        const result = await ping.json();
+        console.log("⏱ Backend respondió:", result.message);
+    } catch (pingErr) {
+        alert("⚠️ El sistema está preparando el servidor. Inténtalo nuevamente en unos segundos.");
+        return;
+    }
 
     try {
         const response = await fetch("https://coocishop.onrender.com/api/pedidos", {
@@ -144,17 +155,17 @@ document.getElementById('checkout-form').addEventListener('submit', async functi
             localStorage.removeItem('carrito');
             mostrarCarrito();
             document.getElementById('checkout-form').reset();
-        }
-        else {
+        } else {
             alert(`❌ Error al enviar pedido: ${data.error || 'Error desconocido'}`);
         }
     } catch (error) {
         console.error("❌ Error al enviar pedido:", error);
-        alert("❌ Hubo un problema con el servidor.");
+        alert("⚠️ No se pudo completar el pedido en este momento. Inténtalo de nuevo más tarde.");
     }
 
     actualizarCarritoNavbar();
 });
+
 // 📌 Función para mostrar notificaciones
 function actualizarCarritoNavbar() {
     let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
