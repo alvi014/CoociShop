@@ -134,36 +134,33 @@ document.getElementById('checkout-form').addEventListener('submit', async functi
 
     // ✅ Verificamos si el backend está listo
     try {
-        const ping = await fetch("https://coocishop.onrender.com/api/ping", { cache: "no-store" });
-        const result = await ping.json();
-        console.log("⏱ Backend respondió:", result.message);
-    } catch (pingErr) {
-        alert("⚠️ El sistema está preparando el servidor. Inténtalo nuevamente en unos segundos.");
-        return;
-    }
-
-    try {
         const response = await fetch("https://coocishop.onrender.com/api/pedidos", {
             method: "POST",
             body: formData
         });
-
+    
         let data;
-try {
-    data = await response.json(); // solo si es JSON válido
-} catch (err) {
-    data = null;
-}
-
-if (response.ok) {
-    mostrarNotificacion("success", "✅ Pedido enviado con éxito.");
-    localStorage.removeItem('carrito');
-    mostrarCarrito();
-    document.getElementById('checkout-form').reset();
-} else {
-    alert(`❌ Error al enviar pedido: ${(data && data.error) || 'Error desconocido'}`);
-}
-
+        try {
+            data = await response.json();
+        } catch (err) {
+            data = null;
+        }
+    
+        if (response.ok) {
+            mostrarNotificacion("success", "✅ Pedido enviado con éxito.");
+            localStorage.removeItem('carrito');
+            mostrarCarrito();
+            document.getElementById('checkout-form').reset();
+        } else {
+            alert(`❌ Error al enviar pedido: ${(data && data.error) || 'Error desconocido'}`);
+        }
+    
+        actualizarCarritoNavbar(); // ✅ Ahora sí está dentro del try
+    } catch (error) {
+        console.error("❌ Error al enviar pedido:", error);
+        alert("⚠️ No se pudo completar el pedido en este momento. Inténtalo de nuevo más tarde.");
+    }
+    
 
     actualizarCarritoNavbar();
 });
