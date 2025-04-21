@@ -148,20 +148,22 @@ document.getElementById('checkout-form').addEventListener('submit', async functi
             body: formData
         });
 
-        const data = await response.json();
+        let data;
+try {
+    data = await response.json(); // solo si es JSON válido
+} catch (err) {
+    data = null;
+}
 
-        if (response.ok) {
-            mostrarNotificacion("success", "✅ Pedido enviado con éxito.");
-            localStorage.removeItem('carrito');
-            mostrarCarrito();
-            document.getElementById('checkout-form').reset();
-        } else {
-            alert(`❌ Error al enviar pedido: ${data.error || 'Error desconocido'}`);
-        }
-    } catch (error) {
-        console.error("❌ Error al enviar pedido:", error);
-        alert("⚠️ No se pudo completar el pedido en este momento. Inténtalo de nuevo más tarde.");
-    }
+if (response.ok) {
+    mostrarNotificacion("success", "✅ Pedido enviado con éxito.");
+    localStorage.removeItem('carrito');
+    mostrarCarrito();
+    document.getElementById('checkout-form').reset();
+} else {
+    alert(`❌ Error al enviar pedido: ${(data && data.error) || 'Error desconocido'}`);
+}
+
 
     actualizarCarritoNavbar();
 });
