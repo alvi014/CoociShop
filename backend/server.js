@@ -11,13 +11,16 @@ const fs = require('fs');
 // ✅ Importar modelos
 const Producto = require('./models/Producto');
 const Pedido = require('./models/Pedido');
-const pedidosRoutes = require('./routes/pedidos');
-
-app.use(pedidosRoutes);
 
 // ✅ Inicializar app
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// ✅ Configurar el motor de plantillas EJS
+const pedidosRoutes = require('./routes/pedidos');
+
+app.use(pedidosRoutes);
+
 
 // ✅ Permitir solicitudes desde Netlify
 const corsOptions = {
