@@ -18,6 +18,15 @@ async function cargarProductosPorCategoria() {
         let response = await fetch(`${BASE_URL}/api/productos`);
         let productos = await response.json();
 
+        // 📌 Reparar URL de imágenes si vienen desde "/img/"
+productos = productos.map(producto => {
+    if (producto.imagen?.startsWith("/img/")) {
+        producto.imagen = `img/${producto.imagen.split("/").pop()}`;
+    }
+    return producto;
+});
+
+
         // Log the response for debugging
         console.log("🔍 Respuesta del servidor:", productos);
 
