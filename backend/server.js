@@ -11,6 +11,9 @@ const fs = require('fs');
 // ✅ Importar modelos
 const Producto = require('./models/Producto');
 const Pedido = require('./models/Pedido');
+const pedidosRoutes = require('./routes/pedidos');
+
+app.use(pedidosRoutes);
 
 // ✅ Inicializar app
 const app = express();
