@@ -11,7 +11,7 @@ async function fetchImageBuffer(url) {
         const buffer = Buffer.concat(chunks);
         try {
           const type = await fileTypeFromBuffer(buffer);
-          const mime = type?.mime || 'image/png'; // fallback a PNG
+          const mime = type?.mime || 'image/png';
           if (!['image/png', 'image/jpeg'].includes(mime)) {
             console.warn(`⚠️ Formato no reconocido (${mime}), intentando de todos modos...`);
           }
@@ -89,6 +89,3 @@ export async function generarFacturaPDF(pedido) {
     doc.on('end', () => resolve(Buffer.concat(buffers)));
   });
 }
-
-
-module.exports = { generarFacturaPDF };

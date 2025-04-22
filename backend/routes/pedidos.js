@@ -3,7 +3,8 @@
 const express = require('express');
 const router = express.Router();
 const Pedido = require('../models/Pedido');
-const { generarFacturaPDF } = require('../utils/pdfGenerator');
+import { generarFacturaPDF } from '../utils/pdfGenerator.js';
+
 const nodemailer = require('nodemailer');
 const multer = require('multer');
 
