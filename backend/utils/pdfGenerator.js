@@ -24,7 +24,6 @@ async function fetchImageBuffer(url) {
   });
 }
 
-
 export async function generarFacturaPDF(pedido) {
   const doc = new PDFDocument({ margin: 50 });
   const buffers = [];
@@ -72,10 +71,15 @@ export async function generarFacturaPDF(pedido) {
       doc.image(imgBuffer, 370, posY, { fit: [60, 60] });
     } catch (err) {
       console.warn(`⚠️ Imagen fallida '${prod.nombre}':`, err);
-      doc.fontSize(10).fillColor('gray').text('[Imagen no disponible]', 370, posY);
+      try {
+        const fallback = await fetchImageBuffer('https://coocishop.netlify.app/img/default.png');
+        doc.image(fallback, 370, posY, { fit: [60, 60] });
+      } catch {
+        doc.fontSize(10).fillColor('gray').text('[Imagen no disponible]', 370, posY);
+      }
     }
 
-    doc.moveDown(1);
+    doc.moveDown(2);
     doc.moveTo(50, doc.y).lineTo(550, doc.y).strokeColor('#ccc').stroke();
     doc.moveDown(0.5);
   }
