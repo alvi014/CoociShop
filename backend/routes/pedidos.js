@@ -11,7 +11,7 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 // 📌 Ruta: POST /api/pedidos
-router.post('/api/pedidos', upload.single('comprobantePago'), async (req, res) => {
+router.post('/', upload.single('comprobantePago'), async (req, res) => {
   try {
     const { nombreCliente, sucursal, productos, total } = req.body;
     const productosJSON = JSON.parse(productos);

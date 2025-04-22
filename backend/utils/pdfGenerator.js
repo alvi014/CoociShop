@@ -1,10 +1,7 @@
-const PDFDocument = require('pdfkit');
-const https = require('https');
-const fileType = require('file-type');
+import PDFDocument from 'pdfkit';
+import https from 'https';
+import { fileTypeFromBuffer } from 'file-type';
 
-/**
- * Descarga una imagen desde una URL y devuelve un buffer válido para PDFKit
- */
 async function fetchImageBuffer(url) {
   return new Promise((resolve, reject) => {
     https.get(url, res => {
@@ -12,9 +9,14 @@ async function fetchImageBuffer(url) {
       res.on('data', chunk => chunks.push(chunk));
       res.on('end', async () => {
         const buffer = Buffer.concat(chunks);
-        const type = await fileType.fromBuffer(buffer);
-        if (!type || !['image/png', 'image/jpeg'].includes(type.mime)) {
-          return reject(new Error('Unknown image format'));
+        try {
+          const type = await fileTypeFromBuffer(buffer);
+          const mime = type?.mime || 'image/png'; // fallback a PNG
+          if (!['image/png', 'image/jpeg'].includes(mime)) {
+            console.warn(`⚠️ Formato no reconocido (${mime}), intentando de todos modos...`);
+          }
+        } catch (err) {
+          console.warn('⚠️ No se pudo determinar tipo de imagen, se usará como PNG.');
         }
         resolve(buffer);
       });
@@ -22,12 +24,7 @@ async function fetchImageBuffer(url) {
   });
 }
 
-/**
- * Genera un PDF tipo pedido con imágenes desde Netlify convertidas en buffers
- * @param {Object} pedido - Contiene nombreCliente, sucursal, productos[], total
- * @returns {Promise<Buffer>} Buffer del PDF generado
- */
-async function generarFacturaPDF(pedido) {
+export async function generarFacturaPDF(pedido) {
   const doc = new PDFDocument({ margin: 50 });
   const buffers = [];
 
@@ -39,16 +36,11 @@ async function generarFacturaPDF(pedido) {
     const logoBuffer = await fetchImageBuffer(logoURL);
     doc.image(logoBuffer, 50, 45, { width: 50 });
   } catch (err) {
-    console.warn('⚠️ No se pudo cargar el logo:', err);
+    console.warn('⚠️ Logo no cargado:', err);
   }
 
-  doc
-    .fontSize(20)
-    .text('CoociShop - Nuevo Pedido', 110, 57)
-    .moveDown(2);
-
-  doc
-    .fontSize(12)
+  doc.fontSize(20).text('CoociShop - Nuevo Pedido', 110, 57).moveDown(2);
+  doc.fontSize(12)
     .text(`Cliente: ${pedido.nombreCliente}`)
     .text(`Sucursal: ${pedido.sucursal}`)
     .text(`Fecha: ${new Date().toLocaleString()}`)
@@ -61,8 +53,7 @@ async function generarFacturaPDF(pedido) {
     const subtotal = prod.precio * prod.cantidad;
     const posY = doc.y;
 
-    doc
-      .fontSize(12)
+    doc.fontSize(12)
       .text(`${i + 1}. ${prod.nombre}`, 50, posY)
       .text(`Cantidad : ${prod.cantidad}`, 50, doc.y)
       .text(`Precio Unitario : CRC${prod.precio.toLocaleString()}`, 50, doc.y)
@@ -78,12 +69,12 @@ async function generarFacturaPDF(pedido) {
       const imgBuffer = await fetchImageBuffer(imagenURL);
       doc.image(imgBuffer, 370, posY, { fit: [60, 60] });
     } catch (err) {
-      console.warn(`⚠️ Imagen no cargada para producto '${prod.nombre}':`, err);
+      console.warn(`⚠️ Imagen fallida '${prod.nombre}':`, err);
       doc.fontSize(10).fillColor('red').text('[Imagen no disponible]', 370, posY);
     }
 
     doc.moveDown(1);
-    doc.moveTo(50, doc.y).lineTo(550, doc.y).strokeColor('#cccccc').stroke();
+    doc.moveTo(50, doc.y).lineTo(550, doc.y).strokeColor('#ccc').stroke();
     doc.moveDown(0.5);
   }
 
@@ -92,12 +83,12 @@ async function generarFacturaPDF(pedido) {
   });
 
   doc.moveDown(2).fontSize(10).text('Gracias por su compra en CoociShop.', { align: 'center' });
-
   doc.end();
 
   return new Promise(resolve => {
     doc.on('end', () => resolve(Buffer.concat(buffers)));
   });
 }
+
 
 module.exports = { generarFacturaPDF };
