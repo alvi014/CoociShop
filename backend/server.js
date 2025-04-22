@@ -1,23 +1,35 @@
+// 📁 backend/server.js - Versión ESM completa
+
 import dotenv from 'dotenv';
 dotenv.config();
 
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const nodemailer = require('nodemailer');
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+import express from 'express';
+import mongoose from 'mongoose';
+import cors from 'cors';
+import nodemailer from 'nodemailer';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+// ✅ Rutas
+import pedidosRoutes from './routes/pedidos.js';
+import authRoutes from './routes/auth.js';
+import adminRoutes from './routes/adminRoutes.js';
 
 // ✅ Modelos
-const Producto = require('./models/Producto');
-const Pedido = require('./models/Pedido');
+import Producto from './models/Producto.js';
+import Pedido from './models/Pedido.js';
 
-// ✅ Inicializar app
+// ✅ Path helpers para __dirname en ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// ✅ CORS: siempre primero
+// ✅ CORS
 const corsOptions = {
   origin: ['https://coocishop.netlify.app'],
   methods: 'GET,POST',
@@ -25,43 +37,35 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-// ✅ Middlewares necesarios antes de rutas
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ✅ Cabecera adicional por si Netlify exige preflight
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "https://coocishop.netlify.app");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   next();
 });
 
-// ✅ Rutas después de middlewares
-import pedidosRoutes from './routes/pedidos.js';
+// ✅ Rutas
 app.use('/api/pedidos', pedidosRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/admin', adminRoutes);
 
-
-// ✅ Servir imágenes de productos
+// ✅ Archivos estáticos
 app.use('/img', express.static(path.join(__dirname, '..', 'img')));
 
-// 🌍 Mostrar entorno
 console.log(`🌍 Modo: ${process.env.NODE_ENV || 'development'}`);
-
-// 🔐 Validar URI
 if (!process.env.MONGO_URI) {
   console.error("❌ MONGO_URI no encontrada. Verifica tu .env o variables en Render");
   process.exit(1);
 }
 console.log("🔐 MONGO_URI cargada correctamente desde entorno");
 
-// 📌 Conexión a MongoDB
-mongoose.connect(process.env.MONGO_URI, {
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('✅ Conexión a MongoDB Atlas exitosa'))
+  .catch(err => console.error('❌ Error al conectar a MongoDB:', err));
 
-})
-    .then(() => console.log('✅ Conexión a MongoDB Atlas exitosa'))
-    .catch(err => console.error('❌ Error al conectar a MongoDB:', err));
-
-// 📤 Configurar multer para subir imágenes en /img
+// ✅ Configuración de Multer
 const storage = multer.diskStorage({
   destination: path.join(__dirname, 'img'),
   filename: (req, file, cb) => {
@@ -71,54 +75,22 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// 🌐 Configuración de CORS
-app.use(cors({
-  origin: function (origin, callback) {
-    const allowedOrigins = [
-      "http://localhost:5500",
-      "http://127.0.0.1:5500",
-      "https://coocishop.onrender.com",
-      "https://coocishop.netlify.app"
-    ];
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      console.log("❌ CORS bloqueado para:", origin);
-      callback(new Error("CORS no permitido"));
-    }
-  },
-  credentials: true
-}));
-
-// 🔧 Middleware para parsear JSON
-app.use(express.json());
-
-// 🔌 Rutas principales
-const authRoutes = require("./routes/auth");
-app.use("/api/auth", authRoutes);
-
-const adminRoutes = require("./routes/adminRoutes");
-app.use("/api/admin", adminRoutes);
-
-// 📤 Endpoint para subir imágenes (usado en productos)
+// ✅ Subida de imágenes desde admin
 app.post('/api/admin/upload', upload.single('imagen'), (req, res) => {
   if (!req.file) return res.status(400).json({ error: "No se subió ningún archivo" });
-
   const url = `https://coocishop.onrender.com/img/${req.file.filename}`;
   res.status(200).json({ url });
 });
 
-// ✅ Ping para verificar estado del servidor
 app.get("/api/ping", (req, res) => {
   res.json({ message: "🟢 Backend en línea" });
 });
 
-// 🏠 Página principal
 app.get('/', (req, res) => {
   res.send("✅ Backend de CoociShop funcionando. Usa /api/productos para ver los productos.");
 });
 
-// 📦 Obtener todos los productos
+// 📦 Obtener productos
 app.get('/api/productos', async (req, res) => {
   try {
     const productos = await Producto.find();
@@ -126,28 +98,25 @@ app.get('/api/productos', async (req, res) => {
     res.json(productos);
   } catch (error) {
     console.error("❌ Error al obtener productos:", error.message);
-    console.error(error.stack);
     res.status(500).json({ error: 'Error al obtener productos', detalle: error.message });
   }
 });
 
-// 🔍 Obtener producto por ID
 app.get('/api/productos/:id', async (req, res) => {
   const id = parseInt(req.params.id);
-  if (isNaN(id)) {
-    return res.status(400).json({ error: 'ID inválido, debe ser un número.' });
-  }
+  if (isNaN(id)) return res.status(400).json({ error: 'ID inválido' });
+
   try {
     const producto = await Producto.findOne({ id });
     if (!producto) return res.status(404).json({ error: 'Producto no encontrado' });
     res.json(producto);
   } catch (error) {
-    console.error("❌ Error al obtener el producto:", error);
-    res.status(500).json({ error: 'Error al obtener el producto', detalle: error.message });
+    console.error("❌ Error al obtener producto:", error);
+    res.status(500).json({ error: 'Error interno', detalle: error.message });
   }
 });
 
-// 📧 Enviar correos de pedidos
+// 📧 Enviar correo de pedido
 const enviarCorreoAdmin = (pedido, comprobante) => {
   const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -184,7 +153,6 @@ const enviarCorreoAdmin = (pedido, comprobante) => {
       content: fs.readFileSync(path.join(__dirname, 'img', comprobante.filename)),
       cid: "comprobanteAdjunto"
     }] : []
-    
   };
 
   transporter.sendMail(mailOptions, (error, info) => {
@@ -193,22 +161,17 @@ const enviarCorreoAdmin = (pedido, comprobante) => {
   });
 };
 
-// 🧾 Guardar pedidos con comprobante y actualizar stock
+// 🧾 Guardar pedido y actualizar stock
 app.post('/api/pedidos', upload.single('comprobantePago'), async (req, res) => {
   try {
     console.log("📩 Pedido recibido:", req.body);
-
     const productos = JSON.parse(req.body.productos);
 
     for (let p of productos) {
       const prodDB = await Producto.findOne({ id: p.id });
-      if (!prodDB) {
-        return res.status(404).json({ error: `Producto con ID ${p.id} no encontrado.` });
-      }
+      if (!prodDB) return res.status(404).json({ error: `Producto con ID ${p.id} no encontrado.` });
       if (prodDB.stock < p.cantidad) {
-        return res.status(400).json({
-          error: `❌ Stock insuficiente para "${prodDB.nombre}". Disponible: ${prodDB.stock}`
-        });
+        return res.status(400).json({ error: `❌ Stock insuficiente para '${prodDB.nombre}'. Disponible: ${prodDB.stock}` });
       }
     }
 
@@ -226,24 +189,18 @@ app.post('/api/pedidos', upload.single('comprobantePago'), async (req, res) => {
     });
 
     await nuevoPedido.save();
-
     enviarCorreoAdmin(nuevoPedido, req.file);
-    console.log("📤 Preparando envío de correo...");
-
     res.status(201).json({ mensaje: '✅ Pedido registrado correctamente', pedido: nuevoPedido });
   } catch (error) {
     console.error("❌ Error al registrar el pedido:", error.message);
-    console.error(error.stack);
     res.status(500).json({ error: 'Error interno', detalle: error.message });
   }
 });
 
-// ❌ Middleware para rutas no encontradas
 app.use((req, res) => {
   res.status(404).json({ error: "Ruta no encontrada" });
 });
 
-// 🚀 Iniciar servidor
 app.listen(PORT, () => {
   console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
 });
