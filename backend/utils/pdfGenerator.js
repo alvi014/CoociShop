@@ -48,25 +48,34 @@ function generarFacturaPDF(pedido) {
 
       doc.fontSize(12).text(`${i + 1}. ${prod.nombre}`);
 
-      const imagePath = path.join(__dirname, `../../html/${prod.imagen}`);
+      let imagenRelativa = prod.imagen.startsWith('img/') ? prod.imagen : `img/${prod.imagen}`;
+      const imagePath = path.join(__dirname, `../../html/${imagenRelativa}`);
+
       if (fs.existsSync(imagePath)) {
         try {
           const imgBase64 = fs.readFileSync(imagePath).toString('base64');
-          doc.image(Buffer.from(imgBase64, 'base64'), { fit: [100, 100] });
+          doc.image(Buffer.from(imgBase64, 'base64'), { fit: [80, 80] });
         } catch (err) {
           console.error(`Error cargando imagen del producto ${prod.nombre}:`, err);
         }
       }
 
       doc
-        .fontSize(12)
-        .text(`   Cantidad: ${prod.cantidad} x ₡${prod.precio} = ₡${subtotal}`)
-        .moveDown(0.5);
+        .fontSize(11)
+        .text(`   Cantidad`, 80, doc.y, { continued: true })
+        .text(`: ${prod.cantidad}`, 150, doc.y)
+        .text(`   Precio Unitario`, 80, doc.y, { continued: true })
+        .text(`: CRC${prod.precio}`, 150, doc.y)
+        .text(`   Subtotal`, 80, doc.y, { continued: true })
+        .text(`: CRC${subtotal}`, 150, doc.y)
+        .moveDown(1);
+
+      doc.moveTo(50, doc.y).lineTo(550, doc.y).strokeColor('#cccccc').stroke();
+      doc.moveDown(0.5);
     });
 
     // === TOTAL ===
-    doc.moveDown(1).fontSize(14).text(`Total: ₡${pedido.total}`, {
-      bold: true,
+    doc.moveDown(1).fontSize(14).text(`Total: CRC${pedido.total}`, {
       align: 'right',
     });
 
