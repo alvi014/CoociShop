@@ -13,10 +13,10 @@ async function fetchImageBuffer(url) {
           const type = await fileTypeFromBuffer(buffer);
           const mime = type?.mime || 'image/png';
           if (!['image/png', 'image/jpeg'].includes(mime)) {
-            console.warn(`⚠️ Formato no reconocido (${mime}), intentando de todos modos...`);
+            console.warn(`⚠️ Formato no reconocido (${mime}), forzando carga como PNG`);
           }
         } catch (err) {
-          console.warn('⚠️ No se pudo determinar tipo de imagen, se usará como PNG.');
+          console.warn(`⚠️ No se pudo identificar tipo MIME, se usará como PNG por defecto (${url})`);
         }
         resolve(buffer);
       });
