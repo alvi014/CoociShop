@@ -1,13 +1,12 @@
-// 📁 backend/routes/pedidos.js
+// 📁 backend/routes/pedidos.js (ESM compatible)
 
-const express = require('express');
-const router = express.Router();
-const Pedido = require('../models/Pedido');
+import express from 'express';
+import Pedido from '../models/Pedido.js';
 import { generarFacturaPDF } from '../utils/pdfGenerator.js';
+import nodemailer from 'nodemailer';
+import multer from 'multer';
 
-const nodemailer = require('nodemailer');
-const multer = require('multer');
-
+const router = express.Router();
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
@@ -69,4 +68,4 @@ router.post('/', upload.single('comprobantePago'), async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;
