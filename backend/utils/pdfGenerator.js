@@ -59,7 +59,7 @@ export async function generarFacturaPDF(pedido) {
       .text(`Precio Unitario : CRC${prod.precio.toLocaleString()}`, 50, doc.y)
       .text(`Subtotal : CRC${subtotal.toLocaleString()}`, 50, doc.y);
 
-    let imagenURL = 'https://coocishop.netlify.app/html/img/default.png';
+    let imagenURL = `https://coocishop.netlify.app/img/${nombre}`;
     if (prod.imagen && typeof prod.imagen === 'string') {
       const imgPath = prod.imagen.startsWith('img/') ? prod.imagen : `img/${prod.imagen}`;
       imagenURL = `https://coocishop.netlify.app/html/${imgPath}`;
