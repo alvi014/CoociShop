@@ -48,7 +48,11 @@ function generarFacturaPDF(pedido) {
 
       doc.fontSize(12).text(`${i + 1}. ${prod.nombre}`);
 
-      let imagenRelativa = prod.imagen.startsWith('img/') ? prod.imagen : `img/${prod.imagen}`;
+      let imagenRelativa = 'img/default.png';
+if (prod.imagen && typeof prod.imagen === 'string') {
+  imagenRelativa = prod.imagen.startsWith('img/') ? prod.imagen : `img/${prod.imagen}`;
+}
+
       const imagePath = path.join(__dirname, `../../html/${imagenRelativa}`);
 
       if (fs.existsSync(imagePath)) {
