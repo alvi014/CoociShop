@@ -1,15 +1,23 @@
 const PDFDocument = require('pdfkit');
 const https = require('https');
+const fileType = require('file-type');
 
 /**
- * Descarga una imagen desde una URL y devuelve un buffer
+ * Descarga una imagen desde una URL y devuelve un buffer válido para PDFKit
  */
-function fetchImageBuffer(url) {
+async function fetchImageBuffer(url) {
   return new Promise((resolve, reject) => {
     https.get(url, res => {
       const chunks = [];
       res.on('data', chunk => chunks.push(chunk));
-      res.on('end', () => resolve(Buffer.concat(chunks)));
+      res.on('end', async () => {
+        const buffer = Buffer.concat(chunks);
+        const type = await fileType.fromBuffer(buffer);
+        if (!type || !['image/png', 'image/jpeg'].includes(type.mime)) {
+          return reject(new Error('Unknown image format'));
+        }
+        resolve(buffer);
+      });
     }).on('error', err => reject(err));
   });
 }
@@ -25,7 +33,7 @@ async function generarFacturaPDF(pedido) {
 
   doc.on('data', buffers.push.bind(buffers));
 
-  const logoURL = 'https://coocishop.netlify.app/img/iconLog.PNG';
+  const logoURL = 'https://coocishop.netlify.app/html/img/iconLog.PNG';
 
   try {
     const logoBuffer = await fetchImageBuffer(logoURL);
@@ -60,17 +68,18 @@ async function generarFacturaPDF(pedido) {
       .text(`Precio Unitario : CRC${prod.precio.toLocaleString()}`, 50, doc.y)
       .text(`Subtotal : CRC${subtotal.toLocaleString()}`, 50, doc.y);
 
-    let imagenURL = 'https://coocishop.netlify.app/img/default.png';
+    let imagenURL = 'https://coocishop.netlify.app/html/img/default.png';
     if (prod.imagen && typeof prod.imagen === 'string') {
       const imgPath = prod.imagen.startsWith('img/') ? prod.imagen : `img/${prod.imagen}`;
-      imagenURL = `https://coocishop.netlify.app/${imgPath}`;
+      imagenURL = `https://coocishop.netlify.app/html/${imgPath}`;
     }
 
     try {
       const imgBuffer = await fetchImageBuffer(imagenURL);
-      doc.image(imgBuffer, 370, posY, { fit: [100, 100] });
+      doc.image(imgBuffer, 370, posY, { fit: [60, 60] });
     } catch (err) {
       console.warn(`⚠️ Imagen no cargada para producto '${prod.nombre}':`, err);
+      doc.fontSize(10).fillColor('red').text('[Imagen no disponible]', 370, posY);
     }
 
     doc.moveDown(1);
