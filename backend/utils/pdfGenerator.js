@@ -4,7 +4,7 @@ import { fileTypeFromBuffer } from 'file-type';
 
 async function fetchImageBuffer(url) {
   return new Promise((resolve, reject) => {
-    https.get(url, res => {
+    https.get(url, { headers: { 'Accept-Encoding': 'identity' } }, res => {
       const chunks = [];
       res.on('data', chunk => chunks.push(chunk));
       res.on('end', async () => {
@@ -23,6 +23,7 @@ async function fetchImageBuffer(url) {
     }).on('error', err => reject(err));
   });
 }
+
 
 export async function generarFacturaPDF(pedido) {
   const doc = new PDFDocument({ margin: 50 });
