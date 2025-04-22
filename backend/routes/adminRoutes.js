@@ -1,8 +1,9 @@
-// backend/routes/adminRoutes.js
+// backend/routes/adminRoutes.js - Versión ESM
 
-const express = require("express");
+import express from 'express';
+import Producto from '../models/Producto.js';
+
 const router = express.Router();
-const Producto = require("../models/Producto");
 
 // ✅ Agregar producto
 router.post("/producto", async (req, res) => {
@@ -49,7 +50,6 @@ router.put("/producto/:id", async (req, res) => {
   }
 });
 
-
 // ✅ Eliminar producto
 router.delete("/producto/:id", async (req, res) => {
   try {
@@ -65,4 +65,4 @@ router.delete("/producto/:id", async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;
