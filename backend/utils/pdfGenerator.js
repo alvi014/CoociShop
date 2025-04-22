@@ -30,7 +30,7 @@ export async function generarFacturaPDF(pedido) {
 
   doc.on('data', buffers.push.bind(buffers));
 
-  const logoURL = 'https://coocishop.netlify.app/html/img/iconLog.PNG';
+  const logoURL = 'https://coocishop.netlify.app/img/iconLog.PNG';
 
   try {
     const logoBuffer = await fetchImageBuffer(logoURL);
@@ -54,15 +54,16 @@ export async function generarFacturaPDF(pedido) {
     const posY = doc.y;
 
     doc.fontSize(12)
+      .fillColor('black')
       .text(`${i + 1}. ${prod.nombre}`, 50, posY)
       .text(`Cantidad : ${prod.cantidad}`, 50, doc.y)
       .text(`Precio Unitario : CRC${prod.precio.toLocaleString()}`, 50, doc.y)
       .text(`Subtotal : CRC${subtotal.toLocaleString()}`, 50, doc.y);
 
-    let imagenURL = `https://coocishop.netlify.app/img/${nombre}`;
+    let imagenURL = 'https://coocishop.netlify.app/img/default.png';
     if (prod.imagen && typeof prod.imagen === 'string') {
       const imgPath = prod.imagen.startsWith('img/') ? prod.imagen : `img/${prod.imagen}`;
-      imagenURL = `https://coocishop.netlify.app/html/${imgPath}`;
+      imagenURL = `https://coocishop.netlify.app/${imgPath}`;
     }
 
     try {
@@ -70,7 +71,7 @@ export async function generarFacturaPDF(pedido) {
       doc.image(imgBuffer, 370, posY, { fit: [60, 60] });
     } catch (err) {
       console.warn(`⚠️ Imagen fallida '${prod.nombre}':`, err);
-      doc.fontSize(10).fillColor('red').text('[Imagen no disponible]', 370, posY);
+      doc.fontSize(10).fillColor('gray').text('[Imagen no disponible]', 370, posY);
     }
 
     doc.moveDown(1);
@@ -78,8 +79,8 @@ export async function generarFacturaPDF(pedido) {
     doc.moveDown(0.5);
   }
 
-  doc.moveDown(1).fontSize(14).text(`Total: CRC${pedido.total.toLocaleString()}`, {
-    align: 'right',
+  doc.moveDown(1).fontSize(14).fillColor('black').text(`Total: CRC${pedido.total.toLocaleString()}`, {
+    align: 'right'
   });
 
   doc.moveDown(2).fontSize(10).text('Gracias por su compra en CoociShop.', { align: 'center' });
