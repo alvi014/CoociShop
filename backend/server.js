@@ -36,9 +36,8 @@ app.use((req, res, next) => {
 });
 
 // ✅ Rutas después de middlewares
-const pedidosRoutes = require('./routes/pedidos');
+import pedidosRoutes from './routes/pedidos.js';
 app.use('/api/pedidos', pedidosRoutes);
-
 
 
 // ✅ Servir imágenes de productos
