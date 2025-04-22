@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 /**
- * Genera un PDF tipo factura con detalles del pedido e imágenes de los productos
+ * Genera un PDF tipo pedido con detalles e imágenes a la derecha
  * @param {Object} pedido - Contiene nombreCliente, sucursal, productos[], total
  * @returns {Promise<Buffer>} Buffer del PDF generado
  */
@@ -29,7 +29,7 @@ function generarFacturaPDF(pedido) {
 
     doc
       .fontSize(20)
-      .text('CoociShop - Factura', 110, 57)
+      .text('CoociShop - Nuevo Pedido', 110, 57)
       .moveDown(2);
 
     // === DATOS DEL CLIENTE ===
@@ -45,41 +45,37 @@ function generarFacturaPDF(pedido) {
 
     pedido.productos.forEach((prod, i) => {
       const subtotal = prod.precio * prod.cantidad;
+      const posY = doc.y;
 
-      doc.fontSize(12).text(`${i + 1}. ${prod.nombre}`);
+      doc
+        .fontSize(12)
+        .text(`${i + 1}. ${prod.nombre}`, 50, posY)
+        .text(`Cantidad : ${prod.cantidad}`, 50, doc.y)
+        .text(`Precio Unitario : CRC${prod.precio.toLocaleString()}`, 50, doc.y)
+        .text(`Subtotal : CRC${subtotal.toLocaleString()}`, 50, doc.y);
 
       let imagenRelativa = 'img/default.png';
-if (prod.imagen && typeof prod.imagen === 'string') {
-  imagenRelativa = prod.imagen.startsWith('img/') ? prod.imagen : `img/${prod.imagen}`;
-}
+      if (prod.imagen && typeof prod.imagen === 'string') {
+        imagenRelativa = prod.imagen.startsWith('img/') ? prod.imagen : `img/${prod.imagen}`;
+      }
 
       const imagePath = path.join(__dirname, `../../html/${imagenRelativa}`);
-
       if (fs.existsSync(imagePath)) {
         try {
           const imgBase64 = fs.readFileSync(imagePath).toString('base64');
-          doc.image(Buffer.from(imgBase64, 'base64'), { fit: [80, 80] });
+          doc.image(Buffer.from(imgBase64, 'base64'), 370, posY, { fit: [100, 100] });
         } catch (err) {
           console.error(`Error cargando imagen del producto ${prod.nombre}:`, err);
         }
       }
 
-      doc
-        .fontSize(11)
-        .text(`   Cantidad`, 80, doc.y, { continued: true })
-        .text(`: ${prod.cantidad}`, 150, doc.y)
-        .text(`   Precio Unitario`, 80, doc.y, { continued: true })
-        .text(`: CRC${prod.precio}`, 150, doc.y)
-        .text(`   Subtotal`, 80, doc.y, { continued: true })
-        .text(`: CRC${subtotal}`, 150, doc.y)
-        .moveDown(1);
-
+      doc.moveDown(1);
       doc.moveTo(50, doc.y).lineTo(550, doc.y).strokeColor('#cccccc').stroke();
       doc.moveDown(0.5);
     });
 
     // === TOTAL ===
-    doc.moveDown(1).fontSize(14).text(`Total: CRC${pedido.total}`, {
+    doc.moveDown(1).fontSize(14).text(`Total: CRC${pedido.total.toLocaleString()}`, {
       align: 'right',
     });
 
