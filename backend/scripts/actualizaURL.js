@@ -1,12 +1,27 @@
-const path = require("path");
-require("dotenv").config({ path: path.join(__dirname, "../.env") });
+// actualizaURL.js
+import path from "path";
+import https from "https";
+import dotenv from "dotenv";
+import mongoose from "mongoose";
+import { fileURLToPath } from "url";
+import Producto from "../models/Producto.js";
 
-const mongoose = require("mongoose");
-const Producto = require("../models/Producto");
+// Para __dirname en ES Modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-// 🔁 Rutas a reemplazar
+dotenv.config({ path: path.join(__dirname, "../.env") });
+
 const NETLIFY_URL = 'https://coocishop.netlify.app/img/';
 const RENDER_URL = 'https://coocishop.onrender.com/img/';
+
+async function urlExiste(url) {
+  return new Promise(resolve => {
+    https.get(url, res => {
+      resolve(res.statusCode === 200);
+    }).on('error', () => resolve(false));
+  });
+}
 
 (async () => {
   try {
@@ -17,12 +32,18 @@ const RENDER_URL = 'https://coocishop.onrender.com/img/';
     console.log(`📦 Productos a actualizar: ${productos.length}`);
 
     for (const producto of productos) {
-      if (producto.imagen.startsWith(RENDER_URL)) {
-        const nombreArchivo = producto.imagen.replace(RENDER_URL, '');
-        producto.imagen = NETLIFY_URL + nombreArchivo;
-        await producto.save();
-        console.log(`✅ Actualizado: ${producto.nombre} -> ${producto.imagen}`);
+      const nombreArchivo = path.basename(producto.imagen); // sin toLowerCase()
+      const nuevaURL = NETLIFY_URL + nombreArchivo;
+
+      const existe = await urlExiste(nuevaURL);
+      if (!existe) {
+        console.warn(`⚠️ Imagen no encontrada en Netlify: ${nuevaURL}`);
+        continue;
       }
+
+      producto.imagen = nuevaURL;
+      await producto.save();
+      console.log(`✅ Actualizado: ${producto.nombre} -> ${producto.imagen}`);
     }
 
     console.log('🏁 Actualización completada.');

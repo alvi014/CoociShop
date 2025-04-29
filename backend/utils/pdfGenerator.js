@@ -1,8 +1,8 @@
 import PDFDocument from 'pdfkit';
-import https from 'https';
 import { fileTypeFromBuffer } from 'file-type';
+import https from 'https';
 
-async function fetchImageBuffer(url) {
+export async function fetchImageBuffer(url) {
   return new Promise((resolve, reject) => {
     https.get(url, { headers: { 'Accept-Encoding': 'identity' } }, res => {
       const chunks = [];
@@ -11,14 +11,10 @@ async function fetchImageBuffer(url) {
         const buffer = Buffer.concat(chunks);
         try {
           const type = await fileTypeFromBuffer(buffer);
-          const mime = type?.mime || 'image/png';
-          if (!['image/png', 'image/jpeg'].includes(mime)) {
-            console.warn(`⚠️ Formato no reconocido (${mime}), forzando carga como PNG`);
-          }
-        } catch (err) {
-          console.warn(`⚠️ No se pudo identificar tipo MIME, se usará como PNG por defecto (${url})`);
+          resolve({ buffer, mime: type?.mime || 'image/png' });
+        } catch {
+          resolve({ buffer, mime: 'image/png' });
         }
-        resolve(buffer);
       });
     }).on('error', err => reject(err));
   });
@@ -27,14 +23,15 @@ async function fetchImageBuffer(url) {
 export async function generarFacturaPDF(pedido) {
   const doc = new PDFDocument({ margin: 50 });
   const buffers = [];
-
   doc.on('data', buffers.push.bind(buffers));
 
   const logoURL = 'https://coocishop.netlify.app/img/iconLog.PNG';
 
   try {
-    const logoBuffer = await fetchImageBuffer(logoURL);
-    doc.image(logoBuffer, 50, 45, { width: 50 });
+    const { buffer: logoBuffer, mime } = await fetchImageBuffer(logoURL);
+    if (mime.includes('png') || mime.includes('jpeg')) {
+      doc.image(logoBuffer, 50, 45, { width: 50 });
+    }
   } catch (err) {
     console.warn('⚠️ Logo no cargado:', err);
   }
@@ -62,17 +59,22 @@ export async function generarFacturaPDF(pedido) {
 
     let imagenURL = 'https://coocishop.netlify.app/img/default.png';
     if (prod.imagen && typeof prod.imagen === 'string') {
-      const imgPath = prod.imagen.startsWith('img/') ? prod.imagen : `img/${prod.imagen}`;
-      imagenURL = `https://coocishop.netlify.app/${imgPath}`;
+      imagenURL = prod.imagen.startsWith('http') 
+        ? prod.imagen 
+        : `https://coocishop.netlify.app${prod.imagen.startsWith('/') ? '' : '/'}${prod.imagen}`;
     }
 
     try {
-      const imgBuffer = await fetchImageBuffer(imagenURL);
-      doc.image(imgBuffer, 370, posY, { fit: [60, 60] });
+      const { buffer: imgBuffer, mime } = await fetchImageBuffer(imagenURL);
+      if (mime.includes('png') || mime.includes('jpeg')) {
+        doc.image(imgBuffer, 370, posY, { fit: [60, 60] });
+      } else {
+        throw new Error('Formato no soportado');
+      }
     } catch (err) {
       console.warn(`⚠️ Imagen fallida '${prod.nombre}':`, err);
       try {
-        const fallback = await fetchImageBuffer('https://coocishop.netlify.app/img/default.png');
+        const { buffer: fallback } = await fetchImageBuffer('https://coocishop.netlify.app/img/default.png');
         doc.image(fallback, 370, posY, { fit: [60, 60] });
       } catch {
         doc.fontSize(10).fillColor('gray').text('[Imagen no disponible]', 370, posY);
