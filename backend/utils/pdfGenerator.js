@@ -1,99 +1,69 @@
-import PDFDocument from 'pdfkit';
-import { fileTypeFromBuffer } from 'file-type';
-import https from 'https';
-
-export async function fetchImageBuffer(url) {
-  return new Promise((resolve, reject) => {
-    https.get(url, { headers: { 'Accept-Encoding': 'identity' } }, res => {
-      const chunks = [];
-      res.on('data', chunk => chunks.push(chunk));
-      res.on('end', async () => {
-        const buffer = Buffer.concat(chunks);
-        try {
-          const type = await fileTypeFromBuffer(buffer);
-          resolve({ buffer, mime: type?.mime || 'image/png' });
-        } catch {
-          resolve({ buffer, mime: 'image/png' });
-        }
-      });
-    }).on('error', err => reject(err));
-  });
-}
+import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
+import fetch from 'node-fetch';
 
 export async function generarFacturaPDF(pedido) {
-  const doc = new PDFDocument({ margin: 50 });
-  const buffers = [];
-  doc.on('data', buffers.push.bind(buffers));
+  const pdfDoc = await PDFDocument.create();
+  const page = pdfDoc.addPage([595, 842]);
 
-  const logoURL = 'https://coocishop.netlify.app/img/iconLog.PNG';
+  const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
+  const drawText = (text, x, y, size = 12) => {
+    page.drawText(text, {
+      x,
+      y,
+      size,
+      font,
+      color: rgb(0, 0, 0)
+    });
+  };
+
+  // Logo
   try {
-    const { buffer: logoBuffer, mime } = await fetchImageBuffer(logoURL);
-    if (mime.includes('png') || mime.includes('jpeg')) {
-      doc.image(logoBuffer, 50, 45, { width: 50 });
-    }
-  } catch (err) {
-    console.warn('⚠️ Logo no cargado:', err);
+    const logoBytes = await fetch('https://coocishop.netlify.app/img/iconLog.PNG').then(res => res.arrayBuffer());
+    const logoImg = await pdfDoc.embedPng(logoBytes);
+    page.drawImage(logoImg, { x: 50, y: 770, width: 50, height: 50 });
+  } catch (e) {
+    console.warn('⚠️ Error cargando logo:', e);
   }
 
-  doc.fontSize(20).text('CoociShop - Nuevo Pedido', 110, 57).moveDown(2);
-  doc.fontSize(12)
-    .text(`Cliente: ${pedido.nombreCliente}`)
-    .text(`Sucursal: ${pedido.sucursal}`)
-    .text(`Fecha: ${new Date().toLocaleString()}`)
-    .moveDown(1);
+  drawText('CoociShop - Nuevo Pedido', 110, 790, 18);
+  drawText(`Cliente: ${pedido.nombreCliente}`, 50, 740);
+  drawText(`Sucursal: ${pedido.sucursal}`, 50, 720);
+  drawText(`Fecha: ${new Date().toLocaleString()}`, 50, 700);
+  drawText('Detalles del pedido:', 50, 670, 14);
 
-  doc.fontSize(13).text('Detalles del pedido:', { underline: true }).moveDown(0.5);
-
-  for (let i = 0; i < pedido.productos.length; i++) {
-    const prod = pedido.productos[i];
+  let y = 640;
+  for (const [i, prod] of pedido.productos.entries()) {
     const subtotal = prod.precio * prod.cantidad;
-    const posY = doc.y;
-
-    doc.fontSize(12)
-      .fillColor('black')
-      .text(`${i + 1}. ${prod.nombre}`, 50, posY)
-      .text(`Cantidad : ${prod.cantidad}`, 50, doc.y)
-      .text(`Precio Unitario : CRC${prod.precio.toLocaleString()}`, 50, doc.y)
-      .text(`Subtotal : CRC${subtotal.toLocaleString()}`, 50, doc.y);
-
-    let imagenURL = 'https://coocishop.netlify.app/img/default.png';
-    if (prod.imagen && typeof prod.imagen === 'string') {
-      imagenURL = prod.imagen.startsWith('http') 
-        ? prod.imagen 
-        : `https://coocishop.netlify.app${prod.imagen.startsWith('/') ? '' : '/'}${prod.imagen}`;
-    }
+    drawText(`${i + 1}. ${prod.nombre}`, 50, y);
+    drawText(`Cantidad: ${prod.cantidad}`, 50, y - 15);
+    drawText(`Precio Unitario: CRC${prod.precio.toLocaleString()}`, 50, y - 30);
+    drawText(`Subtotal: CRC${subtotal.toLocaleString()}`, 50, y - 45);
 
     try {
-      const { buffer: imgBuffer, mime } = await fetchImageBuffer(imagenURL);
-      if (mime.includes('png') || mime.includes('jpeg')) {
-        doc.image(imgBuffer, 370, posY, { fit: [60, 60] });
-      } else {
-        throw new Error('Formato no soportado');
-      }
-    } catch (err) {
-      console.warn(`⚠️ Imagen fallida '${prod.nombre}':`, err);
-      try {
-        const { buffer: fallback } = await fetchImageBuffer('https://coocishop.netlify.app/img/default.png');
-        doc.image(fallback, 370, posY, { fit: [60, 60] });
-      } catch {
-        doc.fontSize(10).fillColor('gray').text('[Imagen no disponible]', 370, posY);
-      }
+      const imageUrl = prod.imagen.startsWith('http')
+        ? prod.imagen
+        : `https://coocishop.netlify.app${prod.imagen.startsWith('/') ? '' : '/'}${prod.imagen}`;
+      const imageBytes = await fetch(imageUrl).then(res => res.arrayBuffer());
+      const imageEmbed = imageUrl.toLowerCase().endsWith('.png')
+        ? await pdfDoc.embedPng(imageBytes)
+        : await pdfDoc.embedJpg(imageBytes);
+      page.drawImage(imageEmbed, { x: 400, y: y - 20, width: 60, height: 60 });
+    } catch (e) {
+      drawText('[Imagen no disponible]', 400, y);
+      console.warn(`⚠️ Imagen fallida: ${prod.nombre}`, e);
     }
 
-    doc.moveDown(2);
-    doc.moveTo(50, doc.y).lineTo(550, doc.y).strokeColor('#ccc').stroke();
-    doc.moveDown(0.5);
+    y -= 90;
+    if (y < 100) {
+      page.drawText('--- Página continua ---', { x: 250, y: 50 });
+      y = 740;
+    }
   }
 
-  doc.moveDown(1).fontSize(14).fillColor('black').text(`Total: CRC${pedido.total.toLocaleString()}`, {
-    align: 'right'
-  });
+  drawText(`Total: CRC${pedido.total.toLocaleString()}`, 350, y - 30, 14);
+  drawText('Gracias por su compra en CoociShop.', 180, 50, 10);
 
-  doc.moveDown(2).fontSize(10).text('Gracias por su compra en CoociShop.', { align: 'center' });
-  doc.end();
-
-  return new Promise(resolve => {
-    doc.on('end', () => resolve(Buffer.concat(buffers)));
-  });
+  const pdfBytes = await pdfDoc.save();
+  return Buffer.from(pdfBytes);
 }
