@@ -146,7 +146,42 @@ async function agregarProducto(e) {
   }
 }
 
+async function editarProducto(e) {
+  e.preventDefault();
 
+  const id = parseInt(document.getElementById("edit-id").value);
+  const nuevaCategoria = document.getElementById("edit-categoria-nueva").value.trim();
+  const seleccionCategoria = document.getElementById("edit-categoria").value.trim();
+  const imagenNombre = document.getElementById("edit-imagen").value.trim();
+
+  const body = {
+    nombre: document.getElementById("edit-nombre").value.trim(),
+    descripcion: document.getElementById("edit-descripcion").value.trim(),
+    precio: parseFloat(document.getElementById("edit-precio").value),
+    stock: parseInt(document.getElementById("edit-stock").value),
+    categoria: nuevaCategoria || seleccionCategoria,
+    imagen: imagenNombre ? `https://coocishop.netlify.app/img/${imagenNombre}` : undefined,
+  };
+  Object.keys(body).forEach(key => { if (!body[key]) delete body[key]; });
+
+  try {
+    const res = await fetch(`${API_URL}/admin/producto/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+
+    const data = await res.json();
+    if (!res.ok) return mostrarMensaje(`❌ Error: ${data.error || data.message}`, "danger");
+
+    mostrarMensaje("✅ Producto actualizado correctamente");
+    await cargarProductos();
+    limpiarInputs();
+  } catch (err) {
+    console.error("❌ Error al editar producto:", err);
+    mostrarMensaje("❌ Error al editar producto", "danger");
+  }
+}
 
 function mostrarFormularioEditar() {
   formContainer.innerHTML = `
@@ -169,6 +204,30 @@ function mostrarFormularioEditar() {
   document.getElementById("form-editar-producto").addEventListener("submit", editarProducto);
 }
 
+
+async function eliminarProducto(e) {
+  e.preventDefault();
+
+  const id = parseInt(document.getElementById("del-id").value);
+  if (!confirm(`¿Seguro que deseas eliminar el producto #${id}?`)) return;
+
+  try {
+    const res = await fetch(`${API_URL}/admin/producto/${id}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    const data = await res.json();
+    if (!res.ok) return mostrarMensaje(`❌ Error: ${data.error || data.message}`, "danger");
+
+    mostrarMensaje("✅ Producto eliminado correctamente");
+    await cargarProductos();
+    limpiarInputs();
+  } catch (err) {
+    console.error("❌ Error al eliminar producto:", err);
+    mostrarMensaje("❌ Error al eliminar producto", "danger");
+  }
+}
 function mostrarFormularioEliminar() {
   formContainer.innerHTML = `
     <h3>🗑️ Eliminar Producto</h3>
