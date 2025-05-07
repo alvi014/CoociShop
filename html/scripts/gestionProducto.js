@@ -107,7 +107,6 @@ function mostrarFormularioAgregar() {
 }
 async function agregarProducto(e) {
   e.preventDefault();
-  limpiarInputs();
 
   const nuevaCategoria = document.getElementById("prod-categoria-nueva").value.trim();
   const seleccionCategoria = document.getElementById("prod-categoria-select").value.trim();
@@ -124,7 +123,8 @@ async function agregarProducto(e) {
   };
 
   if (!producto.categoria || !imagenNombre) {
-    return mostrarMensaje("❌ Debes ingresar una categoría e imagen válida.", "danger");
+    mostrarMensaje("❌ Debes ingresar una categoría e imagen válida.", "danger");
+    return;
   }
 
   try {
@@ -139,12 +139,13 @@ async function agregarProducto(e) {
 
     mostrarMensaje("✅ Producto agregado correctamente");
     await cargarProductos();
-    limpiarInputs();
+    limpiarInputs(); // 👈 ahora sí, se limpia después de éxito
   } catch (err) {
     console.error("❌ Error al agregar producto:", err);
     mostrarMensaje("❌ Error de red al agregar producto", "danger");
   }
 }
+
 
 
 function mostrarFormularioEditar() {
