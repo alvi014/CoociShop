@@ -105,6 +105,47 @@ function mostrarFormularioAgregar() {
   `;
   document.getElementById("form-agregar-producto").addEventListener("submit", agregarProducto);
 }
+async function agregarProducto(e) {
+  e.preventDefault();
+  limpiarInputs();
+
+  const nuevaCategoria = document.getElementById("prod-categoria-nueva").value.trim();
+  const seleccionCategoria = document.getElementById("prod-categoria-select").value.trim();
+  const imagenNombre = document.getElementById("prod-imagen").value.trim();
+
+  const producto = {
+    id: parseInt(document.getElementById("prod-id").value),
+    nombre: document.getElementById("prod-nombre").value.trim(),
+    descripcion: document.getElementById("prod-descripcion").value.trim(),
+    precio: parseFloat(document.getElementById("prod-precio").value),
+    stock: parseInt(document.getElementById("prod-stock").value),
+    categoria: nuevaCategoria || seleccionCategoria,
+    imagen: `https://coocishop.netlify.app/img/${imagenNombre}`,
+  };
+
+  if (!producto.categoria || !imagenNombre) {
+    return mostrarMensaje("❌ Debes ingresar una categoría e imagen válida.", "danger");
+  }
+
+  try {
+    const res = await fetch(`${API_URL}/admin/producto`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(producto),
+    });
+
+    const data = await res.json();
+    if (!res.ok) return mostrarMensaje(`❌ Error: ${data.error || data.message}`, "danger");
+
+    mostrarMensaje("✅ Producto agregado correctamente");
+    await cargarProductos();
+    limpiarInputs();
+  } catch (err) {
+    console.error("❌ Error al agregar producto:", err);
+    mostrarMensaje("❌ Error de red al agregar producto", "danger");
+  }
+}
+
 
 function mostrarFormularioEditar() {
   formContainer.innerHTML = `
