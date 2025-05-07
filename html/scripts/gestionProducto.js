@@ -4,6 +4,7 @@ const API_URL = "https://coocishop.onrender.com/api";
 const tablaBody = document.getElementById("productos-body");
 const formContainer = document.getElementById("formulario-container");
 const filtroCategoria = document.getElementById("filtro-categoria");
+const mensajeEstado = document.getElementById("estado-mensaje");
 let productosOriginales = [];
 let categoriasUnicas = [];
 
@@ -11,6 +12,14 @@ window.addEventListener("DOMContentLoaded", async () => {
   await cargarProductos();
   if (filtroCategoria) filtroCategoria.addEventListener("change", filtrarPorCategoria);
 });
+
+function mostrarMensaje(texto, tipo = "success") {
+  if (!mensajeEstado) return;
+  mensajeEstado.textContent = texto;
+  mensajeEstado.className = `alert alert-${tipo}`;
+  mensajeEstado.style.display = "block";
+  setTimeout(() => mensajeEstado.style.display = "none", 3000);
+}
 
 async function cargarProductos() {
   try {
@@ -88,6 +97,7 @@ function mostrarFormularioAgregar() {
       <img id="preview-imagen" src="" style="display:none; width:80px;" />
       <button type="submit" class="btn btn-success">Guardar</button>
     </form>
+    <div id="estado-mensaje" class="mt-2"></div>
   `;
 }
 
@@ -106,8 +116,10 @@ function actualizarPreviewImagen() {
 
 function limpiarInputs() {
   formContainer.querySelectorAll("input[type='text'], input[type='number']").forEach(input => {
-    input.value = input.value.trim();
+    input.value = "";
   });
+  const preview = document.getElementById("preview-imagen");
+  if (preview) preview.style.display = "none";
 }
 
 async function agregarProducto(e) {
@@ -129,7 +141,7 @@ async function agregarProducto(e) {
   };
 
   if (!producto.categoria || !imagenNombre) {
-    return alert("❌ Debes ingresar una categoría e imagen válida.");
+    return mostrarMensaje("❌ Debes ingresar una categoría e imagen válida.", "danger");
   }
 
   try {
@@ -140,33 +152,15 @@ async function agregarProducto(e) {
     });
 
     const data = await res.json();
-    if (!res.ok) return alert(`❌ Error: ${data.error || data.message}`);
+    if (!res.ok) return mostrarMensaje(`❌ Error: ${data.error || data.message}`, "danger");
 
-    alert("✅ Producto agregado correctamente");
+    mostrarMensaje("✅ Producto agregado correctamente");
     await cargarProductos();
+    limpiarInputs();
   } catch (err) {
     console.error("❌ Error al agregar producto:", err);
+    mostrarMensaje("❌ Error de red al agregar producto", "danger");
   }
-}
-
-function mostrarFormularioEditar() {
-  formContainer.innerHTML = `
-    <h3>✏️ Editar Producto</h3>
-    <form onsubmit="editarProducto(event)">
-      <input class="form-control mb-2" type="number" placeholder="ID del producto" id="edit-id" required />
-      <input class="form-control mb-2" type="text" placeholder="Nuevo nombre" id="edit-nombre" />
-      <input class="form-control mb-2" type="text" placeholder="Nueva descripción" id="edit-descripcion" />
-      <input class="form-control mb-2" type="number" placeholder="Nuevo precio" id="edit-precio" />
-      <input class="form-control mb-2" type="number" placeholder="Nuevo stock" id="edit-stock" />
-      <select class="form-select mb-2" id="edit-categoria">
-        <option value="">Seleccionar existente</option>
-        ${categoriasUnicas.map(c => `<option value="${c}">${c}</option>`).join('')}
-      </select>
-      <input class="form-control mb-2" type="text" placeholder="O ingrese nueva categoría" id="edit-categoria-nueva" />
-      <input class="form-control mb-2" type="text" placeholder="Nueva imagen (ej. producto.png)" id="edit-imagen" />
-      <button type="submit" class="btn btn-warning">Actualizar</button>
-    </form>
-  `;
 }
 
 async function editarProducto(e) {
@@ -195,23 +189,15 @@ async function editarProducto(e) {
       body: JSON.stringify(body),
     });
     const data = await res.json();
-    if (!res.ok) return alert(`❌ Error: ${data.error || data.message}`);
+    if (!res.ok) return mostrarMensaje(`❌ Error: ${data.error || data.message}`, "danger");
 
-    alert("✅ Producto actualizado");
+    mostrarMensaje("✅ Producto actualizado correctamente");
     await cargarProductos();
+    limpiarInputs();
   } catch (err) {
     console.error("❌ Error al editar producto:", err);
+    mostrarMensaje("❌ Error al editar producto", "danger");
   }
-}
-
-function mostrarFormularioEliminar() {
-  formContainer.innerHTML = `
-    <h3>🗑️ Eliminar Producto</h3>
-    <form onsubmit="eliminarProducto(event)">
-      <input class="form-control mb-2" type="number" placeholder="ID del producto a eliminar" id="del-id" required />
-      <button type="submit" class="btn btn-danger">Eliminar</button>
-    </form>
-  `;
 }
 
 async function eliminarProducto(e) {
@@ -228,11 +214,13 @@ async function eliminarProducto(e) {
       mode: "cors"
     });
     const data = await res.json();
-    if (!res.ok) return alert(`❌ Error: ${data.error || data.message}`);
+    if (!res.ok) return mostrarMensaje(`❌ Error: ${data.error || data.message}`, "danger");
 
-    alert("✅ Producto eliminado");
+    mostrarMensaje("✅ Producto eliminado correctamente");
     await cargarProductos();
+    limpiarInputs();
   } catch (err) {
     console.error("❌ Error al eliminar producto:", err);
+    mostrarMensaje("❌ Error al eliminar producto", "danger");
   }
 }
