@@ -96,7 +96,7 @@ function actualizarPreviewImagen() {
   const preview = document.getElementById("preview-imagen");
   const url = input.value.trim();
   if (url) {
-    preview.src = `https://coocishop.onrender.com/img/${url}`;
+    preview.src = `https://coocishop.netlify.app/img/${url}`;
     preview.style.display = "block";
   } else {
     preview.src = "";
@@ -125,7 +125,7 @@ async function agregarProducto(e) {
     precio: parseFloat(document.getElementById("prod-precio").value),
     stock: parseInt(document.getElementById("prod-stock").value),
     categoria: nuevaCategoria || seleccionCategoria,
-    imagen: `https://coocishop.onrender.com/img/${imagenNombre}`,
+    imagen: `https://coocishop.netlify.app/img/${imagenNombre}`,
   };
 
   if (!producto.categoria || !imagenNombre) {
@@ -184,7 +184,7 @@ async function editarProducto(e) {
     precio: parseFloat(document.getElementById("edit-precio").value),
     stock: parseInt(document.getElementById("edit-stock").value),
     categoria: nuevaCategoria || seleccionCategoria,
-    imagen: imagenNombre ? `https://coocishop.onrender.com/img/${imagenNombre}` : undefined,
+    imagen: imagenNombre ? `https://coocishop.netlify.app/img/${imagenNombre}` : undefined,
   };
   Object.keys(body).forEach(key => { if (!body[key]) delete body[key]; });
 
