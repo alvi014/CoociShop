@@ -34,7 +34,7 @@ function mostrarCarrito() {
         if (imagenSrc?.startsWith('/img')) {
             imagenSrc = imagenSrc.replace('/img', 'img');
         }
-
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
         productRow.innerHTML = `
             <img src="${imagenSrc}" alt="${producto.nombre}">
             <div class="carrito-item-info">
