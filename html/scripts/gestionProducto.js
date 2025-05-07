@@ -86,7 +86,7 @@ function mostrarFormulario(tipo) {
 function mostrarFormularioAgregar() {
   formContainer.innerHTML = `
     <h3>➕ Agregar Producto</h3>
-    <form onsubmit="agregarProducto(event)">
+    <form onsubmit="window.agregarProducto(event)">
       <input class="form-control mb-2" type="number" placeholder="ID" id="prod-id" required />
       <input class="form-control mb-2" type="text" placeholder="Nombre" id="prod-nombre" required />
       <input class="form-control mb-2" type="text" placeholder="Descripción" id="prod-descripcion" />
@@ -108,7 +108,7 @@ function mostrarFormularioAgregar() {
 function mostrarFormularioEditar() {
   formContainer.innerHTML = `
     <h3>✏️ Editar Producto</h3>
-    <form onsubmit="editarProducto(event)">
+    <form onsubmit="window.editarProducto(event)">
       <input class="form-control mb-2" type="number" placeholder="ID del producto" id="edit-id" required />
       <input class="form-control mb-2" type="text" placeholder="Nuevo nombre" id="edit-nombre" />
       <input class="form-control mb-2" type="text" placeholder="Nueva descripción" id="edit-descripcion" />
@@ -128,7 +128,7 @@ function mostrarFormularioEditar() {
 function mostrarFormularioEliminar() {
   formContainer.innerHTML = `
     <h3>🗑️ Eliminar Producto</h3>
-    <form onsubmit="eliminarProducto(event)">
+    <form onsubmit="window.eliminarProducto(event)">
       <input class="form-control mb-2" type="number" placeholder="ID del producto a eliminar" id="del-id" required />
       <button type="submit" class="btn btn-danger">Eliminar</button>
     </form>
@@ -140,6 +140,3 @@ window.mostrarFormularioAgregar = mostrarFormularioAgregar;
 window.mostrarFormularioEditar = mostrarFormularioEditar;
 window.mostrarFormularioEliminar = mostrarFormularioEliminar;
 window.filtrarPorCategoria = filtrarPorCategoria;
-window.agregarProducto = agregarProducto;
-window.editarProducto = editarProducto;
-window.eliminarProducto = eliminarProducto;
