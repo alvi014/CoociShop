@@ -32,7 +32,7 @@ const PORT = process.env.PORT || 5000;
 // ✅ CORS
 const corsOptions = {
   origin: ['https://coocishop.netlify.app'],
-  methods: 'GET,POST',
+  methods: 'GET,POST,PUT,DELETE',
   credentials: true
 };
 app.use(cors(corsOptions));
@@ -42,9 +42,11 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "https://coocishop.netlify.app");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   next();
 });
+
 
 // ✅ Rutas
 app.use('/api/pedidos', pedidosRoutes);
