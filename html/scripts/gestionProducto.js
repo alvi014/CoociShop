@@ -156,12 +156,13 @@ function limpiarInputs() {
   if (preview) preview.style.display = "none";
 }
 
-// window.mostrarFormulario = mostrarFormulario;
-// window.mostrarFormularioAgregar = mostrarFormularioAgregar;
-// window.mostrarFormularioEditar = mostrarFormularioEditar;
-// window.mostrarFormularioEliminar = mostrarFormularioEliminar;
-// window.filtrarPorCategoria = filtrarPorCategoria;
-// window.actualizarPreviewImagen = actualizarPreviewImagen;
-// window.agregarProducto = agregarProducto;
-// window.editarProducto = editarProducto;
-// window.eliminarProducto = eliminarProducto;
+window.mostrarFormulario = mostrarFormulario;
+window.mostrarFormularioAgregar = mostrarFormularioAgregar;
+window.mostrarFormularioEditar = mostrarFormularioEditar;
+window.mostrarFormularioEliminar = mostrarFormularioEliminar;
+window.filtrarPorCategoria = filtrarPorCategoria;
+window.actualizarPreviewImagen = actualizarPreviewImagen;
+window.agregarProducto = agregarProducto;
+window.editarProducto = editarProducto;
+window.eliminarProducto = eliminarProducto;
+
