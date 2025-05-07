@@ -86,7 +86,7 @@ function mostrarFormulario(tipo) {
 function mostrarFormularioAgregar() {
   formContainer.innerHTML = `
     <h3>➕ Agregar Producto</h3>
-    <form onsubmit="window.agregarProducto(event)">
+    <form id="form-agregar-producto">
       <input class="form-control mb-2" type="number" placeholder="ID" id="prod-id" required />
       <input class="form-control mb-2" type="text" placeholder="Nombre" id="prod-nombre" required />
       <input class="form-control mb-2" type="text" placeholder="Descripción" id="prod-descripcion" />
@@ -103,12 +103,13 @@ function mostrarFormularioAgregar() {
       <button type="submit" class="btn btn-success">Guardar</button>
     </form>
   `;
+  document.getElementById("form-agregar-producto").addEventListener("submit", agregarProducto);
 }
 
 function mostrarFormularioEditar() {
   formContainer.innerHTML = `
     <h3>✏️ Editar Producto</h3>
-    <form onsubmit="window.editarProducto(event)">
+    <form id="form-editar-producto">
       <input class="form-control mb-2" type="number" placeholder="ID del producto" id="edit-id" required />
       <input class="form-control mb-2" type="text" placeholder="Nuevo nombre" id="edit-nombre" />
       <input class="form-control mb-2" type="text" placeholder="Nueva descripción" id="edit-descripcion" />
@@ -123,16 +124,18 @@ function mostrarFormularioEditar() {
       <button type="submit" class="btn btn-warning">Actualizar</button>
     </form>
   `;
+  document.getElementById("form-editar-producto").addEventListener("submit", editarProducto);
 }
 
 function mostrarFormularioEliminar() {
   formContainer.innerHTML = `
     <h3>🗑️ Eliminar Producto</h3>
-    <form onsubmit="window.eliminarProducto(event)">
+    <form id="form-eliminar-producto">
       <input class="form-control mb-2" type="number" placeholder="ID del producto a eliminar" id="del-id" required />
       <button type="submit" class="btn btn-danger">Eliminar</button>
     </form>
   `;
+  document.getElementById("form-eliminar-producto").addEventListener("submit", eliminarProducto);
 }
 
 function actualizarPreviewImagen() {
@@ -165,4 +168,3 @@ window.actualizarPreviewImagen = actualizarPreviewImagen;
 window.agregarProducto = agregarProducto;
 window.editarProducto = editarProducto;
 window.eliminarProducto = eliminarProducto;
-
