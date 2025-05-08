@@ -39,18 +39,18 @@ router.post("/login", async (req, res) => {
   const password = req.body.password?.trim();
 
   if (!email || !password) {
-    return res.status(400).json({ message: "Email y contraseña son obligatorios" });
+    return res.status(400).json({ message: "Email y contraseña son obligatorios", success: false });
   }
 
   try {
     const admin = await Admin.findOne({ email });
     if (!admin) {
-      return res.status(400).json({ message: "Usuario no encontrado" });
+      return res.status(400).json({ message: "Usuario no encontrado", success: false });
     }
 
     const isMatch = await bcrypt.compare(password, admin.password);
     if (!isMatch) {
-      return res.status(400).json({ message: "Contraseña incorrecta" });
+      return res.status(400).json({ message: "Contraseña incorrecta", success: false });
     }
 
     const token = jwt.sign(
