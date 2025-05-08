@@ -63,7 +63,7 @@ export async function generarFacturaPDF(pedido) {
     }
   }
 
-  drawText(`Total: ₡ ${pedido.total.toLocaleString()}`, 350, y - 30, 14);
+  drawText(`Total: CRC${pedido.total.toLocaleString()}`, 350, y - 30, 14);
   drawText('Gracias por su compra en CoociShop.', 180, 50, 10);
 
   const pdfBytes = await pdfDoc.save();
