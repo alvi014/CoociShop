@@ -29,7 +29,9 @@ export async function generarFacturaPDF(pedido) {
   drawText('CoociShop - Nuevo Pedido', 110, 790, 18);
   drawText(`Cliente: ${pedido.nombreCliente}`, 50, 740);
   drawText(`Sucursal: ${pedido.sucursal}`, 50, 720);
-  drawText(`Fecha: ${new Date().toLocaleString()}`, 50, 700);
+  const now = new Date();
+  const localTime = now.toLocaleTimeString();
+  drawText(`Fecha: ${now.toLocaleDateString()} ${localTime}`, 50, 700);
   drawText('Detalles del pedido:', 50, 670, 14);
 
   let y = 640;
@@ -37,8 +39,8 @@ export async function generarFacturaPDF(pedido) {
     const subtotal = prod.precio * prod.cantidad;
     drawText(`${i + 1}. ${prod.nombre}`, 50, y);
     drawText(`Cantidad: ${prod.cantidad}`, 50, y - 15);
-    drawText(`Precio Unitario: CRC${prod.precio.toLocaleString()}`, 50, y - 30);
-    drawText(`Subtotal: CRC${subtotal.toLocaleString()}`, 50, y - 45);
+    drawText(`Precio Unitario: CRC ${prod.precio.toLocaleString()}`, 50, y - 30);
+    drawText(`Subtotal: CRC ${subtotal.toLocaleString()}`, 50, y - 45);
 
     try {
       const imageUrl = prod.imagen.startsWith('http')
@@ -61,7 +63,7 @@ export async function generarFacturaPDF(pedido) {
     }
   }
 
-  drawText(`Total: CRC${pedido.total.toLocaleString()}`, 350, y - 30, 14);
+  drawText(`Total: ₡ ${pedido.total.toLocaleString()}`, 350, y - 30, 14);
   drawText('Gracias por su compra en CoociShop.', 180, 50, 10);
 
   const pdfBytes = await pdfDoc.save();
