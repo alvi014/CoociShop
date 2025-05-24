@@ -6,6 +6,8 @@ import Producto from '../models/Producto.js';
 import { generarFacturaPDF } from '../utils/pdfGenerator.js';
 import nodemailer from 'nodemailer';
 import multer from 'multer';
+import fetch from 'node-fetch'; // Necesario para verificar reCAPTCHA
+
 
 const router = express.Router();
 const storage = multer.memoryStorage();
@@ -14,6 +16,24 @@ const upload = multer({ storage });
 // 📌 Ruta: POST /api/pedidos
 router.post('/', upload.single('comprobantePago'), async (req, res) => {
   try {
+        // ✅ Validar reCAPTCHA
+        const recaptchaToken = req.body['g-recaptcha-response'];
+        if (!recaptchaToken) {
+          return res.status(400).json({ error: "⚠️ Falta CAPTCHA" });
+        }
+    
+        const verifyUrl = `https://www.google.com/recaptcha/api/siteverify`;
+        const recaptchaRes = await fetch(verifyUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: `secret=${process.env.RECAPTCHA_SECRET}&response=${recaptchaToken}`
+        });
+    
+        const recaptchaData = await recaptchaRes.json();
+        if (!recaptchaData.success) {
+          return res.status(403).json({ error: "❌ Verificación CAPTCHA fallida" });
+        }
+    
     const { nombreCliente, sucursal, productos, total } = req.body;
     const productosJSON = JSON.parse(productos);
 
