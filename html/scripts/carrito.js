@@ -132,6 +132,15 @@ document.getElementById('checkout-form').addEventListener('submit', async functi
     formData.append('total', pedido.total);
     formData.append('comprobantePago', comprobantePago);
 
+    const captchaToken = grecaptcha.getResponse();
+if (!captchaToken) {
+  alert("⚠️ Por favor, resolvé el CAPTCHA antes de enviar.");
+  return;
+}
+
+formData.append("g-recaptcha-response", captchaToken);
+
+
     // ✅ Verificamos si el backend está listo
     try {
         const response = await fetch("https://coocishop.onrender.com/api/pedidos", {
