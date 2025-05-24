@@ -132,12 +132,14 @@ document.getElementById('checkout-form').addEventListener('submit', async functi
         return;
     }
 
-    const captchaToken = grecaptcha.getResponse();
-    if (!captchaToken || captchaToken.length < 30) {
-        alert("⚠️ Por favor, resolvé el CAPTCHA antes de enviar.");
-        grecaptcha.reset();
-        return;
-    }
+   // Validación del token CAPTCHA
+const captchaToken = grecaptcha.getResponse();
+if (!captchaToken || captchaToken.length < 30) {
+    alert("⚠️ Por favor, resolvé el CAPTCHA antes de enviar.");
+    grecaptcha.reset(); // 🔁 RESETEA SI ES INVÁLIDO
+    return;
+}
+
 
     console.log("🧠 CAPTCHA TOKEN:", captchaToken);
 
@@ -168,11 +170,12 @@ document.getElementById('checkout-form').addEventListener('submit', async functi
             localStorage.removeItem('carrito');
             mostrarCarrito();
             document.getElementById('checkout-form').reset();
-            grecaptcha.reset();
+            grecaptcha.reset(); // 🔁 RESETEA TRAS ÉXITO
         } else {
             alert(`❌ Error al enviar pedido: ${(data && data.error) || 'Error desconocido'}`);
-            grecaptcha.reset();
+            grecaptcha.reset(); // 🔁 RESETEA SI EL BACKEND RECHAZA
         }
+        
 
         actualizarCarritoNavbar();
     } catch (error) {
