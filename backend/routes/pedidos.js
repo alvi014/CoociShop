@@ -2,6 +2,7 @@
 
 import express from 'express';
 import Pedido from '../models/Pedido.js';
+import Producto from '../models/Producto.js';
 import { generarFacturaPDF } from '../utils/pdfGenerator.js';
 import nodemailer from 'nodemailer';
 import multer from 'multer';
@@ -16,21 +17,24 @@ router.post('/', upload.single('comprobantePago'), async (req, res) => {
     const { nombreCliente, sucursal, productos, total } = req.body;
     const productosJSON = JSON.parse(productos);
 
+    // ✅ Validar existencia y stock de productos
     for (const p of productosJSON) {
       const producto = await Producto.findOne({ id: Number(p.id) });
-    
+
       if (!producto) {
         return res.status(404).json({ error: `Producto con ID ${p.id} no encontrado.` });
       }
-    
+
       if (producto.stock < p.cantidad) {
-        return res.status(400).json({ error: `❌ Stock insuficiente para '${producto.nombre}'. Disponible: ${producto.stock}` });
+        return res.status(400).json({
+          error: `❌ Stock insuficiente para '${producto.nombre}'. Disponible: ${producto.stock}`
+        });
       }
-    
+
       await Producto.updateOne({ id: Number(p.id) }, { $inc: { stock: -p.cantidad } });
     }
-    
-    
+
+    // ✅ Guardar pedido
     const nuevoPedido = new Pedido({
       nombreCliente,
       sucursal,
@@ -40,11 +44,16 @@ router.post('/', upload.single('comprobantePago'), async (req, res) => {
 
     await nuevoPedido.save();
 
+    // 🧾 PDF factura
     const comprobanteBuffer = req.file?.buffer;
+    const facturaPDF = await generarFacturaPDF({
+      nombreCliente,
+      sucursal,
+      productos: productosJSON,
+      total
+    });
 
-    // 🧾 Generar el PDF de factura
-    const facturaPDF = await generarFacturaPDF({ nombreCliente, sucursal, productos: productosJSON, total });
-
+    // ✉️ Configurar envío de correo
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -68,6 +77,7 @@ router.post('/', upload.single('comprobantePago'), async (req, res) => {
       });
     }
 
+    // 📤 Enviar correo
     await transporter.sendMail({
       from: `CoociShop <${process.env.EMAIL_FROM}>`,
       to: process.env.EMAIL_TO,
