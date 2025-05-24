@@ -227,3 +227,11 @@ if (!document.getElementById("toast-container")) {
         `<div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 1055;"></div>`
     );
 }
+// 📦 Inicializar reCAPTCHA al cargar la página
+let captchaWidgetId;
+
+function onLoadRecaptcha() {
+  captchaWidgetId = grecaptcha.render('captcha-container', {
+    sitekey: '6LeB7kcrAAAAAAqp03o7nYZt79W7KNFwULHdHufF'
+  });
+}
