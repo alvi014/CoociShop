@@ -1,10 +1,11 @@
-// Lista de sucursales
+// 📦 Lista de sucursales disponibles
 const sucursales = [
     "Cuidad Quesada", "Sucursal NG", "Florencia", "Alajuela", "Heredia", "San José", "Cartago", "Tilarán", "Nicoya",
     "Zarcero", "San Ramón", "Orotina", "Naranjo", "Grecia", "La Tigra", "Fortuna", "Guatuso", "Santa Rosa", "Aguas Zarcas",
     "Venecia", "Pital", "Puerto Viejo", "Guapiles"
 ];
-// 📦 Cargar las sucursales en el select
+
+// 📦 Cargar las sucursales en el <select>
 function cargarSucursales() {
     const sucursalEnvio = document.getElementById('sucursal-envio');
     sucursales.forEach(sucursal => {
@@ -14,7 +15,8 @@ function cargarSucursales() {
         sucursalEnvio.appendChild(option);
     });
 }
-//
+
+// 📦 Mostrar el contenido del carrito
 function mostrarCarrito() {
     const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
     const carritoContainer = document.getElementById('carrito-container');
@@ -29,12 +31,11 @@ function mostrarCarrito() {
         const subtotal = producto.precio * producto.cantidad;
         total += subtotal;
 
-        // ✅ Verificamos si la imagen empieza con /img y ajustamos para Netlify
         let imagenSrc = producto.imagen;
         if (imagenSrc?.startsWith('/img')) {
             imagenSrc = imagenSrc.replace('/img', 'img');
         }
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
+
         productRow.innerHTML = `
             <img src="${imagenSrc}" alt="${producto.nombre}">
             <div class="carrito-item-info">
@@ -62,7 +63,8 @@ function mostrarCarrito() {
         });
     });
 }
-// 📦 Agregar producto al carrito
+
+// 📦 Eliminar un producto del carrito
 function eliminarDelCarrito(productId) {
     let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
     const productoEnCarrito = carrito.find(producto => producto.id == productId);
@@ -79,13 +81,15 @@ function eliminarDelCarrito(productId) {
         actualizarCarritoNavbar();
     }
 }
-// 📦 Mostrar el carrito al cargar la página y cargar las sucursales
+
+// 📦 Inicializar el carrito y sucursales al cargar la página
 document.addEventListener('DOMContentLoaded', () => {
     mostrarCarrito();
     cargarSucursales();
 });
 
-// 📦 Enviar el pedido al backend
+// 📦 Manejo del envío del formulario
+
 document.getElementById('checkout-form').addEventListener('submit', async function (e) {
     e.preventDefault();
 
@@ -94,7 +98,6 @@ document.getElementById('checkout-form').addEventListener('submit', async functi
     const comprobantePago = document.getElementById('comprobante-pago').files[0];
 
     const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
-
     if (carrito.length === 0) {
         alert("❌ No hay productos en el carrito.");
         return;
@@ -109,9 +112,7 @@ document.getElementById('checkout-form').addEventListener('submit', async functi
         return;
     }
 
-    const total = productosValidos.reduce((acc, producto) => {
-        return acc + (Number(producto.precio) * Number(producto.cantidad));
-    }, 0);
+    const total = productosValidos.reduce((acc, producto) => acc + (Number(producto.precio) * Number(producto.cantidad)), 0);
 
     const pedido = {
         nombreCliente: nombreCompleto,
@@ -125,71 +126,79 @@ document.getElementById('checkout-form').addEventListener('submit', async functi
         total
     };
 
-    const captchaToken = grecaptcha.getResponse();
-    if (!captchaToken) {
-      alert("⚠️ Por favor, resolvé el CAPTCHA antes de enviar.");
-      return;
+    // 🔐 Validación del reCAPTCHA
+    if (typeof grecaptcha === 'undefined') {
+        alert("❌ Error al cargar reCAPTCHA. Verificá tu conexión.");
+        return;
     }
-    
+
+    const captchaToken = grecaptcha.getResponse();
+    if (!captchaToken || captchaToken.length < 30) {
+        alert("⚠️ Por favor, resolvé el CAPTCHA antes de enviar.");
+        grecaptcha.reset();
+        return;
+    }
+
+    console.log("🧠 CAPTCHA TOKEN:", captchaToken);
+
     const formData = new FormData();
     formData.append('nombreCliente', pedido.nombreCliente);
     formData.append('sucursal', pedido.sucursal);
     formData.append('productos', JSON.stringify(pedido.productos));
     formData.append('total', pedido.total);
     formData.append('comprobantePago', comprobantePago);
-    formData.append("g-recaptcha-response", captchaToken);  
-    
+    formData.append("g-recaptcha-response", captchaToken);
 
-formData.append("g-recaptcha-response", captchaToken);
-
-
-    // ✅ Verificamos si el backend está listo
+    // 🚀 Enviar datos al backend
     try {
         const response = await fetch("https://coocishop.onrender.com/api/pedidos", {
             method: "POST",
             body: formData
         });
-    
+
         let data;
         try {
             data = await response.json();
         } catch (err) {
             data = null;
         }
-    
+
         if (response.ok) {
             mostrarNotificacion("success", "✅ Pedido enviado con éxito.");
             localStorage.removeItem('carrito');
             mostrarCarrito();
             document.getElementById('checkout-form').reset();
+            grecaptcha.reset();
         } else {
             alert(`❌ Error al enviar pedido: ${(data && data.error) || 'Error desconocido'}`);
+            grecaptcha.reset();
         }
-    
-        actualizarCarritoNavbar(); // ✅ Ahora sí está dentro del try
+
+        actualizarCarritoNavbar();
     } catch (error) {
         console.error("❌ Error al enviar pedido:", error);
         alert("⚠️ No se pudo completar el pedido en este momento. Inténtalo de nuevo más tarde.");
+        grecaptcha.reset();
     }
-    
 
     actualizarCarritoNavbar();
 });
 
-// 📌 Función para mostrar notificaciones
+// 📌 Actualizar el contador del carrito en el navbar
 function actualizarCarritoNavbar() {
     let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
     let contadorCarrito = document.getElementById("cart-count");
-
     if (contadorCarrito) {
         contadorCarrito.textContent = carrito.reduce((total, item) => total + item.cantidad, 0);
     }
 }
+
 // 📌 Crear el contenedor de notificaciones si no existe
 if (!document.getElementById("toast-container")) {
     document.body.insertAdjacentHTML("beforeend", '<div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 1050;"></div>');
 }
-// 📦 Mostrar notificación visual
+
+// 📦 Mostrar una notificación visual
 function mostrarNotificacion(tipo, mensaje) {
     const toastContainer = document.getElementById("toast-container");
     if (!toastContainer) return;
@@ -208,7 +217,7 @@ function mostrarNotificacion(tipo, mensaje) {
     setTimeout(() => toast.remove(), 3000);
 }
 
-// 📌 Agregar contenedor visual al HTML si no existe
+// 📌 Asegurar contenedor de notificaciones
 if (!document.getElementById("toast-container")) {
     document.body.insertAdjacentHTML(
         "beforeend",
