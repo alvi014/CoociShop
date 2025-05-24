@@ -16,6 +16,21 @@ router.post('/', upload.single('comprobantePago'), async (req, res) => {
     const { nombreCliente, sucursal, productos, total } = req.body;
     const productosJSON = JSON.parse(productos);
 
+    for (const p of productosJSON) {
+      const producto = await Producto.findOne({ id: Number(p.id) });
+    
+      if (!producto) {
+        return res.status(404).json({ error: `Producto con ID ${p.id} no encontrado.` });
+      }
+    
+      if (producto.stock < p.cantidad) {
+        return res.status(400).json({ error: `❌ Stock insuficiente para '${producto.nombre}'. Disponible: ${producto.stock}` });
+      }
+    
+      await Producto.updateOne({ id: Number(p.id) }, { $inc: { stock: -p.cantidad } });
+    }
+    
+    
     const nuevoPedido = new Pedido({
       nombreCliente,
       sucursal,
