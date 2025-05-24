@@ -30,9 +30,13 @@ router.post('/', upload.single('comprobantePago'), async (req, res) => {
         });
         
         const recaptchaData = await recaptchaRes.json();
+        console.log("✅ CAPTCHA RESPONSE:", recaptchaData);
+    
         if (!recaptchaData.success) {
+          console.log("🔍 Error reCAPTCHA:", recaptchaData['error-codes']);
           return res.status(403).json({ error: "❌ Verificación CAPTCHA fallida" });
         }
+        
         
     
     const { nombreCliente, sucursal, productos, total } = req.body;
