@@ -125,18 +125,20 @@ document.getElementById('checkout-form').addEventListener('submit', async functi
         total
     };
 
+    const captchaToken = grecaptcha.getResponse();
+    if (!captchaToken) {
+      alert("⚠️ Por favor, resolvé el CAPTCHA antes de enviar.");
+      return;
+    }
+    
     const formData = new FormData();
     formData.append('nombreCliente', pedido.nombreCliente);
     formData.append('sucursal', pedido.sucursal);
     formData.append('productos', JSON.stringify(pedido.productos));
     formData.append('total', pedido.total);
     formData.append('comprobantePago', comprobantePago);
-
-    const captchaToken = grecaptcha.getResponse();
-if (!captchaToken) {
-  alert("⚠️ Por favor, resolvé el CAPTCHA antes de enviar.");
-  return;
-}
+    formData.append("g-recaptcha-response", captchaToken);  
+    
 
 formData.append("g-recaptcha-response", captchaToken);
 
