@@ -35,12 +35,31 @@ export async function generarFacturaPDF(pedido) {
   drawText('Detalles del pedido:', 50, 670, 14);
 
   let y = 640;
-  for (const [i, prod] of pedido.productos.entries()) {
-    const subtotal = prod.precio * prod.cantidad;
-    drawText(`${i + 1}. ${prod.nombre}`, 50, y);
-    drawText(`Cantidad: ${prod.cantidad}`, 50, y - 15);
-    drawText(`Precio Unitario: CRC ${prod.precio.toLocaleString()}`, 50, y - 30);
-    drawText(`Subtotal: CRC ${subtotal.toLocaleString()}`, 50, y - 45);
+// Fondo visual para cada producto
+page.drawRectangle({
+  x: 45,
+  y: y - 60,
+  width: 500,
+  height: 75,
+  borderColor: rgb(0.8, 0.8, 0.8),
+  color: rgb(1, 1, 1),
+  borderWidth: 0.5,
+  opacity: 0.95
+});
+
+drawText(`${i + 1}. ${prod.nombre}`, 50, y);
+drawText(`Cantidad: ${prod.cantidad}`, 50, y - 15);
+drawText(`Precio Unitario: CRC ${prod.precio.toLocaleString()}`, 50, y - 30);
+drawText(`Subtotal: CRC ${subtotal.toLocaleString()}`, 50, y - 45);
+
+// Línea separadora
+page.drawLine({
+  start: { x: 45, y: y - 60 },
+  end: { x: 545, y: y - 60 },
+  thickness: 0.4,
+  color: rgb(0.7, 0.7, 0.7)
+});
+
 
  try {
   const imagenRuta = typeof prod.imagen === 'string' ? prod.imagen : '';
