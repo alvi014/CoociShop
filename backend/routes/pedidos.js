@@ -32,23 +32,26 @@ router.post('/', upload.single('comprobantePago'), async (req, res) => {
     console.log("SECRET:", process.env.RECAPTCHA_SECRET);
     console.log("TOKEN:", recaptchaToken);
 
-    // 🌐 Verificamos el token con los servidores de Google
-    const verifyUrl = `https://www.google.com/recaptcha/api/siteverify`;
-    const recaptchaRes = await fetch(verifyUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: `secret=${process.env.RECAPTCHA_SECRET}&response=${recaptchaToken}`
-    });
+   // 🌐 Verificamos el token con los servidores de Google
+const verifyUrl = `https://www.google.com/recaptcha/api/siteverify`;
+const recaptchaRes = await fetch(verifyUrl, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+  body: `secret=${process.env.RECAPTCHA_SECRET}&response=${recaptchaToken}`
+});
 
+// ✅ Primero obtenemos la respuesta JSON
+const recaptchaData = await recaptchaRes.json();
 
-    // ❌ Si falla la verificación, retornamos error
-    if (!recaptchaData.success) {
-      console.log("🔍 Error reCAPTCHA:", recaptchaData['error-codes']);
-      return res.status(403).json({ error: "❌ Verificación CAPTCHA fallida" });
-    }
-    
-    const recaptchaData = await recaptchaRes.json();
-    console.log("✅ CAPTCHA RESPONSE:", recaptchaData);
+// 🧪 Logs para ver respuesta de Google
+console.log("✅ CAPTCHA RESPONSE:", recaptchaData);
+
+// ❌ Si falla la verificación, retornamos error
+if (!recaptchaData.success) {
+  console.log("🔍 Error reCAPTCHA:", recaptchaData['error-codes']);
+  return res.status(403).json({ error: "❌ Verificación CAPTCHA fallida" });
+}
+
 
 
     // 🧾 Extrae y parseamos los datos del pedido
