@@ -25,6 +25,13 @@ router.post('/', upload.single('comprobantePago'), async (req, res) => {
       return res.status(400).json({ error: "⚠️ Falta o token inválido del CAPTCHA" });
     }
 
+
+
+    // Logs de pruebas para reCAPTCHA
+    console.log("🔐 Enviando a Google:");
+console.log("SECRET:", process.env.RECAPTCHA_SECRET);
+console.log("TOKEN:", recaptchaToken);
+
     // 🌐 Verificamos el token con los servidores de Google
     const verifyUrl = `https://www.google.com/recaptcha/api/siteverify`;
     const recaptchaRes = await fetch(verifyUrl, {
@@ -32,6 +39,13 @@ router.post('/', upload.single('comprobantePago'), async (req, res) => {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: `secret=${process.env.RECAPTCHA_SECRET}&response=${recaptchaToken}`
     });
+
+
+// ❌ Si falla la verificación, retornamos error
+const recaptchaData = await recaptchaRes.json();
+console.log("📩 Respuesta de Google:", recaptchaData);
+
+
 
     const recaptchaData = await recaptchaRes.json();
     console.log("✅ CAPTCHA RESPONSE:", recaptchaData);
