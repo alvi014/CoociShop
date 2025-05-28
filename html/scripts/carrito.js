@@ -118,11 +118,13 @@ document.getElementById('checkout-form').addEventListener('submit', async functi
         nombreCliente: nombreCompleto,
         sucursal: sucursalEnvio,
         productos: productosValidos.map(producto => ({
-            id: producto.id,
+             id: producto.id,
             nombre: producto.nombre,
             precio: Number(producto.precio),
-            cantidad: Number(producto.cantidad)
-        })),
+            cantidad: Number(producto.cantidad),
+            imagen: producto.imagen || ''
+            }))
+,
         total
     };
 
