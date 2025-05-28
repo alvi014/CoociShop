@@ -19,7 +19,7 @@ export async function generarFacturaPDF(pedido) {
 
   // Logo
   try {
-    const logoBytes = await fetch('https://coocishop.netlify.app/img/iconLog.PNG').then(res => res.arrayBuffer());
+    const logoBytes = await fetch('https://coocishop.netlify.app/img/CoociShop1.png').then(res => res.arrayBuffer());
     const logoImg = await pdfDoc.embedPng(logoBytes);
     page.drawImage(logoImg, { x: 50, y: 770, width: 50, height: 50 });
   } catch (e) {
@@ -42,19 +42,25 @@ export async function generarFacturaPDF(pedido) {
     drawText(`Precio Unitario: CRC ${prod.precio.toLocaleString()}`, 50, y - 30);
     drawText(`Subtotal: CRC ${subtotal.toLocaleString()}`, 50, y - 45);
 
-    try {
-      const imageUrl = prod.imagen.startsWith('http')
-        ? prod.imagen
-        : `https://coocishop.netlify.app${prod.imagen.startsWith('/') ? '' : '/'}${prod.imagen}`;
-      const imageBytes = await fetch(imageUrl).then(res => res.arrayBuffer());
-      const imageEmbed = imageUrl.toLowerCase().endsWith('.png')
-        ? await pdfDoc.embedPng(imageBytes)
-        : await pdfDoc.embedJpg(imageBytes);
-      page.drawImage(imageEmbed, { x: 400, y: y - 20, width: 60, height: 60 });
-    } catch (e) {
-      drawText('[Imagen no disponible]', 400, y);
-      console.warn(`⚠️ Imagen fallida: ${prod.nombre}`, e);
-    }
+ try {
+  const imagenRuta = typeof prod.imagen === 'string' ? prod.imagen : '';
+  const imageUrl = imagenRuta.startsWith('http')
+    ? imagenRuta
+    : `https://coocishop.netlify.app${imagenRuta.startsWith('/') ? '' : '/'}${imagenRuta}`;
+
+  if (!imagenRuta) throw new Error('Imagen no definida');
+
+  const imageBytes = await fetch(imageUrl).then(res => res.arrayBuffer());
+  const imageEmbed = imageUrl.toLowerCase().endsWith('.png')
+    ? await pdfDoc.embedPng(imageBytes)
+    : await pdfDoc.embedJpg(imageBytes);
+
+  page.drawImage(imageEmbed, { x: 400, y: y - 20, width: 60, height: 60 });
+} catch (e) {
+  drawText('[Imagen no disponible]', 400, y);
+  console.warn(`⚠️ Imagen fallida: ${prod.nombre}`, e.message || e);
+}
+
 
     y -= 90;
     if (y < 100) {
