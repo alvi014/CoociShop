@@ -35,7 +35,10 @@ export async function generarFacturaPDF(pedido) {
   drawText('Detalles del pedido:', 50, 670, 14);
 
   let y = 640;
-  for (const [i, prod] of pedido.productos.entries()) {
+
+  // 👉 CORRECTO: Recorrer los productos
+  for (let i = 0; i < pedido.productos.length; i++) {
+    const prod = pedido.productos[i];
     const subtotal = prod.precio * prod.cantidad;
 
     // Fondo visual para cada producto
