@@ -1,105 +1,119 @@
-CoociShop
+# CoociShop
 
 Tienda Virtual de Coocique para socios, desarrollada como un sistema de compra de promocionales.
 
-📋 Tabla de Contenidos
+---
 
-Descripción General
+## 📋 Tabla de Contenidos
 
-Instalación
+* [📦 Descripción General](#-descripción-general)
+* [🛠 Instalación](#-instalación)
+* [🚀 Uso](#-uso)
+* [🌐 Frontend](#-frontend)
+* [✨ Características](#-características)
+* [🔐 Variables de Entorno](#-variables-de-entorno)
+* [🧭 Arquitectura del Sistema](#-arquitectura-del-sistema)
+* [🤝 Contribuciones](#-contribuciones)
+* [📝 Licencia](#-licencia)
+* [📬 Contacto](#-contacto)
 
-Uso
+---
 
-Frontend
+## 📦 Descripción General
 
-Características
+Este proyecto consiste en una tienda virtual donde los socios pueden adquirir productos promocionales de la cooperativa.
 
-Variables de Entorno
+Está compuesto por:
 
-Arquitectura del Sistema
+* Un frontend estático (HTML/CSS/JS)
+* Un backend construido con Node.js, Express y MongoDB
 
-Contribuciones
+🔁 La comunicación entre clientes y administrador se refuerza con:
 
-Licencia
+* Notificaciones por correo
+* Autenticación con JWT
+* Carga de comprobantes de pago
 
-Contacto
+---
 
-📦 Descripción General
+## 🛠 Instalación
 
-Este proyecto consiste en una tienda virtual donde los socios pueden adquirir productos promocionales de la cooperativa. Está compuesto por un frontend estático (HTML/CSS/JS) y un backend construido con Node.js, Express y MongoDB.
+1. Clona este repositorio:
 
-La comunicación entre clientes y administrador se refuerza con notificaciones por correo, autenticación con JWT, y carga de comprobantes de pago.
-
-🛠 Instalación
-
-Clona este repositorio e instala las dependencias:
-
+```bash
 git clone https://github.com/alvi014/coocishop.git
 cd coocishop
 npm install
+```
 
-🚀 Uso
+---
 
+## 🚀 Uso
+
+```bash
 # Correr servidor en modo desarrollo
 npm run dev
+```
 
-Frontend estático puede desplegarse desde Netlify. Backend se aloja en Render o localmente.
+* El frontend puede desplegarse desde **Netlify**
+* El backend se aloja en **Render** o se ejecuta localmente
 
-🌐 Frontend
+---
 
-Desarrollado con HTML5, CSS3, Bootstrap y JavaScript. Cada vista está desacoplada y asociada a un JS dinámico.
+## 🌐 Frontend
 
-Archivos HTML clave:
+El frontend fue desarrollado con **HTML5, CSS3, Bootstrap y JavaScript**.
+Cada vista HTML tiene su lógica en archivos JS correspondientes.
 
-index.html — Portada principal con categorías
+### 📁 Archivos HTML principales
 
-producto.html — Render dinámico de productos
+```
+├── index.html              # Portada con categorías
+├── producto.html           # Lista dinámica de productos
+├── carrito.html            # Carrito + formulario + comprobante
+├── admin.html              # Login administrador
+├── gestionProducto.html    # Gestión y CRUD de productos
+├── contacto.html           # Información de contacto
+├── comoComprar.html        # Guía paso a paso
+├── navbar.html             # Barra de navegación reutilizable
+```
 
-carrito.html — Carrito y formulario de envío con validación
+---
 
-admin.html — Login admin con formulario
+## ✨ Características
 
-gestionProducto.html — CRUD de productos
+* 🔐 Autenticación de administrador con JWT
+* 🛍️ CRUD completo de productos
+* 📎 Carga de comprobantes de pago
+* 📧 Envío de correos automáticos con Nodemailer
+* 📦 Control de stock por pedido
+* 🔍 Filtros por categoría de producto
+* 📱 Interfaz responsiva (Bootstrap)
 
-contacto.html — Información de contacto
+---
 
-comoComprar.html — Guía paso a paso
+## 🔐 Variables de Entorno
 
-navbar.html — Barra de navegación común
+Crea un archivo `.env` en la raíz del proyecto con las siguientes claves:
 
-✨ Características
-
-Autenticación de administrador con JWT
-
-CRUD completo de productos
-
-Carga de comprobantes de pago (carrito.html)
-
-Envío de correos automáticos con Nodemailer
-
-Control de stock en backend
-
-Filtros por categoría de producto
-
-Interfaz responsiva y accesible
-
-🔐 Variables de Entorno
-
-Crea un archivo .env en la raíz del proyecto:
-
+```env
 MONGO_URI=
 PORT=3000
 EMAIL_ADMIN=
 EMAIL_PASS=
 JWT_SECRET=
 NODE_ENV=development
+```
 
-🧭 Arquitectura del Sistema
+---
 
-A continuación se muestra el flujo de componentes principales del sistema:
+## 🧭 Arquitectura del Sistema
 
+Diagrama representativo de los componentes del sistema:
 
+![Diagrama de arquitectura](arquitectura_web.png)
 
+```plaintext
 🧑 Usuario (Navegador)
    ↓
 🌐 Frontend (Netlify - HTML/JS/CSS)
@@ -107,17 +121,26 @@ A continuación se muestra el flujo de componentes principales del sistema:
 🔧 Backend API (Render - Express.js + Node.js)
    ↓
 🌍 API externa o base de datos (si aplica)
+```
 
-🤝 Contribuciones
+---
 
-¡Contribuciones son bienvenidas! Abre un issue o PR con mejoras o sugerencias.
+## 🤝 Contribuciones
 
-📝 Licencia
+¡Contribuciones son bienvenidas!
+
+* Abre un issue o PR con mejoras, bugs o documentación.
+
+---
+
+## 📝 Licencia
 
 Este proyecto está licenciado bajo los términos de uso de Coocique.
 
-📬 Contacto
+---
 
-Desarrollador: avictor@coocique.fi.cr
+## 📬 Contacto
 
-Proyecto creado para facilitar el acceso a promocionales de socios de Coocique.
+* 👨‍💻 Desarrollador: [avictor@coocique.fi.cr](mailto:avictor@coocique.fi.cr)
+
+> Proyecto creado para facilitar el acceso a promocionales de socios de Coocique.
