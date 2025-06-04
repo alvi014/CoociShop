@@ -1,111 +1,89 @@
-# CoociShop
-Tienda Virtual Coocique para Socios
+CoociShop
 
+Tienda Virtual de Coocique para socios, desarrollada como un sistema de compra de promocionales.
 
-## Tabla de Contenidos
-- [Instalación](#instalación)
-- [Uso](#uso)
-- [Características](#características)
-- [Contribuciones](#contribuciones)
-- [Licencia](#licencia)
-- [Contacto](#avictor@coocique.fi.cr)
+📋 Tabla de Contenidos
 
-## Instalación
-Pasos para configurar el proyecto en tu entorno local:
-1. Clona este repositorio:
-   ```bash
-   git clone https://github.com/alvi014/coocishop.git
+Descripción General
 
-### Este proyecto consiste en una tienda virtual donde los socios pueden adquirir los promocionales de la cooperativa.
-#### Su estructura está compuesta solo por frontend y utiliza una libreria js para alertar al administrador sobre un pedido.
+Instalación
 
+Uso
 
-## Descripción del archivo HTML - Inicio
+Frontend
 
-Este archivo HTML representa la página de inicio de **CoociShop**, una tienda en línea que ofrece diversos productos. Está diseñado con un diseño limpio y moderno utilizando **Bootstrap 5** para una interfaz responsiva y fácil de usar. 
+Características
 
-### Características principales:
-- **Barra de Navegación:** La barra de navegación incluye enlaces a diferentes secciones como *Productos*, *Carrito* e *información* adicional sobre cómo comprar y contacto.
-- **Imagen de Portada:** Una imagen llamativa que presenta la tienda.
-- **Categorías de Productos:** Sección destacada con botones que dirigen a las diferentes categorías de productos como *Coocique*, *Coocique Mujer*, *Coocique NG*, y *Coocique GD*.
-- **Footer:** Al final de la página, se incluye un footer con derechos reservados de CoociShop.
+Variables de Entorno
 
-La página también incluye archivos CSS y JavaScript adicionales para personalizar la apariencia y funcionalidad del sitio.
+Contribuciones
 
+Licencia
 
-## Descripción del archivo HTML - Productos
+Contacto
 
-Este archivo HTML representa la página de productos de **CoociShop**. Está diseñado para mostrar una lista dinámica de productos disponibles en la tienda. Utiliza **Bootstrap 5** para el diseño responsivo y limpio de la página, asegurando que se vea bien en diferentes dispositivos.
+📦 Descripción General
 
-### Características principales:
-- **Barra de Navegación:** Se carga dinámicamente desde un archivo JavaScript externo, proporcionando enlaces de navegación entre las secciones del sitio.
-- **Contenedor de Productos:** La sección principal de la página está dedicada a mostrar los productos. Los productos se agregan dinámicamente dentro de un contenedor mediante JavaScript, lo que permite actualizar fácilmente la lista de productos sin recargar la página.
-- **Diseño Responsivo:** Utiliza las clases de **Bootstrap** para organizar los productos en una cuadrícula que se adapta a diferentes tamaños de pantalla.
-  
-La página también incluye archivos JavaScript para manejar la funcionalidad dinámica y la carga de datos.
+Este proyecto consiste en una tienda virtual donde los socios pueden adquirir productos promocionales de la cooperativa. Está compuesto por un frontend estático (HTML/CSS/JS) y un backend construido con Node.js, Express y MongoDB.
 
-### Archivos involucrados:
-- `styles.css`: Archivo de estilos que define la apariencia visual de la página.
-- `scripts.js/inicio.js`: Script que maneja la carga dinámica de la barra de navegación.
-- `scripts.js/producto.js`: Script que maneja la carga y visualización dinámica de los productos.
+La comunicación entre clientes y administrador se refuerza con notificaciones por correo, autenticación con JWT, y carga de comprobantes de pago.
 
+🛠 Instalación
 
+Clona este repositorio e instala las dependencias:
 
-## Descripción del archivo HTML - Contacto
+git clone https://github.com/alvi014/coocishop.git
+cd coocishop
+npm install
 
-Página de **Contacto** de **CoociShop** con información clave:
+🚀 Uso
 
-- **Dirección:** Costado este de la Catedral Ciudad Quesada, San Carlos, Alajuela.
-- **Teléfono:** [2401-1500](tel:24011500)
-- **Correo:** [comunicacion@coocique.fi.cr](mailto:comunicacion@coocique.fi.cr)
-- **Horario:** Lunes a viernes, 9:00 am a 4:30 pm.
+# Correr servidor en modo desarrollo
+npm run dev
 
-### Archivos utilizados:
-- `styles.css`: Estilos personalizados.
-- `scripts.js/inicio.js`: Barra de navegación dinámica.
-- `script.js`: Funcionalidades extra.
+Frontend estático puede desplegarse desde Netlify. Backend se aloja en Render o localmente.
 
+🌐 Frontend
 
-## Descripción del archivo HTML - Cómo Comprar
+Desarrollado con HTML5, CSS3, Bootstrap y JavaScript. Cada vista está desacoplada y asociada a un JS dinámico.
 
-Página de **"Cómo Comprar"** en **CoociShop**, que guía al usuario en los pasos para realizar una compra:
+Archivos HTML clave:
 
-1. Elegir productos promocionales.
-2. Añadirlos a la cesta de compra.
-3. Ingresar a la cesta.
-4. Completar los datos de envío y adjuntar el comprobante de capital social.
-5. Verificar información, aceptar términos y finalizar el pedido.
-6. Retirar o esperar la entrega del producto.
+index.html — Portada principal con categorías
 
-### Archivos utilizados:
-- `styles.css`: Estilos personalizados.
-- `scripts.js/inicio.js`: Barra de navegación dinámica.
-- 
+producto.html — Render dinámico de productos
 
-##🚀 Uso
-Este proyecto consiste en una tienda virtual donde los socios pueden adquirir productos promocionales de la cooperativa.
-Su estructura incluye frontend estático + backend en Node.js + MongoDB + Express.
+carrito.html — Carrito y formulario de envío con validación
 
-## ✨ Características principales
+admin.html — Login admin con formulario
+
+gestionProducto.html — CRUD de productos
+
+contacto.html — Información de contacto
+
+comoComprar.html — Guía paso a paso
+
+navbar.html — Barra de navegación común
+
+✨ Características
+
 Autenticación de administrador con JWT
 
-Carga y visualización de productos dinámicos
+CRUD completo de productos
 
-Carga de imágenes con Multer
+Carga de comprobantes de pago (carrito.html)
 
 Envío de correos automáticos con Nodemailer
 
-Control de stock por pedido
+Control de stock en backend
 
-Upload de comprobantes de pago
+Filtros por categoría de producto
 
-## 🛠️ Variables de Entorno
-Copia el archivo .env.example y completá los valores:
+Interfaz responsiva y accesible
 
-env
-Copiar
-Editar
-# .env.example
+🔐 Variables de Entorno
+
+Crea un archivo .env en la raíz del proyecto:
 
 MONGO_URI=
 PORT=3000
@@ -113,3 +91,18 @@ EMAIL_ADMIN=
 EMAIL_PASS=
 JWT_SECRET=
 NODE_ENV=development
+
+🤝 Contribuciones
+
+¡Contribuciones son bienvenidas! Abre un issue o PR con mejoras o sugerencias.
+
+📝 Licencia
+
+Este proyecto está licenciado bajo los términos de uso de Coocique.
+
+📬 Contacto
+
+Desarrollador: avictor@coocique.fi.cr
+
+Proyecto creado para facilitar el acceso a promocionales de socios de Coocique.
+

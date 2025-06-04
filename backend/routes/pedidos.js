@@ -30,7 +30,7 @@ router.post('/', upload.single('comprobantePago'), async (req, res) => {
     // Logs de pruebas para reCAPTCHA
     console.log("🔐 Enviando a Google:");
     console.log("SECRET:", process.env.RECAPTCHA_SECRET);
-    console.log("TOKEN:", recaptchaToken);
+    //console.log("TOKEN:", recaptchaToken);
 
    // 🌐 Verificamos el token con los servidores de Google
 const verifyUrl = `https://www.google.com/recaptcha/api/siteverify`;
