@@ -16,6 +16,8 @@ Características
 
 Variables de Entorno
 
+Arquitectura del Sistema
+
 Contribuciones
 
 Licencia
@@ -92,6 +94,20 @@ EMAIL_PASS=
 JWT_SECRET=
 NODE_ENV=development
 
+🧭 Arquitectura del Sistema
+
+A continuación se muestra el flujo de componentes principales del sistema:
+
+
+
+🧑 Usuario (Navegador)
+   ↓
+🌐 Frontend (Netlify - HTML/JS/CSS)
+   ↓
+🔧 Backend API (Render - Express.js + Node.js)
+   ↓
+🌍 API externa o base de datos (si aplica)
+
 🤝 Contribuciones
 
 ¡Contribuciones son bienvenidas! Abre un issue o PR con mejoras o sugerencias.
@@ -105,4 +121,3 @@ Este proyecto está licenciado bajo los términos de uso de Coocique.
 Desarrollador: avictor@coocique.fi.cr
 
 Proyecto creado para facilitar el acceso a promocionales de socios de Coocique.
-
