@@ -1,7 +1,7 @@
 // 📌 Variables globales
 let productosGlobal = [];
 
-// 📌 Inicializar Bootstrap tooltips
+//  Inicializar Bootstrap tooltips
 document.addEventListener('DOMContentLoaded', async () => {
     await cargarProductosPorCategoria();
     actualizarCarritoNavbar();
@@ -22,7 +22,7 @@ const BASE_URL = location.hostname === "localhost"
   ? "http://localhost:5000"
   : "https://coocishop.onrender.com";
   
-// 📦 Cargar productos por categoría desde el backend
+//  Cargar productos por categoría desde el backend
 async function cargarProductosPorCategoria() {
     try {
         const params = new URLSearchParams(window.location.search);
@@ -59,7 +59,7 @@ async function cargarProductosPorCategoria() {
         `;
     }
 }
-// 📦 Mostrar productos en la página
+//  Mostrar productos en la página
 function generarProductos(productos) {
     const contenedor = document.getElementById('product-container');
     contenedor.innerHTML = '';
@@ -89,7 +89,7 @@ function generarProductos(productos) {
         });
     });
 }
-// 📦 Mostrar vista previa del producto
+//  Mostrar vista previa del producto
 async function mostrarVistaPrevia(productoId) {
     try {
         let response = await fetch(`${BASE_URL}/api/productos/${productoId}`);
@@ -123,7 +123,7 @@ async function mostrarVistaPrevia(productoId) {
         console.error("❌ Error al mostrar el modal:", error);
     }
 }
-// 📦 Agregar producto al carrito
+//  Agregar producto al carrito
 function agregarAlCarrito(productoId) {
     if (!productoId || isNaN(productoId)) {
         mostrarNotificacion("error", "ID de producto inválido.");
@@ -137,7 +137,7 @@ function agregarAlCarrito(productoId) {
         mostrarNotificacion("error", "Ingrese una cantidad válida.");
         return;
     }
- // 📌 Verificamos si la imagen empieza con /img y ajustamos para Netlify
+ //  Verificamos si la imagen empieza con /img y ajustamos para Netlify
     fetch(`${BASE_URL}/api/productos/${productoId}`)
         .then(response => {
             if (!response.ok) throw new Error("No se pudo obtener el producto.");
@@ -170,7 +170,7 @@ function agregarAlCarrito(productoId) {
             const modalElement = document.getElementById('productModal');
             bootstrap.Modal.getInstance(modalElement).hide();
 
-            // ✅ Mostrar ícono de animación
+           
             const card = document.querySelector(`[data-product-id='${producto.id}']`);
             const check = card?.querySelector('.add-animation-check');
             if (check) {
@@ -185,7 +185,7 @@ function agregarAlCarrito(productoId) {
             mostrarNotificacion("error", error.message);
         });
 }
-// 📌 Mostrar notificación visual      
+//  Mostrar notificación visual      
 function mostrarNotificacion(tipo, mensaje) {
     const toastContainer = document.getElementById("toast-container");
     if (!toastContainer) return;
@@ -203,7 +203,7 @@ function mostrarNotificacion(tipo, mensaje) {
 
     setTimeout(() => toast.remove(), 3000);
 }
-//  📌 Actualizar el contador del carrito en la navbar
+//   Actualizar el contador del carrito en la navbar
 function actualizarCarritoNavbar() {
     let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
     let contadorCarrito = document.getElementById("cart-count");
@@ -212,7 +212,7 @@ function actualizarCarritoNavbar() {
         contadorCarrito.textContent = carrito.reduce((total, item) => total + item.cantidad, 0);
     }
 }
-// 📌 Crear el contenedor de notificaciones si no existe
+//  Crear el contenedor de notificaciones si no existe
 if (!document.getElementById("toast-container")) {
     document.body.insertAdjacentHTML("beforeend", '<div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 1050;"></div>');
 }

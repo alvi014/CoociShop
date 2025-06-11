@@ -1,7 +1,7 @@
-// 📁 backend/server.js - Versión ESM completa
+// 📁 backend/server.js - Versión ESM comentada profesionalmente
 
 import dotenv from 'dotenv';
-dotenv.config();
+dotenv.config(); // Carga las variables de entorno desde .env
 
 import express from 'express';
 import mongoose from 'mongoose';
@@ -13,23 +13,23 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 
-// ✅ Rutas
+// Importación de rutas
 import pedidosRoutes from './routes/pedidos.js';
 import authRoutes from './routes/auth.js';
 import adminRoutes from './routes/adminRoutes.js';
 
-// ✅ Modelos
+// Modelos para operaciones directas
 import Producto from './models/Producto.js';
 import Pedido from './models/Pedido.js';
 
-// ✅ Path helpers para __dirname en ESM
+// Cálculo del __dirname para entornos ESM
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// ✅ CORS
+// Configuración CORS
 const corsOptions = {
   origin: ['https://coocishop.netlify.app'],
   methods: 'GET,POST,PUT,DELETE',
@@ -37,9 +37,11 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
+// Middleware para parsear body de peticiones
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Encabezados adicionales para CORS (compatibilidad extendida)
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "https://coocishop.netlify.app");
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
@@ -47,15 +49,15 @@ app.use((req, res, next) => {
   next();
 });
 
-
-// ✅ Rutas
+// Montaje de rutas
 app.use('/api/pedidos', pedidosRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 
-// ✅ Archivos estáticos
+// Servir imágenes estáticas desde /img
 app.use('/img', express.static(path.join(__dirname, '..', 'img')));
 
+// Validación y conexión con MongoDB
 console.log(`🌍 Modo: ${process.env.NODE_ENV || 'development'}`);
 if (!process.env.MONGO_URI) {
   console.error("❌ MONGO_URI no encontrada. Verifica tu .env o variables en Render");
@@ -67,32 +69,34 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ Conexión a MongoDB Atlas exitosa'))
   .catch(err => console.error('❌ Error al conectar a MongoDB:', err));
 
-// ✅ Configuración de Multer
+// Configuración de almacenamiento de imágenes con Multer
 const storage = multer.diskStorage({
   destination: path.join(__dirname, 'img'),
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
-    cb(null, Date.now() + ext);
+    cb(null, Date.now() + ext); // nombre único basado en timestamp
   }
 });
 const upload = multer({ storage });
 
-// ✅ Subida de imágenes desde admin
+// Endpoint para subir imágenes desde el panel admin
 app.post('/api/admin/upload', upload.single('imagen'), (req, res) => {
   if (!req.file) return res.status(400).json({ error: "No se subió ningún archivo" });
   const url = `https://coocishop.onrender.com/img/${req.file.filename}`;
   res.status(200).json({ url });
 });
 
+// Ruta básica para monitoreo
 app.get("/api/ping", (req, res) => {
   res.json({ message: "🟢 Backend en línea" });
 });
 
+// Ruta raíz informativa
 app.get('/', (req, res) => {
   res.send("✅ Backend de CoociShop funcionando. Usa /api/productos para ver los productos.");
 });
 
-// 📦 Obtener productos
+// Obtener todos los productos
 app.get('/api/productos', async (req, res) => {
   try {
     const productos = await Producto.find();
@@ -104,6 +108,7 @@ app.get('/api/productos', async (req, res) => {
   }
 });
 
+// Obtener un producto por ID
 app.get('/api/productos/:id', async (req, res) => {
   const id = parseInt(req.params.id);
   if (isNaN(id)) return res.status(400).json({ error: 'ID inválido' });
@@ -118,7 +123,7 @@ app.get('/api/productos/:id', async (req, res) => {
   }
 });
 
-// 📧 Enviar correo de pedido
+// Función para enviar correo al admin tras un pedido
 const enviarCorreoAdmin = (pedido, comprobante) => {
   const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -163,7 +168,7 @@ const enviarCorreoAdmin = (pedido, comprobante) => {
   });
 };
 
-// 🧾 Guardar pedido y actualizar stock
+// Registro de pedido: valida stock, descuenta inventario, guarda y notifica
 app.post('/api/pedidos', upload.single('comprobantePago'), async (req, res) => {
   try {
     console.log("📩 Pedido recibido:", req.body);
@@ -199,10 +204,12 @@ app.post('/api/pedidos', upload.single('comprobantePago'), async (req, res) => {
   }
 });
 
+// Middleware para rutas inexistentes
 app.use((req, res) => {
   res.status(404).json({ error: "Ruta no encontrada" });
 });
 
+// Inicio del servidor
 app.listen(PORT, () => {
   console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
 });

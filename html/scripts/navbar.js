@@ -10,16 +10,16 @@ document.addEventListener("DOMContentLoaded", function () {
         .then(html => {
             document.getElementById("navbar-placeholder").innerHTML = html;
 
-            // 📌 Esperar un pequeño tiempo para asegurar que el navbar está en el DOM
+            //  Esperar un pequeño tiempo para asegurar que el navbar está en el DOM
             setTimeout(() => {
                 inicializarBootstrap();
-                actualizarCarritoNavbar(); // ✅ Llamar después de que el navbar esté cargado
+                actualizarCarritoNavbar(); //  Llamar después de que el navbar esté cargado
             }, 100);
         })
         .catch(error => console.error("Error al cargar la navbar:", error));
 });
 
-// 📌 Inicializa Bootstrap después de insertar el navbar
+//  Inicializa Bootstrap después de insertar el navbar
 function inicializarBootstrap() {
     let dropdowns = document.querySelectorAll('.dropdown-toggle');
     dropdowns.forEach(dropdown => {
@@ -27,7 +27,7 @@ function inicializarBootstrap() {
     });
 }
 
-// 📌 Actualizar el contador del carrito en la navbar
+//  Actualizar el contador del carrito en la navbar
 function actualizarCarritoNavbar() {
     let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
     let contadorCarrito = document.getElementById("cart-count");
@@ -42,7 +42,7 @@ function actualizarCarritoNavbar() {
 }
 
 
-// 📌 Asegurar que el contador también se actualiza cuando se elimina un producto
+//  Asegurar que el contador también se actualiza cuando se elimina un producto
 document.addEventListener("carritoActualizado", actualizarCarritoNavbar);
 
 

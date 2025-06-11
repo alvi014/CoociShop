@@ -1,19 +1,21 @@
-// backend/routes/adminRoutes.js - Versión ESM
+// 📁 backend/routes/adminRoutes.js - Rutas para gestión de productos por administrador
 
 import express from 'express';
 import Producto from '../models/Producto.js';
 
 const router = express.Router();
 
-// ✅ Agregar producto
+// Crear un nuevo producto
 router.post("/producto", async (req, res) => {
   try {
     const { id, nombre, descripcion, precio, stock, categoria, imagen } = req.body;
 
+    // Validación de campos obligatorios
     if (!id || !nombre || !precio || !stock || !categoria || !imagen) {
       return res.status(400).json({ error: "Todos los campos son obligatorios" });
     }
 
+    // Verifica si ya existe un producto con ese ID
     const existente = await Producto.findOne({ id });
     if (existente) return res.status(400).json({ error: "Ya existe un producto con ese ID" });
 
@@ -27,7 +29,7 @@ router.post("/producto", async (req, res) => {
   }
 });
 
-// ✅ Editar producto
+// Actualizar un producto existente
 router.put("/producto/:id", async (req, res) => {
   const idNum = parseInt(req.params.id);
   if (isNaN(idNum)) {
@@ -35,10 +37,11 @@ router.put("/producto/:id", async (req, res) => {
   }
 
   try {
+    // Actualiza usando los nuevos campos enviados en req.body
     const actualizado = await Producto.findOneAndUpdate(
       { id: idNum },
       req.body,
-      { new: true }
+      { new: true } // Retorna el documento modificado
     );
 
     if (!actualizado) return res.status(404).json({ error: "Producto no encontrado" });
@@ -50,7 +53,7 @@ router.put("/producto/:id", async (req, res) => {
   }
 });
 
-// ✅ Eliminar producto
+// Eliminar un producto
 router.delete("/producto/:id", async (req, res) => {
   try {
     const { id } = req.params;

@@ -15,11 +15,11 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Error al cargar la barra de navegación:', error);
         });
 
-    // 📌 Función para actualizar el contador del carrito
+    //  Función para actualizar el contador del carrito
     function actualizarCarritoNavbar() {
         let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
         
-        // ⚠️ Esperar a que el elemento exista antes de modificarlo
+        //  Esperar a que el elemento exista antes de modificarlo
         let contadorCarrito = document.querySelector("#cart-count");
         if (!contadorCarrito) {
             setTimeout(actualizarCarritoNavbar, 100);

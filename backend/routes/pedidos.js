@@ -12,14 +12,14 @@ const router = express.Router();
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-// 📌 Ruta: POST /api/pedidos
+//  Ruta: POST /api/pedidos
 router.post('/', upload.single('comprobantePago'), async (req, res) => {
   try {
-    // 🛡️ Extraemos el token de reCAPTCHA enviado desde el frontend
+    //  Extraemos el token de reCAPTCHA enviado desde el frontend
     const recaptchaToken = req.body['g-recaptcha-response'];
     const clienteIP = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
 
-    // ⚠️ Verificamos que el token exista y tenga una longitud razonable
+    //  Verificamos que el token exista y tenga una longitud razonable
     if (!recaptchaToken || recaptchaToken.length < 30) {
       console.warn(`⚠️ Token CAPTCHA vacío o inválido de IP: ${clienteIP}`);
       return res.status(400).json({ error: "⚠️ Falta o token inválido del CAPTCHA" });
@@ -32,7 +32,7 @@ router.post('/', upload.single('comprobantePago'), async (req, res) => {
     console.log("SECRET:", process.env.RECAPTCHA_SECRET);
     //console.log("TOKEN:", recaptchaToken);
 
-   // 🌐 Verificamos el token con los servidores de Google
+   //  Verificamos el token con los servidores de Google
 const verifyUrl = `https://www.google.com/recaptcha/api/siteverify`;
 const recaptchaRes = await fetch(verifyUrl, {
   method: 'POST',
@@ -40,25 +40,23 @@ const recaptchaRes = await fetch(verifyUrl, {
   body: `secret=${process.env.RECAPTCHA_SECRET}&response=${recaptchaToken}`
 });
 
-// ✅ Primero obtenemos la respuesta JSON
+//  Primero obtenemos la respuesta JSON
 const recaptchaData = await recaptchaRes.json();
 
-// 🧪 Logs para ver respuesta de Google
+//  Logs para ver respuesta de Google
 console.log("✅ CAPTCHA RESPONSE:", recaptchaData);
 
-// ❌ Si falla la verificación, retornamos error
+//  Si falla la verificación, retornamos error
 if (!recaptchaData.success) {
   console.log("🔍 Error reCAPTCHA:", recaptchaData['error-codes']);
   return res.status(403).json({ error: "❌ Verificación CAPTCHA fallida" });
 }
 
-
-
-    // 🧾 Extrae y parseamos los datos del pedido
+    //  Extrae y parseamos los datos del pedido
     const { nombreCliente, sucursal, productos, total } = req.body;
     const productosJSON = JSON.parse(productos);
 
-    // ✅ Validamos existencia y stock de cada producto
+    //  Validamos existencia y stock de cada producto
     for (const p of productosJSON) {
       const producto = await Producto.findOne({ id: Number(p.id) });
       if (!producto) {
@@ -73,7 +71,7 @@ if (!recaptchaData.success) {
       await Producto.updateOne({ id: Number(p.id) }, { $inc: { stock: -p.cantidad } });
     }
 
-    // 🛒 Guardamos el pedido en la base de datos
+    //  Guardamos el pedido en la base de datos
     const nuevoPedido = new Pedido({
       nombreCliente,
       sucursal,
@@ -83,7 +81,7 @@ if (!recaptchaData.success) {
 
     await nuevoPedido.save();
 
-    // 📎 Preparamos el archivo PDF y comprobante de pago (si viene)
+    //  Preparamos el archivo PDF y comprobante de pago (si viene)
     const comprobanteBuffer = req.file?.buffer;
     const facturaPDF = await generarFacturaPDF({
       nombreCliente,
@@ -92,7 +90,7 @@ if (!recaptchaData.success) {
       total
     });
 
-    // 📧 Configuramos el transporte de email
+    //  Configuramos el transporte de email
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -101,7 +99,7 @@ if (!recaptchaData.success) {
       }
     });
 
-    // 📎 Armamos los adjuntos para el correo
+    //  Armamos los adjuntos para el correo
     const attachments = [
       {
         filename: 'Factura-CoociShop.pdf',
@@ -117,7 +115,7 @@ if (!recaptchaData.success) {
       });
     }
 
-    // 📤 Enviamos el correo con el pedido y sus adjuntos
+    //  Enviamos el correo con el pedido y sus adjuntos
     await transporter.sendMail({
       from: `CoociShop <${process.env.EMAIL_FROM}>`,
       to: process.env.EMAIL_TO,
@@ -126,10 +124,10 @@ if (!recaptchaData.success) {
       attachments
     });
 
-    // ✅ Todo salió bien
+    //  Todo salió bien
     res.status(200).json({ message: '✅ Pedido enviado con éxito.' });
   } catch (error) {
-    // 🚨 Capturamos cualquier error inesperado
+    //  Capturamos cualquier error inesperado
     console.error('❌ Error en pedido:', error);
     res.status(500).json({ error: '❌ Hubo un error al procesar el pedido.' });
   }

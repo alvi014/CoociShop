@@ -1,12 +1,16 @@
+// 📁 utils/pdfGenerator.js - Generador dinámico de PDF para pedidos
+
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import fetch from 'node-fetch';
 
+//  Genera un PDF con el resumen del pedido
 export async function generarFacturaPDF(pedido) {
   const pdfDoc = await PDFDocument.create();
-  const page = pdfDoc.addPage([595, 842]);
+  const page = pdfDoc.addPage([595, 842]); // A4 vertical
 
   const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
+  // Función auxiliar para colocar texto en coordenadas
   const drawText = (text, x, y, size = 12) => {
     page.drawText(text, {
       x,
@@ -17,7 +21,7 @@ export async function generarFacturaPDF(pedido) {
     });
   };
 
-  // Logo
+  //  Inserta logo institucional
   try {
     const logoBytes = await fetch('https://coocishop.netlify.app/img/CoociShop1.png').then(res => res.arrayBuffer());
     const logoImg = await pdfDoc.embedPng(logoBytes);
@@ -26,22 +30,22 @@ export async function generarFacturaPDF(pedido) {
     console.warn('⚠️ Error cargando logo:', e);
   }
 
+  // Información general
   drawText('CoociShop - Nuevo Pedido', 110, 790, 18);
   drawText(`Cliente: ${pedido.nombreCliente}`, 50, 740);
   drawText(`Sucursal: ${pedido.sucursal}`, 50, 720);
   const now = new Date();
-  const localTime = now.toLocaleTimeString();
-  drawText(`Fecha: ${now.toLocaleDateString()} ${localTime}`, 50, 700);
+  drawText(`Fecha: ${now.toLocaleDateString()} ${now.toLocaleTimeString()}`, 50, 700);
   drawText('Detalles del pedido:', 50, 670, 14);
 
   let y = 640;
 
-  // 👉 CORRECTO: Recorrer los productos
+  //  Recorrido de cada producto
   for (let i = 0; i < pedido.productos.length; i++) {
     const prod = pedido.productos[i];
     const subtotal = prod.precio * prod.cantidad;
 
-    // Fondo visual para cada producto
+    // Fondo visual blanco con borde gris claro
     page.drawRectangle({
       x: 45,
       y: y - 60,
@@ -58,7 +62,7 @@ export async function generarFacturaPDF(pedido) {
     drawText(`Precio Unitario: CRC ${prod.precio.toLocaleString()}`, 50, y - 30);
     drawText(`Subtotal: CRC ${subtotal.toLocaleString()}`, 50, y - 45);
 
-    // Línea separadora
+    // Línea divisora inferior
     page.drawLine({
       start: { x: 45, y: y - 60 },
       end: { x: 545, y: y - 60 },
@@ -66,6 +70,7 @@ export async function generarFacturaPDF(pedido) {
       color: rgb(0.7, 0.7, 0.7)
     });
 
+    //  Imagen del producto
     try {
       const imagenRuta = typeof prod.imagen === 'string' ? prod.imagen : '';
       const imageUrl = imagenRuta.startsWith('http')
@@ -96,5 +101,5 @@ export async function generarFacturaPDF(pedido) {
   drawText('Gracias por su compra en CoociShop.', 180, 50, 10);
 
   const pdfBytes = await pdfDoc.save();
-  return Buffer.from(pdfBytes);
+  return Buffer.from(pdfBytes); // Retorna el buffer para adjuntarlo por email
 }
