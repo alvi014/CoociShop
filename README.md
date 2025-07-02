@@ -195,7 +195,7 @@ Este proyecto está licenciado bajo los términos de uso de Coocique.
 
 ## 📬 Contacto
 
-- 👨‍💻 Desarrollador: [avictor@coocique.fi.cr](mailto:avictor@coocique.fi.cr)
+- 👨‍💻 Desarrollador: Alvaro Victor
 
 -   Telf: 8722-1109
 
