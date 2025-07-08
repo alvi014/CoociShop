@@ -187,16 +187,13 @@ Diagrama representativo de los componentes del sistema:
 
 ---
 
-## 📝 Licencia
-
-Este proyecto está licenciado bajo los términos de uso de Coocique.
 
 ---
 
 ## 📬 Contacto
 
-- 👨‍💻 Desarrollador: Alvaro Victor
-
--   Telf: 8722-1109
+- 👨‍💻 Desarrollador: Alvaro Victor Zamora
+- Correo: alvarovictor06@gmail.com
+- Telf: 8722-1109
 
 > Proyecto creado para facilitar el acceso a promocionales de socios de Coocique.
