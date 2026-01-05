@@ -7,6 +7,8 @@
 
 **CoociShop** es una plataforma de comercio electrónico diseñada para los socios de Coocique. Este sistema integral permite la visualización, selección y compra de productos promocionales, gestionando el flujo completo desde el pedido hasta la facturación automática.
 
+🚀 **Demo en vivo:** [https://coocishop.netlify.app/](https://coocishop.netlify.app/)
+
 ---
 
 ## 📋 Tabla de Contenidos
