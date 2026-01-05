@@ -1,112 +1,59 @@
-// 📁 backend/routes/pedidos.js - Procesamiento de pedidos + CAPTCHA + Email + PDF
+// 📁 backend/routes/auth.js - Autenticación de administradores
 
 import express from 'express';
-import Pedido from '../models/Pedido.js';
-import Producto from '../models/Producto.js';
-import { generarFacturaPDF } from '../utils/pdfGenerator.js';
-import nodemailer from 'nodemailer';
-import multer from 'multer';
-import fetch from 'node-fetch';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import Admin from '../models/Admin.js';
 
 const router = express.Router();
-const storage = multer.memoryStorage();
-const upload = multer({ storage }); // Carga en memoria, útil para adjuntar directo al correo
 
-//  Ruta: POST /api/pedidos
-router.post('/', upload.single('comprobantePago'), async (req, res) => {
+// Ruta: POST /api/auth/register (Para crear el primer admin o adicionales)
+router.post('/register', async (req, res) => {
   try {
-    //  Token reCAPTCHA enviado desde el cliente
-    const recaptchaToken = req.body['g-recaptcha-response'];
-    const clienteIP = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    const { email, password } = req.body;
 
-    //  Validamos que exista y sea largo válido
-    if (!recaptchaToken || recaptchaToken.length < 30) {
-      console.warn(`⚠️ Token CAPTCHA vacío o inválido de IP: ${clienteIP}`);
-      return res.status(400).json({ error: "⚠️ Falta o token inválido del CAPTCHA" });
-    }
+    // Verificar si ya existe
+    const existe = await Admin.findOne({ email });
+    if (existe) return res.status(400).json({ error: 'El email ya está registrado' });
 
-    //  Validación del token con Google
-    const verifyUrl = `https://www.google.com/recaptcha/api/siteverify`;
-    const recaptchaRes = await fetch(verifyUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: `secret=${process.env.RECAPTCHA_SECRET}&response=${recaptchaToken}`
-    });
+    const admin = new Admin({ email, password });
+    await admin.save();
 
-    const recaptchaData = await recaptchaRes.json();
-    console.log("✅ CAPTCHA RESPONSE:", recaptchaData);
-
-    if (!recaptchaData.success) {
-      console.log("🔍 Error reCAPTCHA:", recaptchaData['error-codes']);
-      return res.status(403).json({ error: "❌ Verificación CAPTCHA fallida" });
-    }
-
-    //  Datos del pedido
-    const { nombreCliente, sucursal, productos, total } = req.body;
-    const productosJSON = JSON.parse(productos);
-
-    //  Validación y actualización de stock
-    for (const p of productosJSON) {
-      const producto = await Producto.findOne({ id: Number(p.id) });
-      if (!producto) return res.status(404).json({ error: `Producto con ID ${p.id} no encontrado.` });
-      if (producto.stock < p.cantidad) {
-        return res.status(400).json({ error: `❌ Stock insuficiente para '${producto.nombre}'. Disponible: ${producto.stock}` });
-      }
-      await Producto.updateOne({ id: Number(p.id) }, { $inc: { stock: -p.cantidad } });
-    }
-
-    //  Crear pedido y guardar en MongoDB
-    const nuevoPedido = new Pedido({
-      nombreCliente,
-      sucursal,
-      productos: productosJSON,
-      total
-    });
-
-    await nuevoPedido.save();
-
-    //  Generar factura PDF y capturar comprobante
-    const comprobanteBuffer = req.file?.buffer;
-    const facturaPDF = await generarFacturaPDF({ nombreCliente, sucursal, productos: productosJSON, total });
-
-    //  Configurar transporte Nodemailer
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_FROM,
-        pass: process.env.EMAIL_PASS
-      }
-    });
-
-    //  Adjuntos: factura + comprobante si existe
-    const attachments = [
-      {
-        filename: 'Factura-CoociShop.pdf',
-        content: facturaPDF,
-        contentType: 'application/pdf'
-      }
-    ];
-
-    if (req.file) {
-      attachments.push({
-        filename: req.file.originalname,
-        content: comprobanteBuffer
-      });
-    }
-
-    //  Enviar correo a administrador
-    await transporter.sendMail({
-      from: `CoociShop <${process.env.EMAIL_FROM}>`,
-      to: process.env.EMAIL_TO,
-      subject: '📦 Nuevo Pedido en CoociShop',
-      text: `Nuevo pedido recibido de ${nombreCliente} para sucursal ${sucursal}. Total: ₡${total}`,
-      attachments
-    });
-
-    res.status(200).json({ message: '✅ Pedido enviado con éxito.' });
+    res.status(201).json({ message: 'Administrador registrado correctamente' });
   } catch (error) {
-    console.error('❌ Error en pedido:', error);
-    res.status(500).json({ error: '❌ Hubo un error al procesar el pedido.' });
+    res.status(500).json({ error: 'Error al registrar administrador' });
+  }
+});
+
+// Ruta: POST /api/auth/login
+router.post('/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // 1. Buscar usuario
+    const admin = await Admin.findOne({ email });
+    if (!admin) return res.status(400).json({ error: 'Credenciales incorrectas' });
+
+    // 2. Comparar contraseña
+    const validPassword = await bcrypt.compare(password, admin.password);
+    if (!validPassword) return res.status(400).json({ error: 'Credenciales incorrectas' });
+
+    // 3. Crear Token JWT
+    const token = jwt.sign(
+      { _id: admin._id, email: admin.email },
+      process.env.JWT_SECRET || 'secreto_temporal',
+      { expiresIn: '2h' }
+    );
+
+    res.json({ 
+      message: 'Bienvenido',
+      token,
+      email: admin.email 
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error en el servidor' });
   }
 });
 
