@@ -1,12 +1,18 @@
-# CoociShop
+# CoociShop 🛒
 
-Tienda Virtual de Coocique para socios, desarrollada como un sistema de compra de promocionales.
+![Node.js](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white)
+![Express.js](https://img.shields.io/badge/Express.js-404D59?style=for-the-badge)
+![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white)
+
+**CoociShop** es una plataforma de comercio electrónico diseñada para los socios de Coocique. Este sistema integral permite la visualización, selección y compra de productos promocionales, gestionando el flujo completo desde el pedido hasta la facturación automática.
 
 ---
 
 ## 📋 Tabla de Contenidos
 
 - [📦 Descripción General](#-descripción-general)
+- [📸 Galería](#-galería)
 - [🛠 Instalación](#-instalación)
 - [🚀 Uso](#-uso)
 - [🌐 Frontend](#-frontend)
@@ -22,18 +28,34 @@ Tienda Virtual de Coocique para socios, desarrollada como un sistema de compra d
 
 ## 📦 Descripción General
 
-Este proyecto consiste en una tienda virtual donde los socios pueden adquirir productos promocionales de la cooperativa.
+Este proyecto Full Stack consiste en una tienda virtual donde los socios pueden adquirir productos promocionales de la cooperativa.
 
 Está compuesto por:
 
-- Un frontend estático (HTML/CSS/JS)
-- Un backend construido con Node.js, Express y MongoDB
+- **Frontend**: Interfaz de usuario intuitiva y responsiva desarrollada con HTML5, CSS3 (Bootstrap) y JavaScript Vanilla.
+- **Backend**: API RESTful construida con Node.js y Express, utilizando ES Modules.
+- **Base de Datos**: MongoDB Atlas para el almacenamiento escalable de productos y pedidos.
 
 🔁 La comunicación entre clientes y administrador se refuerza con:
 
-- Notificaciones por correo
-- Autenticación con JWT
-- Carga de comprobantes de pago
+- **Notificaciones automáticas**: Envío de correos con Nodemailer.
+- **Seguridad**: Autenticación robusta mediante JWT (JSON Web Tokens).
+- **Gestión de Archivos**: Carga de imágenes y comprobantes (integración con Cloudinary/Multer).
+- **Facturación**: Generación dinámica de PDFs con `pdf-lib` y `pdfkit`.
+
+---
+
+## 📸 Galería
+
+> *Capturas de pantalla de la aplicación en funcionamiento.*
+
+| Inicio | Detalle de Producto |
+|:---:|:---:|
+| ![Pantalla de Inicio](screenshots/inicio.png) | ![Detalle de Producto](screenshots/producto.png) |
+
+| Carrito | Panel Admin |
+|:---:|:---:|
+| ![Carrito de Compras](screenshots/carrito.png) | ![Panel de Administración](screenshots/admin.png) |
 
 ---
 
@@ -113,9 +135,7 @@ POST   /api/admin/upload           # Subir imagen (con Multer)
 ```
 POST /api/pedidos                  # Registrar pedido y restar stock
 ```
-- Valida reCAPTCHA (Google)
-- Valida stock, guarda pedido, descuenta inventario
-- Envia PDF y comprobante por correo
+- Control de concurrencia en stock
 
 #### 🔐 Autenticación
 
@@ -128,25 +148,21 @@ POST /api/auth/login               # Login admin y obtener token JWT
 
 - `Admin`: Email + contraseña hasheada
 - `Producto`: id, nombre, precio, descripción, imagen, stock, categoría
-- `Pedido`: productos, total, sucursal, comprobante, estado, fecha
 
 ### 🖨 Factura PDF automática
+Al recibir un pedido, el sistema utiliza **pdf-lib** y **pdfkit** para generar un documento PDF detallado con la información de la compra y las imágenes de los productos, el cual se adjunta automáticamente al correo de confirmación.
 
-Al recibir un pedido, se genera un PDF con detalles e imágenes usando **pdf-lib** y se envía por correo
-
----
 
 ## ✨ Características
 
-- 🔐 Autenticación de administrador con JWT
-- 🛍️ CRUD completo de productos
-- 📎 Carga de comprobantes de pago
-- 📧 Envío de correos automáticos con Nodemailer
-- 📦 Control de stock por pedido
-- 🔍 Filtros por categoría de producto
-- 📱 Interfaz responsiva (Bootstrap)
+- **Seguridad Avanzada**: Autenticación de administradores mediante **JWT** y contraseñas hasheadas.
+- **Gestión de Inventario**: CRUD completo de productos con actualización de stock en tiempo real.
+- **Procesamiento de Imágenes**: Integración con **Cloudinary** para almacenamiento optimizado de imágenes de productos.
+- **Automatización**: Envío de correos transaccionales (confirmación de pedido, alertas) usando **Nodemailer**.
+- **Generación de Documentos**: Creación de facturas PDF al vuelo.
+- **Validación**: Protección contra spam mediante Google reCAPTCHA.
+- **Diseño Responsivo**: Interfaz adaptada a móviles y escritorio usando Bootstrap.
 
----
 
 ## 🔐 Variables de Entorno
 
@@ -182,13 +198,13 @@ Diagrama representativo de los componentes del sistema:
 
 ## 🤝 Contribuciones
 
-¡Contribuciones son bienvenidas!
+¡Las contribuciones son bienvenidas! Si deseas mejorar este proyecto:
+1. Haz un Fork del repositorio.
+2. Crea una rama con tu nueva característica (`git checkout -b feature/AmazingFeature`).
+3. Realiza un Commit (`git commit -m 'Add some AmazingFeature'`).
+4. Haz Push a la rama (`git push origin feature/AmazingFeature`).
+5. Abre un Pull Request.
 
-
----
-
-
----
 
 ## 📬 Contacto
 

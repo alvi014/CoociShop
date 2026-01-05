@@ -71,7 +71,7 @@ mongoose.connect(process.env.MONGO_URI)
 
 // Configuración de almacenamiento de imágenes con Multer
 const storage = multer.diskStorage({
-  destination: path.join(__dirname, 'img'),
+  destination: path.join(__dirname, '..', 'img'),
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
     cb(null, Date.now() + ext); // nombre único basado en timestamp
