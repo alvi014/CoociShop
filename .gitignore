@@ -1,12 +1,4 @@
-# Carpetas de compilación
-[Bb]in/
-[Oo]bj/
-
-# Configuración de usuario de Visual Studio
-.vs/
-
-# Configuración de paquetes
-packages/
-
-# .Archivo de configuración de usuario
+node_modules/
 .env
+npm-debug.log
+.DS_Store
