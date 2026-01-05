@@ -49,6 +49,12 @@ app.use((req, res, next) => {
   next();
 });
 
+// 🔍 DEBUG: Log para ver todas las peticiones que llegan
+app.use((req, res, next) => {
+  console.log(`📢 [DEBUG] Recibida petición: ${req.method} ${req.originalUrl}`);
+  next();
+});
+
 // Montaje de rutas
 app.use('/api/pedidos', pedidosRoutes);
 app.use('/api/auth', authRoutes);
