@@ -51,11 +51,11 @@ Está compuesto por:
 
 | Inicio | Detalle de Producto |
 |:---:|:---:|
-| ![Pantalla de Inicio](screenshots/inicio.png) | ![Detalle de Producto](screenshots/producto.png) |
+| ![Pantalla de Inicio](screenshots/inicio.PNG) | ![Detalle de Producto](screenshots/producto.PNG) |
 
 | Carrito | Panel Admin |
 |:---:|:---:|
-| ![Carrito de Compras](screenshots/carrito.png) | ![Panel de Administración](screenshots/admin.png) |
+| ![Carrito de Compras](screenshots/carrito.PNG) | ![Panel de Administración](screenshots/admin.PNG) |
 
 ---
 
